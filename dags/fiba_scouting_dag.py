@@ -84,24 +84,29 @@ def fiba_scouting_report():
 
     # dbt build runs models and their tests together, so a model whose output
     # fails a test never becomes the input to the model below it.
+    # `dbt deps` first because a fresh clone has no dbt_packages directory.
     transform_and_test = BashOperator(
         task_id="dbt_build",
-        bash_command=f"cd {DBT_DIR} && dbt build --profiles-dir {DBT_DIR}",
+        bash_command=(
+            f"cd {DBT_DIR} && "
+            f"dbt deps --profiles-dir {DBT_DIR} && "
+            f"dbt build --profiles-dir {DBT_DIR}"
+        ),
         retries=0,
     )
 
     @task(retries=1)
-    def build_report() -> str:
-        """Render the scouting PDF from the tested mart tables."""
-        from reports.build_report import build_latest
+    def export_for_dashboard() -> dict:
+        """Write the mart tables out as JSON for the published dashboard."""
+        from reports.export_marts import export_all
 
-        path = build_latest()
-        log.info("wrote %s", path)
-        return path
+        counts = export_all()
+        log.info("exported %s", counts)
+        return counts
 
     urls = discover_games()
     ingested = ingest_raw(urls)
-    ingested >> transform_and_test >> build_report()
+    ingested >> transform_and_test >> export_for_dashboard()
 
 
 fiba_scouting_report()
