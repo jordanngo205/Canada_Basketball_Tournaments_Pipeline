@@ -6,3 +6,4 @@ dbt/dbt_packages/
 __pycache__/
 *.pyc
 .venv/
+package-lock.yml
