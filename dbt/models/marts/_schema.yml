@@ -1,0 +1,58 @@
+version: 2
+
+models:
+  - name: mart_team_efficiency
+    description: One row per team per game, as per-100-possession rates.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [game_id, team_id]
+    columns:
+      - name: ortg
+        description: Points scored per 100 possessions.
+        tests:
+          - not_null
+          - dbt_utils.accepted_range: {min_value: 40, max_value: 200}
+      - name: drtg
+        tests:
+          - not_null
+          - dbt_utils.accepted_range: {min_value: 40, max_value: 200}
+      - name: efg_pct
+        tests:
+          - dbt_utils.accepted_range: {min_value: 0, max_value: 100}
+      - name: possessions
+        description: >
+          FIBA games run roughly 65-85 possessions. Outside that range means
+          the estimator or its inputs are wrong.
+        tests:
+          - dbt_utils.accepted_range: {min_value: 50, max_value: 110}
+
+  - name: mart_standings
+    description: Tournament table, one row per team per competition.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [competition, team_id]
+    columns:
+      - name: games_played
+        tests: [not_null]
+      - name: win_pct
+        tests:
+          - dbt_utils.accepted_range: {min_value: 0, max_value: 100}
+
+  - name: mart_player_leaders
+    description: Per-player tournament aggregates — the leaderboard.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [competition, person_id]
+    columns:
+      - name: player_name
+        tests: [not_null]
+      - name: ppg
+        tests:
+          - not_null
+          - dbt_utils.accepted_range: {min_value: 0, max_value: 60}
+      - name: ts_pct
+        tests:
+          - dbt_utils.accepted_range: {min_value: 0, max_value: 150}
+      - name: games_played
+        tests:
+          - dbt_utils.accepted_range: {min_value: 1, max_value: 15}
