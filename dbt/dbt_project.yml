@@ -1,0 +1,23 @@
+name: fiba_scouting
+version: "1.0.0"
+config-version: 2
+profile: fiba_scouting
+
+model-paths: ["models"]
+test-paths: ["tests"]
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+models:
+  fiba_scouting:
+    staging:
+      # Staging is cheap to rebuild and read often during development.
+      +materialized: view
+      +schema: staging
+    intermediate:
+      +materialized: view
+      +schema: intermediate
+    marts:
+      # Marts are what the PDF reads, so pay the storage to make them fast.
+      +materialized: table
+      +schema: marts

@@ -1,0 +1,73 @@
+version: 2
+
+models:
+  - name: stg_games
+    description: One row per game — the scouting report header.
+    columns:
+      - name: game_id
+        tests: [unique, not_null]
+      - name: home_score
+        tests:
+          - not_null
+          - dbt_utils.accepted_range: {min_value: 0, max_value: 200}
+      - name: away_score
+        tests:
+          - not_null
+          - dbt_utils.accepted_range: {min_value: 0, max_value: 200}
+      - name: game_date
+        tests: [not_null]
+      - name: periods_played
+        description: 4 for a regulation game, more when it goes to overtime.
+        tests:
+          - dbt_utils.accepted_range: {min_value: 4, max_value: 10}
+
+  - name: stg_player_box
+    description: One row per player per game.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [game_id, person_id]
+    columns:
+      - name: game_id
+        tests:
+          - not_null
+          - relationships: {to: ref('stg_games'), field: game_id}
+      - name: person_id
+        tests: [not_null]
+      - name: player_name
+        description: >
+          Null means the stat block referenced a player absent from the roster
+          array, which is a join break rather than a missing name.
+        tests: [not_null]
+      - name: pts
+        tests:
+          - not_null
+          - dbt_utils.accepted_range: {min_value: 0, max_value: 100}
+      - name: side
+        tests:
+          - accepted_values: {values: ['home', 'away']}
+
+  - name: stg_team_box
+    description: One row per team per game, using FIBA's own team totals.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [game_id, team_id]
+    columns:
+      - name: game_id
+        tests:
+          - not_null
+          - relationships: {to: ref('stg_games'), field: game_id}
+      - name: pts
+        tests: [not_null]
+
+  - name: stg_period_scores
+    description: Points scored IN each period (not the running total).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [game_id, period]
+    columns:
+      - name: home_points
+        tests:
+          - dbt_utils.accepted_range: {min_value: 0, max_value: 80}
+      - name: away_points
+        tests:
+          - dbt_utils.accepted_range: {min_value: 0, max_value: 80}

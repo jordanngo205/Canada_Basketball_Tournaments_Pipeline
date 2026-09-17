@@ -1,0 +1,18 @@
+version: 2
+
+sources:
+  - name: raw
+    database: warehouse
+    schema: raw
+    description: FIBA payloads exactly as served. Never edited, only appended to.
+    tables:
+      - name: latest_games
+        description: >
+          One row per game — the most recent fetch. Models read this rather
+          than raw_games so that re-ingesting a game to pick up a correction
+          replaces it downstream instead of duplicating it.
+        columns:
+          - name: game_id
+            tests: [unique, not_null]
+          - name: payload
+            tests: [not_null]

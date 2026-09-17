@@ -1,0 +1,14 @@
+# Checked in because it holds no secrets: the DSN comes from the environment,
+# which is what the container and CI both set.
+fiba_scouting:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: "{{ env_var('POSTGRES_HOST', 'postgres') }}"
+      port: "{{ env_var('POSTGRES_PORT', '5432') | int }}"
+      user: "{{ env_var('POSTGRES_USER', 'fiba') }}"
+      password: "{{ env_var('POSTGRES_PASSWORD', 'fiba') }}"
+      dbname: warehouse
+      schema: analytics
+      threads: 4

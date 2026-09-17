@@ -1,0 +1,77 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  dbt:
+    name: dbt build against a real Postgres
+    runs-on: ubuntu-latest
+
+    # A throwaway warehouse per run. dbt cannot be meaningfully tested without
+    # one, and a service container costs nothing on GitHub's runners.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: fiba
+          POSTGRES_PASSWORD: fiba
+          POSTGRES_DB: warehouse
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: fiba
+      POSTGRES_PASSWORD: fiba
+      WAREHOUSE_DSN: postgresql://fiba:fiba@localhost:5432/warehouse
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install
+        run: pip install -r requirements.txt
+
+      - name: Create raw schema
+        run: psql "$WAREHOUSE_DSN" -f sql/init/01_warehouse.sql -v ON_ERROR_STOP=0
+
+      - name: Seed a fixture game
+        # Committed fixtures rather than a live scrape: CI must not fail
+        # because fiba.basketball is slow, and it must not hammer their site
+        # on every push.
+        run: python3 -m tests.seed_fixtures
+
+      - name: dbt deps
+        working-directory: dbt
+        run: dbt deps --profiles-dir .
+
+      - name: dbt build
+        # `build` runs models and their tests interleaved, so a model that
+        # fails its test never feeds the model below it.
+        working-directory: dbt
+        run: dbt build --profiles-dir .
+
+  parser:
+    name: Parser smoke test against live FIBA
+    runs-on: ubuntu-latest
+    # Live-network test, so it runs on a schedule and on demand rather than on
+    # every push — this is the job that tells us FIBA changed their page.
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install requests beautifulsoup4
+      - run: python3 tests/test_parser.py

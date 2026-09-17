@@ -1,0 +1,11 @@
+# Ingest
+requests==2.32.3
+beautifulsoup4==4.12.3
+psycopg[binary]==3.2.3
+
+# Transform
+dbt-core==1.9.1
+dbt-postgres==1.9.0
+
+# Report
+reportlab==4.2.5
