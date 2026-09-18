@@ -1,8 +1,7 @@
-"""Find the game URLs for an event, so nobody has to paste one by hand.
+"""Turn an event slug into game URLs.
 
-The scheduled DAG runs against an event slug, not a list of URLs — a
-tournament adds games as rounds resolve, and a hardcoded list goes stale the
-moment the bracket fills in.
+The DAG takes a slug, not a list of URLs. Tournaments add games as rounds
+resolve, so any hardcoded list is stale as soon as the bracket fills in.
 """
 
 from __future__ import annotations
@@ -17,13 +16,12 @@ SCHEDULE_KEYS = frozenset({"gameId", "teamA", "teamB"})
 
 
 def event_games(slug: str, played_only: bool = True) -> list[dict]:
-    """Every fixture in an event, each with the URL its game page lives at.
+    """Every fixture in an event, with the URL for each game page.
 
-    `played_only` drops anything without a usable box score. That check is not
-    "does it have a score" — a live game shows a running score, and ingesting
-    one would freeze a half-finished box into the warehouse. FIBA flips
-    `gameStatisticStatusCode` from EMPTY to VALID when the stats are final,
-    which is the signal that actually means finished.
+    Don't be tempted to use the score to decide if a game is done — a live
+    game has a score too, and you'd freeze a half-finished box score into the
+    warehouse. gameStatisticStatusCode flips EMPTY -> VALID when the stats are
+    final. That's the one to trust.
     """
     url = f"{BASE}/en/events/{slug}/games"
     html = fetch(url)
@@ -57,8 +55,7 @@ def event_games(slug: str, played_only: bool = True) -> list[dict]:
             "round": (undefined_to_none(node.get("round")) or {}).get("roundName", ""),
             "status": status,
             "is_live": is_live,
-            # A knockout slot has no team code until the bracket resolves, so a
-            # missing code means "not a real fixture yet", not "missing data".
+            # No team code = the bracket hasn't resolved yet, not missing data.
             "played": bool(home and away and status == "VALID" and not is_live),
             "url": f"{BASE}/en/events/{slug}/games/{game_id}-{home}-{away}",
         }

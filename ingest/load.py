@@ -1,9 +1,8 @@
-"""Land parsed games in the raw warehouse table.
+"""Write parsed games into raw.raw_games.
 
-The only writes in this module are inserts of whole payloads. It does not
-reshape the JSON, and it must never start doing so — the moment cleaning
-happens here, the raw layer stops being a faithful record of what FIBA served
-and the pipeline loses its ability to replay.
+Whole payloads, inserted as-is. Don't add reshaping here, however tempting —
+the moment this starts cleaning things, raw stops being a faithful copy of
+what FIBA sent and we lose the ability to rebuild from it.
 """
 
 from __future__ import annotations
@@ -41,11 +40,10 @@ class LoadResult:
 
 
 def payload_changed(conn: psycopg.Connection, raw: RawGame) -> bool:
-    """True when this payload differs from the newest one already stored.
+    """Has anything changed since the last time we stored this game?
 
-    Re-fetching a game that has not changed is normal — a schedule sweeps the
-    whole tournament — and storing a byte-identical copy every run would bloat
-    the table without adding history worth keeping.
+    A scheduled sweep re-fetches the whole tournament every run, so most games
+    come back identical. No point storing another copy of the same bytes.
     """
     with conn.cursor() as cur:
         cur.execute(
@@ -61,7 +59,7 @@ def payload_changed(conn: psycopg.Connection, raw: RawGame) -> bool:
         row = cur.fetchone()
     if row is None:
         return True
-    # Compare canonical JSON so key ordering differences don't read as changes.
+    # sort_keys so a reordered dict doesn't look like a change.
     return json.dumps(row[0], sort_keys=True) != json.dumps(
         raw.payload, sort_keys=True
     )
@@ -80,11 +78,10 @@ def insert(conn: psycopg.Connection, raw: RawGame) -> None:
 
 
 def load_games(urls: list[str], conn_str: str | None = None) -> LoadResult:
-    """Scrape each URL and land any changed payload. Returns a run summary.
+    """Scrape each URL, store anything that changed.
 
-    One failed game does not fail the batch: a tournament sweep should land the
-    fourteen games it could read rather than lose all fifteen to one bad page.
-    The count of failures is returned so the caller can decide.
+    One bad page shouldn't cost you the other fourteen games, so failures are
+    counted and returned rather than raised. Caller decides what's too many.
     """
     result = LoadResult()
     with psycopg.connect(conn_str or dsn()) as conn:

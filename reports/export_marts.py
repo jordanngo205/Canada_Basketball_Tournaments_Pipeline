@@ -1,12 +1,11 @@
-"""Export the mart tables as JSON for the dashboard to read.
+"""Dump the mart tables to JSON for the dashboard.
 
-This is the bridge between the warehouse and the published site. The dashboard
-never connects to Postgres — it is a static page on GitHub Pages, so it needs
-the data as files it can fetch.
+The dashboard is a static page on GitHub Pages — it can't reach Postgres, so
+it needs files.
 
-Exporting only marts is deliberate. If the dashboard read staging or raw, it
-would be coupled to the shape of FIBA's payload, and every source change would
-become a front-end change. Marts are the contract.
+Marts only. Let the page read staging or raw and you've coupled the front end
+to FIBA's payload shape, which means every change on their side becomes a
+front-end change. The marts are the contract.
 """
 
 from __future__ import annotations
@@ -24,7 +23,7 @@ log = logging.getLogger(__name__)
 
 DEFAULT_DSN = "postgresql://fiba:fiba@localhost:5433/warehouse"
 
-# Table -> output filename. Add a mart here and it ships with the next run.
+# Add a mart here and it ships on the next run.
 EXPORTS = {
     "analytics_marts.mart_standings": "standings.json",
     "analytics_marts.mart_player_leaders": "player_leaders.json",
@@ -43,10 +42,9 @@ def out_dir() -> Path:
 
 
 def encode(value):
-    """JSON has no date or fixed-point types; SQL results are full of both."""
+    """JSON has no dates or decimals. SQL results are full of both."""
     if isinstance(value, Decimal):
-        # Marts round before they get here, so float is lossless in practice
-        # and keeps the payload small.
+        # Already rounded upstream, so float loses nothing and keeps it small.
         return float(value)
     if isinstance(value, (datetime, date)):
         return value.isoformat()
@@ -73,8 +71,7 @@ def export_all(conn_str: str | None = None) -> dict[str, int]:
         for table, filename in EXPORTS.items():
             counts[filename] = export_table(conn, table, filename)
 
-    # A manifest so the dashboard can show when the data was last refreshed,
-    # and so a stale deploy is visible rather than silent.
+    # Lets the page show a "last updated" and makes a stale deploy obvious.
     manifest = {
         "generated_at": datetime.now().astimezone().isoformat(timespec="seconds"),
         "files": counts,
