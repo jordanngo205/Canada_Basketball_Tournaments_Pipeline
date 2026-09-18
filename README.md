@@ -43,14 +43,22 @@ Python or SQL. Only `out/` is mounted, since the host needs the JSON back.
 
 ## What comes out
 
-19 games across two tournaments:
+168 games across the five tournaments Canada played in:
+
+```
+  60  FIBA Basketball World Cup 2027 Americas Qualifiers
+  56  FIBA U17 Women's Basketball World Cup
+  22  FIBA U18 Women's AmeriCup
+  15  FIBA Women's Basketball World Cup 2026 Qualifying — Türkiye
+  15  FIBA Women's Olympic Pre-Qualifying Tournament
+```
 
 | Table | Grain | Rows |
 |---|---|---|
-| `mart_standings` | team per competition | 10 |
-| `mart_player_leaders` | player per competition | 117 |
-| `mart_team_efficiency` | team per game | 32 |
-| `stg_player_box` | player per game | 376 |
+| `mart_player_leaders` | player per competition | 796 |
+| `mart_team_efficiency` | team per game | 336 |
+| `stg_period_scores` | period per game | 676 |
+| `mart_standings` | team per group | 66 |
 
 Everything's per 100 possessions rather than per game — FIBA sides vary enough
 in pace that raw totals flatter the fast ones:
@@ -62,14 +70,40 @@ B   2  MEX    2-1     +11    89.5   83.5   +6.0     3-2
 A   1  NZL    2-1     +27    89.7   75.3  +14.4     2-2
 ```
 
-## Scraping FIBA
+The pinned tournaments live in `config/events.yml`; discovery adds anything new
+Canada turns up in. The ingest task is mapped with `.expand()`, so Airflow runs
+one task instance per tournament and a failure in one leaves the rest green.
 
-Their pages are Next.js App Router and fully server-rendered, so a plain
-`requests.get` gets you everything — box score, rosters, play-by-play with shot
-coordinates. No browser needed.
+## How the ingest works
 
-It comes back as RSC wire format: `self.__next_f.push([1, "<id>:<json>"])` script
-tags. Three things in there cost me real time:
+Four steps, and the split between them is the point — `ingest/fiba.py` imports
+no pandas and does no arithmetic, because everything it touches has to stay
+replayable.
+
+**1. Which games are finished?** `discover.py` reads the tournament's schedule
+page and returns a URL per game. Don't use the score to decide if a game is
+done — a live game has a score too, and you'd freeze a half-finished box score
+into the warehouse. `gameStatisticStatusCode` flips `EMPTY` → `VALID` when the
+stats are final. That's the one to trust.
+
+**2. Fetch the page.** Plain `requests.get`. FIBA's pages are Next.js App Router
+and fully server-rendered, so one GET returns the box score, both rosters, and
+play-by-play with shot coordinates. No browser, no Selenium. Retries are linear
+rather than exponential — the failures are short connection resets under
+tournament load, not rate limiting.
+
+**3. Pull the JSON out.** The payload ships as React Server Component wire
+format: a run of `self.__next_f.push([1, "<id>:<json>"])` script tags. Strip the
+chunk id, parse each one, and find the node carrying `game`, `playersTeamA` and
+`gameDetails` — nothing else on the page has all three.
+
+**4. Store it untouched.** Straight into `raw.raw_games` as JSONB, with the URL
+and fetch time. Before inserting, compare against the newest stored copy and
+skip if identical, so a daily sweep over a finished tournament writes nothing.
+The primary key is `(game_id, fetched_at)`, so a corrected box score lands as a
+new row and `raw.latest_games` serves the most recent one downstream.
+
+### Three things about FIBA's payload that cost me real time
 
 - **`gameDetails.teamA` and `teamB` aren't data.** They're pointers — literal
   strings like `$1c:props:gameDetails:c:0:Stats`. The actual records are at
@@ -130,13 +164,36 @@ belongs to the team and to no player, so the team total legitimately runs higher
 than the sum of its players. The gap was 2 to 8 across four games. The test
 asserts direction instead, which still catches a roster row that didn't parse.
 
-Two bugs these actually caught:
+### What the tests actually caught
 
-- Period scores misread as per-quarter when they were cumulative (190 ≠ 61).
-- `mart_standings` passed on three group games and broke on the full tournament.
-  Semi-finals and the final carry no group code, so every team that qualified got
-  a second row. Standings are group-phase only now, with the overall record in
-  separate columns.
+Five of these, and none were bad data from FIBA. Every one was my model assuming
+a simpler world than the real tournament calendar.
+
+**Period scores were cumulative, not per-quarter.** Quarter sums came to 190
+against a 61-point final. I'd read the wrong one of the two sources. Because raw
+was already stored, the fix was one SQL file and a rebuild — no re-scraping.
+
+**My rebound test was wrong, not the data.** I asserted players' rebounds sum to
+the team's. It failed on every game by 2 to 8. Team rebounds — ball out off the
+defence, missed last free throw — belong to the team and no player. The fix was
+to assert direction rather than delete the test.
+
+**Standings duplicated once knockout games arrived.** Passed on three group-phase
+games, broke on the full tournament: semi-finals and the final carry no group
+code, so every team that qualified got a second row.
+
+**Then standings broke again at five tournaments.** The World Cup 2027 Americas
+Qualifiers runs *two* group phases — Canada is in group B and then group F. Both
+rows are legitimate; the grain is per group, not per competition.
+
+**Players were splitting in two.** FIBA spells the same person differently
+between games in one tournament: id 202510 is "Pako Saldivar" in two games and
+"Pako Cruz" in six. Grouping on the name halved his stats without erroring.
+Group on the id; treat the name as an attribute.
+
+The pattern across all five: logic that is correct for the data you happen to
+have, and wrong for the data that arrives later. None would have been visible by
+looking at a dashboard — every individual number looked perfectly reasonable.
 
 ## Layout
 
