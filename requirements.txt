@@ -9,3 +9,6 @@ dbt-postgres==1.9.0
 
 # Report
 reportlab==4.2.5
+
+# Config
+PyYAML==6.0.2

@@ -60,7 +60,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-fiba}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-fiba}
       EXPORT_DIR: /opt/airflow/out
-      FIBA_EVENT_SLUG: ${FIBA_EVENT_SLUG:-fiba-womens-olympic-pre-qualifying-tournament-2026-guadalajara-mexico}
+      EVENTS_CONFIG: /opt/airflow/config/events.yml
     # Only outputs and logs are mounted. The code lives in the image — see
     # the Dockerfile for why. Rebuild with `docker compose build` after
     # changing any Python or SQL.

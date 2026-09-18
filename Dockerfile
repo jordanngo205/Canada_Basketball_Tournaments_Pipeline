@@ -31,6 +31,7 @@ COPY --chown=airflow:root ingest/ /opt/airflow/ingest/
 COPY --chown=airflow:root dbt/    /opt/airflow/dbt/
 COPY --chown=airflow:root reports/ /opt/airflow/reports/
 COPY --chown=airflow:root tests/  /opt/airflow/tests/
+COPY --chown=airflow:root config/ /opt/airflow/config/
 
 # Vendor the dbt packages at build time so the DAG never needs network for it.
 RUN cd /opt/airflow/dbt && dbt deps --profiles-dir . || true

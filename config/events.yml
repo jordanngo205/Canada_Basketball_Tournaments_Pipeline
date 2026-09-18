@@ -1,0 +1,26 @@
+# Which tournaments the pipeline follows.
+#
+# Two sources, unioned. Pinned slugs always run. Discovery adds anything new
+# that Canada turns up in, which is what stops this file going stale the moment
+# a new qualifier is announced.
+#
+# Pinning is not redundant with discovery: FIBA's event index only lists current
+# and upcoming events, so a tournament drops off it once it finishes. All three
+# of the 2026 events below are already gone from the index but their pages still
+# work, and without pinning we would silently stop rebuilding them.
+
+team: CAN
+
+pinned:
+  - fiba-womens-olympic-pre-qualifying-tournament-2026-guadalajara-mexico
+  - fiba-u17-womens-basketball-world-cup-2026
+  - fiba-u18-womens-americup-2026
+  - fiba-womens-basketball-world-cup-2026-qualifying-tournament-istanbul-turkiye
+
+discover:
+  enabled: true
+  # Costs one fetch per candidate event, so keep the window tight.
+  since: "2026-01-01"
+  until: null
+  # FIBA's own tag: gdap is 5x5, 3x3 is 3x3. Empty list means everything.
+  disciplines: ["gdap"]
