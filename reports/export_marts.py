@@ -30,6 +30,8 @@ EXPORTS = {
     "analytics_marts.mart_team_efficiency": "team_efficiency.json",
     "analytics_staging.stg_games": "games.json",
     "analytics_staging.stg_period_scores": "period_scores.json",
+    "analytics_marts.mart_four_factors": "four_factors.json",
+    "analytics_marts.mart_shot_zones": "shot_zones.json",
 }
 
 
