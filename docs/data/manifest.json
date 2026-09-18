@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-09-18T19:11:20+00:00",
+ "generated_at": "2026-09-18T19:26:02+00:00",
  "files": {
   "standings.json": 68,
   "player_leaders.json": 820,
@@ -8,7 +8,7 @@
   "period_scores.json": 680,
   "four_factors.json": 56,
   "shot_zones.json": 280,
-  "shot_grid.json": 3128,
+  "court_zones.json": 662,
   "player_shot_zones.json": 2384
  }
 }
