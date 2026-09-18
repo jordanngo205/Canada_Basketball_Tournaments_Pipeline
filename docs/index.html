@@ -6,7 +6,7 @@
 <title>Canada Basketball Tournaments</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,400..800&family=Inter:wght@400;450;500;600;700&display=swap">
 <style>
   :root {
     --red: #c8262c;
@@ -26,7 +26,10 @@
     --bad-soft: #fdeceb;
     --blue: #2f6fb5;
     --amber: #c57f12;
-    --shadow: 0 1px 2px rgba(20,24,35,.06), 0 4px 14px rgba(20,24,35,.05);
+    --shadow: 0 1px 1px rgba(16,20,28,.04), 0 2px 6px rgba(16,20,28,.04);
+    --shadow-lift: 0 1px 2px rgba(16,20,28,.06), 0 8px 24px rgba(16,20,28,.07);
+    --display: Archivo, "Helvetica Neue", Arial, sans-serif;
+    --body: Inter, system-ui, -apple-system, sans-serif;
 
     /* Diverging scale for shot efficiency vs the tournament average.
        Blue (cold) to red (hot), gray midpoint — the vernacular a basketball
@@ -59,24 +62,33 @@
   * { box-sizing: border-box; }
   body {
     margin: 0; background: var(--bg); color: var(--ink);
-    font-family: Inter, system-ui, -apple-system, sans-serif;
-    font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased;
+    font-family: var(--body);
+    font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased;
+    font-feature-settings: "cv05" 1, "ss01" 1;
   }
-  .wrap { max-width: 1240px; margin: 0 auto; padding: 0 22px; }
+  .wrap { max-width: 1260px; margin: 0 auto; padding: 0 24px; }
+  h1, h2, h3, .num { font-family: var(--display); font-variant-numeric: tabular-nums; }
 
   /* ---------- masthead ---------- */
-  .masthead { background: var(--red); color: #fff; }
-  .masthead .wrap { display: flex; align-items: center; gap: 18px; padding: 16px 22px; flex-wrap: wrap; }
+  .masthead {
+    background: linear-gradient(180deg, var(--red) 0%, var(--red-dark) 100%);
+    color: #fff; box-shadow: inset 0 -1px 0 rgba(0,0,0,.14);
+  }
+  .masthead .wrap { display: flex; align-items: center; gap: 16px; padding: 18px 24px; flex-wrap: wrap; }
   .crest {
-    width: 54px; height: 54px; flex: none; border-radius: 10px; background: #fff;
-    display: grid; place-items: center; font-size: 26px; box-shadow: 0 2px 8px rgba(0,0,0,.18);
+    width: 46px; height: 46px; flex: none; border-radius: 11px;
+    background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.22);
+    display: grid; place-items: center; font-size: 23px;
   }
   .mh-text { min-width: 0; }
   .eyebrow {
-    font-size: 11px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase;
-    opacity: .78; margin-bottom: 1px;
+    font-family: var(--display); font-size: 10.5px; font-weight: 600;
+    letter-spacing: .2em; text-transform: uppercase; opacity: .72; margin-bottom: 3px;
   }
-  .masthead h1 { margin: 0; font-size: clamp(19px, 2.7vw, 30px); font-weight: 800; letter-spacing: -0.022em; }
+  .masthead h1 {
+    margin: 0; font-size: clamp(19px, 2.6vw, 29px); font-weight: 700;
+    letter-spacing: -0.021em; font-stretch: 92%; line-height: 1.12;
+  }
   .mh-meta { margin-left: auto; text-align: right; font-size: 13px; opacity: .92; }
   .pill-live {
     display: inline-block; background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.3);
@@ -86,11 +98,13 @@
   /* ---------- nav ---------- */
   .navbar { background: var(--card); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 20; }
   .navbar .wrap { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding: 0 22px; }
-  .tabs { display: flex; gap: 2px; overflow-x: auto; }
+  .tabs { display: flex; overflow-x: auto; scrollbar-width: none; }
+  .tabs::-webkit-scrollbar { display: none; }
   .tab {
-    font: inherit; font-size: 12.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
-    background: none; border: 0; border-bottom: 3px solid transparent; cursor: pointer;
-    color: var(--ink-3); padding: 14px 13px 11px; white-space: nowrap;
+    font-family: var(--display); font-size: 12.5px; font-weight: 600; letter-spacing: .015em;
+    background: none; border: 0; border-bottom: 2px solid transparent; cursor: pointer;
+    color: var(--ink-3); padding: 15px 2px 12px; margin-right: 22px; white-space: nowrap;
+    transition: color .12s;
   }
   .tab:hover { color: var(--ink-2); }
   .tab[aria-selected="true"] { color: var(--red); border-bottom-color: var(--red); }
@@ -101,51 +115,62 @@
   .tab:focus-visible, select:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
 
   /* ---------- tiles ---------- */
-  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(178px, 1fr)); gap: 12px; margin: 20px 0; }
-  .tile {
-    background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--line-2);
-    border-radius: 10px; padding: 13px 15px; box-shadow: var(--shadow);
+  .tiles {
+    display: grid; grid-template-columns: 1.35fr repeat(4, 1fr); gap: 0;
+    margin: 22px 0; background: var(--card); border: 1px solid var(--line);
+    border-radius: 14px; box-shadow: var(--shadow); overflow: hidden;
   }
-  .tile.t-red { border-left-color: var(--red); }
-  .tile.t-good { border-left-color: var(--good); }
-  .tile.t-blue { border-left-color: var(--blue); }
-  .tile.t-amber { border-left-color: var(--amber); }
-  .tile .k { font-size: 10.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+  @media (max-width: 960px) { .tiles { grid-template-columns: 1fr 1fr; } }
+  .tile { padding: 16px 18px 15px; border-right: 1px solid var(--line); }
+  .tile:last-child { border-right: 0; }
+  .tile.hero { background: var(--red-soft); box-shadow: inset 3px 0 0 var(--red); }
+  .tile .k {
+    font-family: var(--display); font-size: 10.5px; font-weight: 600;
+    letter-spacing: .13em; text-transform: uppercase; color: var(--ink-3);
+  }
   .tile .v {
-    font-size: 27px; font-weight: 800; letter-spacing: -0.03em; margin-top: 4px;
-    font-variant-numeric: tabular-nums; display: flex; align-items: baseline; gap: 7px;
+    font-family: var(--display); font-size: 30px; font-weight: 700; letter-spacing: -0.035em;
+    margin-top: 5px; font-variant-numeric: tabular-nums; display: flex; align-items: baseline; gap: 6px;
+    line-height: 1.05;
   }
-  .tile .v .unit { font-size: 12px; font-weight: 700; color: var(--ink-3); letter-spacing: .06em; }
-  .tile .s { font-size: 12px; color: var(--ink-2); margin-top: 3px; line-height: 1.35; }
+  .tile.hero .v { font-size: 40px; color: var(--red); }
+  .tile .v .unit { font-size: 11.5px; font-weight: 600; color: var(--ink-3); letter-spacing: .1em; }
+  .tile .s { font-size: 12px; color: var(--ink-2); margin-top: 5px; line-height: 1.4; }
 
   /* ---------- panels ---------- */
-  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 16px; overflow: hidden; }
+  .panel {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    box-shadow: var(--shadow); margin-bottom: 18px; overflow: hidden;
+  }
   .panel > header {
-    display: flex; align-items: baseline; gap: 11px; padding: 14px 18px;
+    display: flex; align-items: baseline; gap: 12px; padding: 15px 20px 14px;
     border-bottom: 1px solid var(--line);
   }
   .panel > header .kick {
-    font-size: 10.5px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--red);
+    font-family: var(--display); font-size: 10px; font-weight: 700; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--red); padding-top: 2px;
   }
-  .panel > header h2 { margin: 0; font-size: 17px; font-weight: 800; letter-spacing: -0.02em; }
+  .panel > header h2 { margin: 0; font-size: 17.5px; font-weight: 700; letter-spacing: -0.024em; }
   .panel > header .sub { margin-left: auto; font-size: 12px; color: var(--ink-3); }
   .scroll { overflow-x: auto; }
   .note { font-size: 12.5px; color: var(--ink-2); padding: 11px 18px; border-top: 1px solid var(--line); background: var(--sunk); }
 
   /* ---------- tables ---------- */
   table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
-  th, td { padding: 9px 13px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--line); }
+  th, td { padding: 10px 14px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--line); }
+  td { font-variant-numeric: tabular-nums; }
   th:first-child, td:first-child, th.l, td.l { text-align: left; }
   thead th {
-    font-size: 10.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase;
-    color: var(--ink-3); cursor: pointer; user-select: none; background: var(--sunk);
+    font-family: var(--display); font-size: 10px; font-weight: 600; letter-spacing: .11em;
+    text-transform: uppercase; color: var(--ink-3); cursor: pointer; user-select: none;
+    background: var(--card); border-bottom: 1px solid var(--line-2); padding-top: 13px; padding-bottom: 9px;
   }
   thead th:hover { color: var(--ink); }
   thead th[data-dir]::after { content: " ▾"; color: var(--red); }
   thead th[data-dir="asc"]::after { content: " ▴"; }
   tbody tr:last-child td { border-bottom: 0; }
   tbody tr:hover td { background: var(--sunk); }
-  .team { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; }
+  .team { display: inline-flex; align-items: center; gap: 9px; font-weight: 550; }
   .team .fl { font-size: 16px; line-height: 1; }
   tr.can td { background: var(--red-soft); }
   tr.can:hover td { background: var(--red-soft); }
@@ -154,8 +179,8 @@
   .pos { color: var(--good); font-weight: 700; }
   .neg { color: var(--bad); font-weight: 700; }
   .chip {
-    display: inline-block; min-width: 54px; text-align: center; padding: 2px 8px; border-radius: 999px;
-    font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums;
+    display: inline-block; min-width: 52px; text-align: center; padding: 3px 9px; border-radius: 6px;
+    font-family: var(--display); font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums;
   }
   .chip.p { background: var(--good-soft); color: var(--good); }
   .chip.n { background: var(--bad-soft); color: var(--bad); }
@@ -187,14 +212,14 @@
   }
 
   /* ---------- shot chart ---------- */
-  .chart-row { display: grid; grid-template-columns: minmax(300px, 1.15fr) minmax(280px, 1fr); gap: 0; }
+  .chart-row { display: grid; grid-template-columns: minmax(340px, 1.5fr) minmax(250px, 0.85fr); gap: 0; }
   @media (max-width: 860px) { .chart-row { grid-template-columns: 1fr; } }
-  .court-wrap { padding: 16px 18px 10px; border-right: 1px solid var(--line); }
+  .court-wrap { padding: 18px 22px 12px; border-right: 1px solid var(--line); display: grid; place-items: center; }
   @media (max-width: 860px) { .court-wrap { border-right: 0; border-bottom: 1px solid var(--line); } }
   .court { width: 100%; height: auto; display: block; }
-  .court .line { fill: none; stroke: var(--court-line); stroke-width: 1.4; }
-  .court .bin { stroke: var(--card); stroke-width: 1.6; cursor: pointer; }
-  .court .bin:hover { stroke: var(--ink); stroke-width: 2; }
+  .court .lines * { fill: none; stroke: var(--court-line); stroke-width: 1.5; stroke-linecap: round; }
+  .court .bin { stroke: var(--card); stroke-width: 1.4; cursor: pointer; transition: stroke-width .1s; }
+  .court .bin:hover { stroke: var(--ink); stroke-width: 2.5; }
 
   .legend { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 4px 18px 14px; font-size: 11.5px; color: var(--ink-2); }
   .legend .swatches { display: flex; align-items: center; gap: 3px; }
@@ -211,12 +236,12 @@
   .tip b { font-size: 12.5px; }
   .tip .muted { opacity: .72; }
 
-  .zone-side { padding: 16px 18px; display: flex; flex-direction: column; gap: 9px; }
-  .zone-row { display: grid; grid-template-columns: 96px 1fr 62px; gap: 10px; align-items: center; font-size: 12.5px; }
-  .zone-row .zname { color: var(--ink-2); }
-  .zone-row .track { height: 18px; background: var(--sunk); border-radius: 3px; position: relative; overflow: hidden; }
+  .zone-side { padding: 20px 22px; display: flex; flex-direction: column; justify-content: center; gap: 14px; }
+  .zone-row { display: grid; grid-template-columns: 104px 1fr 66px; gap: 12px; align-items: center; font-size: 12.5px; }
+  .zone-row .zname { color: var(--ink-2); font-weight: 500; }
+  .zone-row .track { height: 20px; background: var(--sunk); border-radius: 3px; position: relative; overflow: hidden; }
   .zone-row .fill { position: absolute; inset: 0 auto 0 0; border-radius: 3px; }
-  .zone-row .val { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .zone-row .val { text-align: right; font-family: var(--display); font-weight: 700; font-size: 15px; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
   .zone-row .sub { color: var(--ink-3); font-weight: 500; font-size: 11px; }
 
   .empty { padding: 42px 18px; text-align: center; color: var(--ink-3); }
@@ -286,6 +311,10 @@ const isCan = t => t === "CAN";
 const cls = v => v > 0 ? "pos" : v < 0 ? "neg" : "";
 const chip = v => `<span class="chip ${v > 0 ? "p" : v < 0 ? "n" : "z"}">${signed(v)}</span>`;
 const teamCell = (code, name) => `<span class="team"><span class="fl">${flag(code)}</span>${name || code}</span>`;
+const ordinal = n => {
+  const s = ["th", "st", "nd", "rd"], v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+};
 const fmtDate = d => new Date(d + "T00:00:00").toLocaleDateString(undefined, { day: "numeric", month: "short" });
 
 async function boot() {
@@ -427,19 +456,21 @@ function renderTiles(games, stand, eff, players) {
   const can = stand.find(r => isCan(r.team_code));
   const pace = agg.length ? agg.reduce((s, a) => s + a.pace, 0) / agg.length : null;
 
+  const canEff = can ? agg.find(a => a.team_code === "CAN") : null;
   const t = [
-    { c: "t-red", k: "Canada", v: can ? `${can.overall_wins}–${can.overall_losses}` : "—",
-      s: can ? `Group ${can.group_code} · seed ${can.standing_rank}` : "no group-phase games" },
-    { c: "", k: "Games played", v: games.length, s: `${agg.length} teams · pace ${num(pace, 1)}` },
-    { c: "t-good", k: "Best offence", v: best ? num(best.ortg) : "—", unit: "ORTG",
-      s: best ? `${flag(best.team_code)} ${best.team_code} · points per 100 poss.` : "" },
-    { c: "t-blue", k: "Best defence", v: bestD ? num(bestD.drtg) : "—", unit: "DRTG",
-      s: bestD ? `${flag(bestD.team_code)} ${bestD.team_code} · allowed per 100 poss.` : "" },
-    { c: "t-amber", k: "Top scorer", v: top ? num(top.ppg) : "—", unit: "PPG",
+    { c: "hero", k: "Canada", v: can ? `${can.overall_wins}–${can.overall_losses}` : "—",
+      s: can ? `Group ${can.group_code}, finished ${ordinal(can.standing_rank)}${canEff ? ` · net ${signed(canEff.net)} per 100` : ""}`
+             : "no group-phase games" },
+    { k: "Games", v: games.length, s: `${agg.length} teams · ${num(pace, 0)} possessions a game` },
+    { k: "Best offence", v: best ? num(best.ortg) : "—", unit: "ORTG",
+      s: best ? `${flag(best.team_code)} ${best.team_code} scoring per 100` : "" },
+    { k: "Best defence", v: bestD ? num(bestD.drtg) : "—", unit: "DRTG",
+      s: bestD ? `${flag(bestD.team_code)} ${bestD.team_code} conceding per 100` : "" },
+    { k: "Leading scorer", v: top ? num(top.ppg) : "—", unit: "PPG",
       s: top ? `${flag(top.team_code)} ${top.player_name}` : "" },
   ];
   document.getElementById("tiles").innerHTML = t.map(x =>
-    `<div class="tile ${x.c}"><div class="k">${x.k}</div>
+    `<div class="tile ${x.c || ""}"><div class="k">${x.k}</div>
      <div class="v">${x.v}${x.unit ? `<span class="unit">${x.unit}</span>` : ""}</div>
      <div class="s">${x.s || ""}</div></div>`).join("");
 }
@@ -516,29 +547,46 @@ function renderPlayers(rows) {
 // like a shot chart rather than like a spreadsheet.
 const ZONE_ORDER = ["Rim", "Paint", "Mid-range", "Corner 3", "Above the break 3"];
 
-// Court geometry, DERIVED from the data rather than assumed.
+// Court geometry, derived from the data and then checked against FIBA's real
+// dimensions — the two agree, which is the point.
 //
-// FIBA's origin is the basket itself, not the baseline. Sweeping candidate
-// basket positions and asking which one makes twos and threes separate
-// cleanly gives an unambiguous answer at y=0: the 2nd percentile of 3pt
-// distances is 130.8 and the 98th percentile of 2pt distances is 131.6, so
-// the arc sits at radius 131 and the hoop is the origin. Every other
-// candidate drives those two apart.
+// The hoop is the coordinate origin, not the baseline. Sweeping candidate
+// basket positions, y=0 is the only one where twos and threes separate
+// cleanly. And x spans exactly 0-280 across a 15m floor, so one metre is
+// 18.67 units.
 //
-// Radius 131 = FIBA's 6.75m arc, so the scale is 19.4 units per metre. The
-// rest of the markings below are real FIBA dimensions at that scale.
-const M = 131 / 6.75;                    // units per metre
+// That predicts the three-point line at 6.75 x 18.67 = 126, and the corner
+// three at 6.6m = 123. Binning every shot by distance from the hoop and asking
+// what fraction were worth three:
+//
+//     <=123   0%      inside both lines
+//     124-128 4-27%   corner threes only — they're 15cm shorter
+//     129     53%     the crossover
+//     >=131   81%+
+//
+// which is the corner line, then the arc, exactly where the metres put them.
+// An earlier version fitted the radius straight off the shot distances and got
+// 131 — that measures where players stand, which is behind the line, not the
+// line itself.
+const M = 280 / 15;                        // units per metre
+const m = x => x * M;
 const COURT = {
-  w: 280, h: 200,
-  basketX: 140, basketY: 0,
-  paint: { w: 4.9 * M, h: 5.8 * M - 1.575 * M },  // key, measured from the hoop
-  ftR: 1.8 * M,
-  arcR: 131,
-  cornerInset: 0.9 * M,                  // corner line, in from each sideline
-  backboard: 1.2 * M,
+  w: 280,
+  basketX: 140,
+  baselineY: -m(1.575),                    // hoop sits 1.575m off the baseline
+  topY: 200,                               // 99.5% of shots fall inside this
+  paintW: m(4.9),
+  paintTopY: m(5.8) - m(1.575),            // key measured from the hoop
+  ftR: m(1.8),
+  arcR: m(6.75),
+  cornerR: m(6.6),
+  cornerX: m(0.9),
+  rimR: m(0.225),
+  backboardW: m(1.8),
+  backboardY: -m(1.2),
 };
-COURT.paint.x = COURT.basketX - COURT.paint.w / 2;
-COURT.cornerX = COURT.cornerInset;
+COURT.paintX = COURT.basketX - COURT.paintW / 2;
+// Where the straight corner run meets the arc.
 COURT.cornerY = Math.sqrt(Math.max(COURT.arcR ** 2 - (COURT.basketX - COURT.cornerX) ** 2, 0));
 
 // Seven buckets, diverging about zero. Thresholds are in points per attempt:
@@ -572,38 +620,40 @@ function tip(html, evt) {
 function courtSvg(bins, teamCode) {
   const c = COURT;
   const arc = `M ${c.cornerX.toFixed(1)} ${c.cornerY.toFixed(1)}
-               A ${c.arcR} ${c.arcR} 0 0 0 ${(c.w - c.cornerX).toFixed(1)} ${c.cornerY.toFixed(1)}`;
+               A ${c.arcR.toFixed(1)} ${c.arcR.toFixed(1)} 0 0 0 ${(c.w - c.cornerX).toFixed(1)} ${c.cornerY.toFixed(1)}`;
 
-  // Under five attempts a bin is a coin flip, not a tendency.
-  const shown = bins.filter(b => b.attempts >= 5 && b.y <= c.h - 8);
+  // Under five attempts a patch is a coin flip, not a tendency.
+  const shown = bins.filter(b => b.attempts >= 5 && b.y <= c.topY);
   const maxAtt = Math.max(...shown.map(b => b.attempts), 1);
-  const size = a => 13 + 17 * Math.sqrt(a / maxAtt);
+  // Area scales with volume, so a circle twice the area means twice the shots.
+  const rad = a => 5.5 + 11 * Math.sqrt(a / maxAtt);
 
   const marks = shown
-    .sort((a, b) => b.attempts - a.attempts)   // big bins behind small ones
-    .map(b => {
-      const z = size(b.attempts);
-      return `<rect class="bin" x="${(b.x - z / 2).toFixed(1)}" y="${(b.y - z / 2).toFixed(1)}"
-        width="${z.toFixed(1)}" height="${z.toFixed(1)}" rx="3"
+    .sort((a, b) => b.attempts - a.attempts)     // big marks behind small ones
+    .map(b => `<circle class="bin" cx="${b.x.toFixed(1)}" cy="${b.y.toFixed(1)}" r="${rad(b.attempts).toFixed(1)}"
         fill="${ppaColor(b.ppa_vs_league)}"
-        data-t="${b.attempts} shots · ${b.makes} made (${b.fg_pct}%)|${b.pts_per_attempt} pts per attempt|field averages ${b.league_ppa} from here"></rect>`;
-    }).join("");
+        data-t="${b.attempts} shots · ${b.makes} made (${b.fg_pct}%)|${b.pts_per_attempt} pts per attempt|field averages ${b.league_ppa} here"></circle>`)
+    .join("");
 
-  return `<svg class="court" viewBox="-6 -8 ${c.w + 12} ${c.h + 1.575 * M + 16}" role="img"
-       aria-label="Shot chart for ${teamCode}: ${shown.length} areas of the floor, coloured by points per attempt against the tournament average">
-    <g transform="translate(0 ${c.h}) scale(1 -1)">
-      <line class="line" x1="0" y1="${-1.575 * M}" x2="${c.w}" y2="${-1.575 * M}"></line>
-      <rect class="line" x="${c.paint.x.toFixed(1)}" y="${(-1.575 * M).toFixed(1)}"
-            width="${c.paint.w.toFixed(1)}" height="${(c.paint.h + 1.575 * M).toFixed(1)}"></rect>
-      <circle class="line" cx="${c.basketX}" cy="${c.paint.h.toFixed(1)}" r="${c.ftR.toFixed(1)}"></circle>
-      <line class="line" x1="${(c.basketX - c.backboard / 2).toFixed(1)}" y1="${(-0.9 * M).toFixed(1)}"
-            x2="${(c.basketX + c.backboard / 2).toFixed(1)}" y2="${(-0.9 * M).toFixed(1)}"></line>
-      <circle class="line" cx="${c.basketX}" cy="0" r="${(0.225 * M).toFixed(1)}"></circle>
-      <line class="line" x1="${c.cornerX.toFixed(1)}" y1="${(-1.575 * M).toFixed(1)}"
-            x2="${c.cornerX.toFixed(1)}" y2="${c.cornerY.toFixed(1)}"></line>
-      <line class="line" x1="${(c.w - c.cornerX).toFixed(1)}" y1="${(-1.575 * M).toFixed(1)}"
-            x2="${(c.w - c.cornerX).toFixed(1)}" y2="${c.cornerY.toFixed(1)}"></line>
-      <path class="line" d="${arc}"></path>
+  const h = c.topY - c.baselineY;
+  return `<svg class="court" viewBox="-8 ${(-c.topY - 8).toFixed(1)} ${c.w + 16} ${(h + 16).toFixed(1)}"
+       role="img" aria-label="Shot chart for ${teamCode}: ${shown.length} areas of the floor, coloured by points per attempt against the tournament average">
+    <g transform="scale(1 -1)">
+      <g class="lines">
+        <line x1="0" y1="${c.baselineY.toFixed(1)}" x2="${c.w}" y2="${c.baselineY.toFixed(1)}"></line>
+        <line x1="0" y1="${c.baselineY.toFixed(1)}" x2="0" y2="${c.topY}"></line>
+        <line x1="${c.w}" y1="${c.baselineY.toFixed(1)}" x2="${c.w}" y2="${c.topY}"></line>
+        <rect x="${c.paintX.toFixed(1)}" y="${c.baselineY.toFixed(1)}"
+              width="${c.paintW.toFixed(1)}" height="${(c.paintTopY - c.baselineY).toFixed(1)}"></rect>
+        <path d="M ${(c.basketX - c.ftR).toFixed(1)} ${c.paintTopY.toFixed(1)}
+                 A ${c.ftR.toFixed(1)} ${c.ftR.toFixed(1)} 0 0 0 ${(c.basketX + c.ftR).toFixed(1)} ${c.paintTopY.toFixed(1)}"></path>
+        <line x1="${(c.basketX - c.backboardW / 2).toFixed(1)}" y1="${c.backboardY.toFixed(1)}"
+              x2="${(c.basketX + c.backboardW / 2).toFixed(1)}" y2="${c.backboardY.toFixed(1)}"></line>
+        <circle cx="${c.basketX}" cy="0" r="${c.rimR.toFixed(1)}"></circle>
+        <line x1="${c.cornerX.toFixed(1)}" y1="${c.baselineY.toFixed(1)}" x2="${c.cornerX.toFixed(1)}" y2="${c.cornerY.toFixed(1)}"></line>
+        <line x1="${(c.w - c.cornerX).toFixed(1)}" y1="${c.baselineY.toFixed(1)}" x2="${(c.w - c.cornerX).toFixed(1)}" y2="${c.cornerY.toFixed(1)}"></line>
+        <path d="${arc}"></path>
+      </g>
       ${marks}
     </g>
   </svg>`;
@@ -678,8 +728,9 @@ function renderShooting(zones, ff) {
     <div class="note">${total.toLocaleString()} attempts across ${bins.length} patches of floor, each about 1.5m square.
       Size is how often they shoot from there; colour is how well they shoot it against what the rest of the
       tournament manages from the same patch. Patches under five attempts are dropped — a 2-for-4 is a coin
-      flip, not a tendency. Court markings are derived from the shot data itself: the hoop is the coordinate
-      origin and the arc falls at radius 131, which is FIBA's 6.75m line at 19.4 units per metre.</div>
+      flip, not a tendency. The court is drawn from the data: the hoop is the coordinate origin, the floor is
+      280 units across a 15m court, and binning every shot by distance puts the crossover from twos to threes
+      at 129 — exactly FIBA's 6.6m corner and 6.75m arc at that scale.</div>
   </div>
   ${renderZoneTable(zones)}
   ${renderFourFactors(ff)}`;
