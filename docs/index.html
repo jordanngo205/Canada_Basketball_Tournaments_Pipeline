@@ -27,6 +27,16 @@
     --blue: #2f6fb5;
     --amber: #c57f12;
     --shadow: 0 1px 2px rgba(20,24,35,.06), 0 4px 14px rgba(20,24,35,.05);
+
+    /* Diverging scale for shot efficiency vs the tournament average.
+       Blue (cold) to red (hot), gray midpoint — the vernacular a basketball
+       audience already reads. Every step validated against the light surface:
+       each arm is a single hue, monotone in lightness, and the step nearest
+       the surface clears 2:1 so a mark never dissolves into the page. */
+    --cold-3: #1c5cab; --cold-2: #3987e5; --cold-1: #86b6ef;
+    --mid:    #e6e4e0;
+    --hot-1:  #eb8b89; --hot-2:  #e34948; --hot-3:  #a51f1f;
+    --court-line: #c6cad2;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
@@ -37,6 +47,13 @@
       --good: #4fbf92; --good-soft: #15291f; --bad: #f07a72; --bad-soft: #2b1917;
       --blue: #6ba4e0; --amber: #ddab4e;
       --shadow: 0 1px 2px rgba(0,0,0,.4), 0 4px 14px rgba(0,0,0,.3);
+
+      /* Re-stepped for the dark surface, not flipped. Magnitude now runs
+         dark -> light, and the step nearest the surface again clears 2:1. */
+      --cold-3: #9ec5f4; --cold-2: #3987e5; --cold-1: #184f95;
+      --mid:    #383835;
+      --hot-1:  #9a2424; --hot-2:  #e34948; --hot-3:  #f3b0ae;
+      --court-line: #3d444f;
     }
   }
   * { box-sizing: border-box; }
@@ -169,6 +186,39 @@
     border-radius: 5px; padding: 3px 8px; font-variant-numeric: tabular-nums;
   }
 
+  /* ---------- shot chart ---------- */
+  .chart-row { display: grid; grid-template-columns: minmax(300px, 1.15fr) minmax(280px, 1fr); gap: 0; }
+  @media (max-width: 860px) { .chart-row { grid-template-columns: 1fr; } }
+  .court-wrap { padding: 16px 18px 10px; border-right: 1px solid var(--line); }
+  @media (max-width: 860px) { .court-wrap { border-right: 0; border-bottom: 1px solid var(--line); } }
+  .court { width: 100%; height: auto; display: block; }
+  .court .line { fill: none; stroke: var(--court-line); stroke-width: 1.4; }
+  .court .bin { stroke: var(--card); stroke-width: 1.6; cursor: pointer; }
+  .court .bin:hover { stroke: var(--ink); stroke-width: 2; }
+
+  .legend { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 4px 18px 14px; font-size: 11.5px; color: var(--ink-2); }
+  .legend .swatches { display: flex; align-items: center; gap: 3px; }
+  .legend .sw { width: 26px; height: 14px; border-radius: 3px; }
+  .legend .sizes { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+  .legend .sizes i { display: inline-block; background: var(--ink-3); border-radius: 2px; opacity: .55; }
+
+  .tip {
+    position: fixed; pointer-events: none; z-index: 60; opacity: 0;
+    background: var(--ink); color: var(--card); font-size: 12px; line-height: 1.45;
+    padding: 8px 10px; border-radius: 7px; max-width: 220px;
+    box-shadow: 0 4px 16px rgba(0,0,0,.28); transition: opacity .09s;
+  }
+  .tip b { font-size: 12.5px; }
+  .tip .muted { opacity: .72; }
+
+  .zone-side { padding: 16px 18px; display: flex; flex-direction: column; gap: 9px; }
+  .zone-row { display: grid; grid-template-columns: 96px 1fr 62px; gap: 10px; align-items: center; font-size: 12.5px; }
+  .zone-row .zname { color: var(--ink-2); }
+  .zone-row .track { height: 18px; background: var(--sunk); border-radius: 3px; position: relative; overflow: hidden; }
+  .zone-row .fill { position: absolute; inset: 0 auto 0 0; border-radius: 3px; }
+  .zone-row .val { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .zone-row .sub { color: var(--ink-3); font-weight: 500; font-size: 11px; }
+
   .empty { padding: 42px 18px; text-align: center; color: var(--ink-3); }
   footer { margin: 28px 0 60px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 12px; color: var(--ink-3); }
   footer a { color: var(--red); }
@@ -222,6 +272,10 @@
 <script>
 const FILES = ["standings", "player_leaders", "team_efficiency", "games", "period_scores",
                "four_factors", "shot_zones", "manifest"];
+// shot_grid is ~800KB and only the Shot Chart tab needs it, so it loads on
+// demand rather than holding up first paint.
+const LAZY = ["shot_grid", "player_shot_zones"];
+let shotTeam = null;
 const D = {};
 let comp = null, view = "standings";
 const sortState = {};
@@ -271,9 +325,29 @@ async function boot() {
     document.querySelectorAll(".tab").forEach(x => x.setAttribute("aria-selected", x === b));
     view = b.dataset.view;
     render();
+    if (view === "shooting" && !D.shot_grid) loadShotData();
   });
 
   render();
+}
+
+// Kept separate from render() on purpose. An earlier version caught both in one
+// chain, so a ReferenceError in the renderer set shot_grid to [] and the page
+// said "no shot data" — a code bug wearing a missing-data costume. A fetch
+// failure and a render failure are different problems and get different
+// handling.
+function loadShotData() {
+  Promise.all(LAZY.map(n =>
+    fetch(`data/${n}.json`).then(r => {
+      if (!r.ok) throw new Error(`${n}.json → ${r.status}`);
+      return r.json();
+    })
+  )).then(res => {
+    LAZY.forEach((n, i) => D[n] = res[i]);
+  }).catch(err => {
+    D.shot_grid = [];
+    console.error("shot data failed to load:", err);
+  }).finally(render);
 }
 
 function sortRows(rows, key, dir, fallback) {
@@ -442,54 +516,201 @@ function renderPlayers(rows) {
 // like a shot chart rather than like a spreadsheet.
 const ZONE_ORDER = ["Rim", "Paint", "Mid-range", "Corner 3", "Above the break 3"];
 
+// Court geometry, DERIVED from the data rather than assumed.
+//
+// FIBA's origin is the basket itself, not the baseline. Sweeping candidate
+// basket positions and asking which one makes twos and threes separate
+// cleanly gives an unambiguous answer at y=0: the 2nd percentile of 3pt
+// distances is 130.8 and the 98th percentile of 2pt distances is 131.6, so
+// the arc sits at radius 131 and the hoop is the origin. Every other
+// candidate drives those two apart.
+//
+// Radius 131 = FIBA's 6.75m arc, so the scale is 19.4 units per metre. The
+// rest of the markings below are real FIBA dimensions at that scale.
+const M = 131 / 6.75;                    // units per metre
+const COURT = {
+  w: 280, h: 200,
+  basketX: 140, basketY: 0,
+  paint: { w: 4.9 * M, h: 5.8 * M - 1.575 * M },  // key, measured from the hoop
+  ftR: 1.8 * M,
+  arcR: 131,
+  cornerInset: 0.9 * M,                  // corner line, in from each sideline
+  backboard: 1.2 * M,
+};
+COURT.paint.x = COURT.basketX - COURT.paint.w / 2;
+COURT.cornerX = COURT.cornerInset;
+COURT.cornerY = Math.sqrt(Math.max(COURT.arcR ** 2 - (COURT.basketX - COURT.cornerX) ** 2, 0));
+
+// Seven buckets, diverging about zero. Thresholds are in points per attempt:
+// 0.15 is about the gap between an average and a genuinely good shooting team
+// from a given spot, so three steps either side covers the real range without
+// making every bin extreme.
+function ppaColor(d) {
+  if (d <= -0.30) return "var(--cold-3)";
+  if (d <= -0.15) return "var(--cold-2)";
+  if (d <= -0.05) return "var(--cold-1)";
+  if (d <   0.05) return "var(--mid)";
+  if (d <   0.15) return "var(--hot-1)";
+  if (d <   0.30) return "var(--hot-2)";
+  return "var(--hot-3)";
+}
+
+let tipEl = null;
+function tip(html, evt) {
+  if (!tipEl) { tipEl = document.createElement("div"); tipEl.className = "tip"; document.body.appendChild(tipEl); }
+  if (!html) { tipEl.style.opacity = 0; return; }
+  tipEl.innerHTML = html;
+  tipEl.style.opacity = 1;
+  const pad = 14, r = tipEl.getBoundingClientRect();
+  let x = evt.clientX + pad, y = evt.clientY - r.height - pad;
+  if (x + r.width > innerWidth - 8) x = evt.clientX - r.width - pad;
+  if (y < 8) y = evt.clientY + pad;
+  tipEl.style.left = x + "px";
+  tipEl.style.top = y + "px";
+}
+
+function courtSvg(bins, teamCode) {
+  const c = COURT;
+  const arc = `M ${c.cornerX.toFixed(1)} ${c.cornerY.toFixed(1)}
+               A ${c.arcR} ${c.arcR} 0 0 0 ${(c.w - c.cornerX).toFixed(1)} ${c.cornerY.toFixed(1)}`;
+
+  // Under five attempts a bin is a coin flip, not a tendency.
+  const shown = bins.filter(b => b.attempts >= 5 && b.y <= c.h - 8);
+  const maxAtt = Math.max(...shown.map(b => b.attempts), 1);
+  const size = a => 13 + 17 * Math.sqrt(a / maxAtt);
+
+  const marks = shown
+    .sort((a, b) => b.attempts - a.attempts)   // big bins behind small ones
+    .map(b => {
+      const z = size(b.attempts);
+      return `<rect class="bin" x="${(b.x - z / 2).toFixed(1)}" y="${(b.y - z / 2).toFixed(1)}"
+        width="${z.toFixed(1)}" height="${z.toFixed(1)}" rx="3"
+        fill="${ppaColor(b.ppa_vs_league)}"
+        data-t="${b.attempts} shots · ${b.makes} made (${b.fg_pct}%)|${b.pts_per_attempt} pts per attempt|field averages ${b.league_ppa} from here"></rect>`;
+    }).join("");
+
+  return `<svg class="court" viewBox="-6 -8 ${c.w + 12} ${c.h + 1.575 * M + 16}" role="img"
+       aria-label="Shot chart for ${teamCode}: ${shown.length} areas of the floor, coloured by points per attempt against the tournament average">
+    <g transform="translate(0 ${c.h}) scale(1 -1)">
+      <line class="line" x1="0" y1="${-1.575 * M}" x2="${c.w}" y2="${-1.575 * M}"></line>
+      <rect class="line" x="${c.paint.x.toFixed(1)}" y="${(-1.575 * M).toFixed(1)}"
+            width="${c.paint.w.toFixed(1)}" height="${(c.paint.h + 1.575 * M).toFixed(1)}"></rect>
+      <circle class="line" cx="${c.basketX}" cy="${c.paint.h.toFixed(1)}" r="${c.ftR.toFixed(1)}"></circle>
+      <line class="line" x1="${(c.basketX - c.backboard / 2).toFixed(1)}" y1="${(-0.9 * M).toFixed(1)}"
+            x2="${(c.basketX + c.backboard / 2).toFixed(1)}" y2="${(-0.9 * M).toFixed(1)}"></line>
+      <circle class="line" cx="${c.basketX}" cy="0" r="${(0.225 * M).toFixed(1)}"></circle>
+      <line class="line" x1="${c.cornerX.toFixed(1)}" y1="${(-1.575 * M).toFixed(1)}"
+            x2="${c.cornerX.toFixed(1)}" y2="${c.cornerY.toFixed(1)}"></line>
+      <line class="line" x1="${(c.w - c.cornerX).toFixed(1)}" y1="${(-1.575 * M).toFixed(1)}"
+            x2="${(c.w - c.cornerX).toFixed(1)}" y2="${c.cornerY.toFixed(1)}"></line>
+      <path class="line" d="${arc}"></path>
+      ${marks}
+    </g>
+  </svg>`;
+}
+
+function legend() {
+  const steps = ["--cold-3", "--cold-2", "--cold-1", "--mid", "--hot-1", "--hot-2", "--hot-3"];
+  return `<div class="legend">
+    <span>Colder</span>
+    <span class="swatches">${steps.map(v => `<span class="sw" style="background:var(${v})"></span>`).join("")}</span>
+    <span>Hotter</span>
+    <span class="muted">points per attempt vs this tournament</span>
+    <span class="sizes"><i style="width:9px;height:9px"></i><i style="width:15px;height:15px"></i><i style="width:21px;height:21px"></i>
+      <span>volume</span></span>
+  </div>`;
+}
+
+function zoneBars(rows, teamCode) {
+  const mine = ZONE_ORDER.map(z => rows.find(r => r.shot_zone === z && r.team_code === teamCode)).filter(Boolean);
+  if (!mine.length) return "";
+  const maxPpa = Math.max(...rows.map(r => r.pts_per_attempt), 1.4);
+  return `<div class="zone-side">
+    ${mine.map(r => {
+      const lg = rows.filter(x => x.shot_zone === r.shot_zone);
+      const lgPpa = lg.reduce((s, x) => s + x.pts_per_attempt * x.attempts, 0) / lg.reduce((s, x) => s + x.attempts, 0);
+      return `<div class="zone-row">
+        <span class="zname">${r.shot_zone}</span>
+        <span class="track" title="${r.makes}/${r.attempts}">
+          <span class="fill" style="width:${(100 * r.pts_per_attempt / maxPpa).toFixed(1)}%;background:${ppaColor(r.pts_per_attempt - lgPpa)}"></span>
+        </span>
+        <span class="val">${r.pts_per_attempt.toFixed(2)}<br><span class="sub">${r.share_of_shots}% of shots</span></span>
+      </div>`;
+    }).join("")}
+  </div>`;
+}
+
 function renderShooting(zones, ff) {
   if (!zones.length) return `<div class="panel"><div class="empty">No shot data for this tournament.</div></div>`;
+  if (!D.shot_grid) return `<div class="panel"><div class="empty">Loading shot locations…</div></div>`;
 
   const teams = [...new Set(zones.map(z => z.team_code))].sort();
-  const best = Math.max(...zones.map(z => z.pts_per_attempt));
+  if (!shotTeam || !teams.includes(shotTeam)) shotTeam = teams.includes("CAN") ? "CAN" : teams[0];
+  const bins = D.shot_grid.filter(b => b.competition === comp && b.team_code === shotTeam);
+  const total = bins.reduce((s, b) => s + b.attempts, 0);
 
-  // League-wide baseline for each zone, so a team's number has something to be
-  // read against. A 0.95 corner three means nothing on its own.
+  setTimeout(() => {
+    const sel = document.getElementById("shotTeam");
+    if (sel) sel.onchange = e => { shotTeam = e.target.value; render(); };
+    document.querySelectorAll(".court .bin").forEach(el => {
+      el.onmousemove = e => {
+        const [a, b, c] = el.dataset.t.split("|");
+        tip(`<b>${a}</b><br>${b}<br><span class="muted">${c}</span>`, e);
+      };
+      el.onmouseleave = () => tip(null);
+    });
+  }, 0);
+
+  return `<div class="panel">
+    <header>
+      <span class="kick">Shot Chart</span><h2>${shotTeam} — where the shots come from</h2>
+      <span class="sub">
+        <select id="shotTeam" style="margin:0;padding:4px 8px;font-size:12px">
+          ${teams.map(t => `<option value="${t}" ${t === shotTeam ? "selected" : ""}>${t}</option>`).join("")}
+        </select>
+      </span>
+    </header>
+    <div class="chart-row">
+      <div class="court-wrap">${courtSvg(bins, shotTeam)}</div>
+      ${zoneBars(zones, shotTeam)}
+    </div>
+    ${legend()}
+    <div class="note">${total.toLocaleString()} attempts across ${bins.length} patches of floor, each about 1.5m square.
+      Size is how often they shoot from there; colour is how well they shoot it against what the rest of the
+      tournament manages from the same patch. Patches under five attempts are dropped — a 2-for-4 is a coin
+      flip, not a tendency. Court markings are derived from the shot data itself: the hoop is the coordinate
+      origin and the arc falls at radius 131, which is FIBA's 6.75m line at 19.4 units per metre.</div>
+  </div>
+  ${renderZoneTable(zones)}
+  ${renderFourFactors(ff)}`;
+}
+
+function renderZoneTable(zones) {
+  const teams = [...new Set(zones.map(z => z.team_code))].sort();
   const league = {};
   ZONE_ORDER.forEach(z => {
     const rows = zones.filter(r => r.shot_zone === z);
     const att = rows.reduce((s, r) => s + r.attempts, 0);
-    const mk = rows.reduce((s, r) => s + r.makes, 0);
-    const pts = rows.reduce((s, r) => s + r.makes * (z.endsWith("3") ? 3 : 2), 0);
-    league[z] = { att, fg: att ? 100 * mk / att : 0, ppa: att ? pts / att : 0 };
+    const pts = rows.reduce((s, r) => s + r.pts_per_attempt * r.attempts, 0);
+    league[z] = { att, ppa: att ? pts / att : 0 };
   });
-
-  const zoneTable = teams.map(t => {
-    const rows = ZONE_ORDER.map(z => zones.find(r => r.team_code === t && r.shot_zone === z))
-                           .filter(Boolean);
-    if (!rows.length) return "";
-    return `<tr class="${isCan(t) ? "can" : ""}">
-      <td class="l">${teamCell(t, D.teamName[t] || t)}</td>
-      ${ZONE_ORDER.map(z => {
-        const r = rows.find(x => x.shot_zone === z);
-        if (!r) return `<td>—</td>`;
-        const edge = r.pts_per_attempt - league[z].ppa;
-        return `<td title="${r.makes}/${r.attempts}, ${r.share_of_shots}% of shots">
-          <b>${r.pts_per_attempt.toFixed(2)}</b>
-          <span class="${cls(edge)}" style="font-size:11px"> ${signed(edge, 2)}</span></td>`;
-      }).join("")}
-    </tr>`;
-  }).join("");
-
-  const header = `<tr><th class="l">Team</th>${ZONE_ORDER.map(z =>
-    `<th title="League: ${league[z].ppa.toFixed(2)} PPA on ${league[z].att} attempts">${z}</th>`).join("")}</tr>`;
-
+  const body = teams.map(t => `<tr class="${isCan(t) ? "can" : ""}">
+    <td class="l">${teamCell(t, D.teamName[t] || t)}</td>
+    ${ZONE_ORDER.map(z => {
+      const r = zones.find(x => x.team_code === t && x.shot_zone === z);
+      if (!r) return `<td>—</td>`;
+      const edge = r.pts_per_attempt - league[z].ppa;
+      return `<td title="${r.makes}/${r.attempts}, ${r.share_of_shots}% of shots"><b>${r.pts_per_attempt.toFixed(2)}</b>
+        <span class="${cls(edge)}" style="font-size:11px"> ${signed(edge, 2)}</span></td>`;
+    }).join("")}</tr>`).join("");
   return `<div class="panel">
-    <header><span class="kick">Shot Profile</span><h2>Points per attempt by zone</h2>
-      <span class="sub">vs tournament average</span></header>
-    <div class="scroll"><table><thead>${header}</thead><tbody>${zoneTable}</tbody></table></div>
-    <div class="note">Points per attempt, not FG% — a 33% three is worth 1.00 a shot and a 45%
-      mid-range only 0.90, so the lower percentage is the better shot and FG% says the opposite.
-      The small figure is the gap to this tournament's average for that zone. Zones were derived
-      from the play-by-play coordinates: shooting drops from 54% inside y=40 to 40% by y=60 and
-      30% beyond it, which is where the boundaries sit.</div>
-  </div>
-  ${renderFourFactors(ff)}`;
+    <header><span class="kick">By Zone</span><h2>Points per attempt</h2><span class="sub">vs tournament average</span></header>
+    <div class="scroll"><table><thead><tr><th class="l">Team</th>${ZONE_ORDER.map(z =>
+      `<th title="Field: ${league[z].ppa.toFixed(2)} on ${league[z].att} attempts">${z}</th>`).join("")}</tr></thead>
+      <tbody>${body}</tbody></table></div>
+    <div class="note">Points per attempt, not FG% — a 33% three is worth 1.00 a shot and a 45% mid-range only 0.90,
+      so the lower percentage is the better shot and FG% says the opposite.</div>
+  </div>`;
 }
 
 function renderFourFactors(ff) {
@@ -508,9 +729,9 @@ function renderFourFactors(ff) {
       { k: "ft_rate", h: "FT rate", t: "Free throw attempts per field goal attempt", f: r => num(r.ft_rate) },
       { k: "net_rtg", h: "Net", f: r => chip(r.net_rtg) },
     ], ff, { highlight: r => isCan(r.team_code), defaultSort: s => s.sort((a, b) => b.net_rtg - a.net_rtg) })}
-    <div class="note">Shooting, turnovers, rebounding, free throws — roughly in that order of
-      importance. Each is paired with the opponent's version, because conceding a 60% eFG is as
-      much a fact about your defence as your own shooting is about your offence.</div>
+    <div class="note">Shooting, turnovers, rebounding, free throws — roughly in that order of importance.
+      Each is paired with the opponent's version, because conceding a 60% eFG is as much a fact about your
+      defence as your own shooting is about your offence.</div>
   </div>`;
 }
 
