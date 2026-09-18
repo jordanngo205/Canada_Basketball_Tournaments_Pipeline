@@ -2200,6 +2200,116 @@
   "share_of_shots": 35.1
  },
  {
+  "competition": "FIBA Women's Basketball World Cup",
+  "team_code": "JPN",
+  "shot_zone": "Above the break 3",
+  "attempts": 11,
+  "makes": 8,
+  "fg_pct": 72.7,
+  "avg_distance": 174.1,
+  "pts_per_attempt": 2.18,
+  "share_of_shots": 16.4
+ },
+ {
+  "competition": "FIBA Women's Basketball World Cup",
+  "team_code": "JPN",
+  "shot_zone": "Corner 3",
+  "attempts": 24,
+  "makes": 12,
+  "fg_pct": 50.0,
+  "avg_distance": 158.9,
+  "pts_per_attempt": 1.5,
+  "share_of_shots": 35.8
+ },
+ {
+  "competition": "FIBA Women's Basketball World Cup",
+  "team_code": "JPN",
+  "shot_zone": "Mid-range",
+  "attempts": 9,
+  "makes": 5,
+  "fg_pct": 55.6,
+  "avg_distance": 98.6,
+  "pts_per_attempt": 1.11,
+  "share_of_shots": 13.4
+ },
+ {
+  "competition": "FIBA Women's Basketball World Cup",
+  "team_code": "JPN",
+  "shot_zone": "Paint",
+  "attempts": 16,
+  "makes": 8,
+  "fg_pct": 50.0,
+  "avg_distance": 54.5,
+  "pts_per_attempt": 1.0,
+  "share_of_shots": 23.9
+ },
+ {
+  "competition": "FIBA Women's Basketball World Cup",
+  "team_code": "JPN",
+  "shot_zone": "Rim",
+  "attempts": 7,
+  "makes": 4,
+  "fg_pct": 57.1,
+  "avg_distance": 39.2,
+  "pts_per_attempt": 1.14,
+  "share_of_shots": 10.4
+ },
+ {
+  "competition": "FIBA Women's Basketball World Cup",
+  "team_code": "MLI",
+  "shot_zone": "Above the break 3",
+  "attempts": 3,
+  "makes": 1,
+  "fg_pct": 33.3,
+  "avg_distance": 180.2,
+  "pts_per_attempt": 1.0,
+  "share_of_shots": 4.0
+ },
+ {
+  "competition": "FIBA Women's Basketball World Cup",
+  "team_code": "MLI",
+  "shot_zone": "Corner 3",
+  "attempts": 20,
+  "makes": 8,
+  "fg_pct": 40.0,
+  "avg_distance": 166.2,
+  "pts_per_attempt": 1.2,
+  "share_of_shots": 26.7
+ },
+ {
+  "competition": "FIBA Women's Basketball World Cup",
+  "team_code": "MLI",
+  "shot_zone": "Mid-range",
+  "attempts": 7,
+  "makes": 3,
+  "fg_pct": 42.9,
+  "avg_distance": 86.6,
+  "pts_per_attempt": 0.86,
+  "share_of_shots": 9.3
+ },
+ {
+  "competition": "FIBA Women's Basketball World Cup",
+  "team_code": "MLI",
+  "shot_zone": "Paint",
+  "attempts": 29,
+  "makes": 18,
+  "fg_pct": 62.1,
+  "avg_distance": 48.8,
+  "pts_per_attempt": 1.24,
+  "share_of_shots": 38.7
+ },
+ {
+  "competition": "FIBA Women's Basketball World Cup",
+  "team_code": "MLI",
+  "shot_zone": "Rim",
+  "attempts": 16,
+  "makes": 8,
+  "fg_pct": 50.0,
+  "avg_distance": 45.6,
+  "pts_per_attempt": 1.0,
+  "share_of_shots": 21.3
+ },
+ {
   "competition": "FIBA Women's Basketball World Cup 2026 Qualifying Tournament Türkiye",
   "team_code": "ARG",
   "shot_zone": "Above the break 3",
