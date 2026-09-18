@@ -1,7 +1,9 @@
 # Canada Basketball Tournaments — Data Pipeline
 
+**Live dashboard:** https://jordanngo205.github.io/Canada_Basketball_Tournaments_Pipeline/
+
 Scrapes FIBA games, stores the raw payloads, transforms them with dbt, checks the
-numbers, and spits out clean JSON for a dashboard. Postgres and Airflow run in
+numbers, and publishes clean JSON to a dashboard. Postgres and Airflow run in
 Docker, so `docker compose up` is the whole setup.
 
 ```
@@ -282,8 +284,6 @@ score. Two modes that do make sense:
 
 ## Still to do
 
-- Publish the dashboard to GitHub Pages (the page and its data are in `docs/`,
-  Pages just isn't switched on for this repo yet)
 - Run the pipeline somewhere that isn't a laptop. Airflow only fires while
   Docker is up locally; a hosted Postgres plus a GitHub Actions trigger would
   make it genuinely unattended
