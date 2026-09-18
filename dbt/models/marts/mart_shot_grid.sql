@@ -1,9 +1,13 @@
 -- Shots binned onto a court grid — the data behind a shot chart.
 --
--- 14x14 bins of 20 units each over the 0-280 coordinate space. Big enough that
--- a bin holds a meaningful sample, small enough to show where a team actually
--- shoots from. Empty bins aren't emitted; a shot chart shouldn't carry rows for
--- places nobody shot.
+-- 10x10 bins of 28 units each over the 0-280 coordinate space.
+--
+-- Started at 14x14 and it was too fine: a team takes ~570 shots in a
+-- tournament, so most bins held four or five and the colours swung wildly
+-- between neighbours. That reads as a pattern when it is sampling noise. At
+-- 28 units a bin is about 1.5m square and carries enough shots to mean
+-- something. Empty bins aren't emitted — a shot chart shouldn't carry rows
+-- for places nobody shot from.
 --
 -- Efficiency is reported as points per attempt against the same bin's
 -- tournament-wide average, because raw PPA has no meaning on its own — 0.9 is
@@ -14,8 +18,8 @@ with binned as (
     select
         competition,
         team_code,
-        width_bucket(shot_x, 0, 280, 14) as bin_x,
-        width_bucket(shot_y, 0, 280, 14) as bin_y,
+        width_bucket(shot_x, 0, 280, 10) as bin_x,
+        width_bucket(shot_y, 0, 280, 10) as bin_y,
         shot_made,
         shot_value
     from {{ ref('int_shots') }}
@@ -63,8 +67,8 @@ select
 
     -- Centre of the bin in court units, so the front end can place a mark
     -- without knowing the binning scheme.
-    (b.bin_x - 0.5) * 20 as x,
-    (b.bin_y - 0.5) * 20 as y,
+    (b.bin_x - 0.5) * 28 as x,
+    (b.bin_y - 0.5) * 28 as y,
 
     b.attempts,
     b.makes,
