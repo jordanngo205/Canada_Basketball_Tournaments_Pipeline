@@ -57,8 +57,12 @@ Python or SQL. Only `out/` is mounted, since the host needs the JSON back.
 |---|---|---|
 | `mart_player_leaders` | player per competition | 796 |
 | `mart_team_efficiency` | team per game | 336 |
+| `mart_shot_zones` | team × zone per competition | 270 |
+| `mart_four_factors` | team per competition | 54 |
 | `stg_period_scores` | period per game | 676 |
 | `mart_standings` | team per group | 66 |
+| `int_shots` | one field goal attempt | 22,335 |
+| `int_player_minutes` | player per game | 4,024 |
 
 Everything's per 100 possessions rather than per game — FIBA sides vary enough
 in pace that raw totals flatter the fast ones:
@@ -232,10 +236,54 @@ Both of these cost me hours and neither is obvious from the error:
 - **Docker needs folder permission** — System Settings → Privacy & Security →
   Files and Folders.
 
+## Shot charts and minutes
+
+Both come out of the play-by-play, and both needed reverse engineering because
+FIBA documents neither.
+
+**Shot coordinates.** `x` runs 0–280 across the court with centre near 140, and
+`y` is *distance from the basket* rather than position along it — both teams'
+shots land on one half court. Zones were then derived from where the shooting
+actually breaks: 54% inside y=40, 40% from 40–59, then a cliff to 30% beyond.
+Threes split on `x`, not `y`. The result reproduces the shot-selection curve you
+would expect, which is the best evidence the reading is right:
+
+```
+Rim                1.07 points per attempt   53.6% FG
+Corner 3           0.91                      30.2%
+Above the break 3  0.90                      30.0%
+Paint              0.80                      39.9%
+Mid-range          0.59                      29.7%
+```
+
+**Minutes.** FIBA leaves `MP` null, so they're reconstructed by walking the
+substitution stream. Getting it right took three attempts. Crediting a full
+period to anyone who recorded an action in it made things *worse* — mean error
+4.5 minutes to 13.8. The real bug was that a starter who plays all of Q1 and
+comes off in Q2 has their first event in Q2, so falling back to "start of this
+period" silently discarded the whole first quarter. Five starters is 50 minutes
+a game.
+
+Mean absolute error against the 200 team-minutes a game must produce is now
+**0.12 minutes** across 336 team-games, worst case 4.9.
+
+## Backfills
+
+`fiba_backfill` is manual-trigger only and deliberately *not* date-partitioned.
+A textbook backfill replays a date range, which assumes the source can tell you
+what it looked like then — FIBA can't, a game page serves only the current box
+score. Two modes that do make sense:
+
+- **`rebuild_only: true`** (default) — re-run every model and test against raw
+  payloads already stored, then re-export. No network. This is how a corrected
+  formula reaches the marts, and it takes seconds.
+- **`events: [...]`** — re-scrape named tournaments first, for when FIBA
+  corrects a box score after the fact.
+
 ## Still to do
 
-- Fan out across multiple tournaments in one DAG (dynamic task mapping) instead
-  of one event slug per run
-- Point the existing dashboard at these JSON files
-- Minutes played — FIBA leaves `MP` null in the box score block, so it has to
-  come from play-by-play substitutions before any per-minute stat works
+- Publish the dashboard to GitHub Pages (the page and its data are in `docs/`,
+  Pages just isn't switched on for this repo yet)
+- Run the pipeline somewhere that isn't a laptop. Airflow only fires while
+  Docker is up locally; a hosted Postgres plus a GitHub Actions trigger would
+  make it genuinely unattended
