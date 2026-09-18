@@ -1,8 +1,7 @@
--- One row per team per game, as FIBA's own team totals.
+-- One row per team per game, using FIBA's own totals.
 --
--- These are kept separate from a sum of the player rows on purpose: having
--- both lets a test reconcile them, which is the check that catches a roster
--- row silently failing to parse.
+-- Kept separate from summing the player rows deliberately — having both is
+-- what lets a test reconcile them and catch a roster row that didn't parse.
 
 with games as (
 

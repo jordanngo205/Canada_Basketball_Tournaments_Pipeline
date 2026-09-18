@@ -1,10 +1,8 @@
--- One row per game: the header a scouting report needs before any stats.
+-- One row per game. The header stuff, no stats.
 --
--- Note on the payload's shape. `gameDetails.teamA` and `gameDetails.teamB` are
--- NOT the team records — they are RSC reference pointers, strings that look
--- like '$1c:props:gameDetails:c:0:Stats'. The resolved records live at
--- `gameDetails.c[0]` and `gameDetails.c[1]`, in that order (home, away). Every
--- model here reads `c`, never `teamA`/`teamB`.
+-- Watch out: gameDetails.teamA and teamB are NOT the team records. They're RSC
+-- pointers — literal strings like '$1c:props:gameDetails:c:0:Stats'. The real
+-- records are at gameDetails.c[0] (home) and c[1] (away). Read `c`, always.
 
 with source as (
 
@@ -34,8 +32,7 @@ unpacked as (
 select
     game_id,
 
-    -- FIBA serialises absent values as the string '$undefined' rather than
-    -- null, so every nullable field needs this guard.
+    -- Absent values come through as the string '$undefined', not null.
     nullif(game ->> 'gameDateTime', '$undefined')::timestamptz   as tipoff_at,
     (nullif(game ->> 'gameDateTime', '$undefined'))::date        as game_date,
 
@@ -55,8 +52,8 @@ select
     nullif(game ->> 'hostCity', '$undefined')                      as city,
     nullif(game ->> 'hostCountry', '$undefined')                   as country,
 
-    -- A group-phase fixture carries a letter here; knockout games reuse the
-    -- field for a bracket slot number, which is not a group and is dropped.
+    -- Group phase puts a letter here. Knockout games reuse the field for a
+    -- bracket slot number, so only keep it if it's actually a letter.
     case
         when nullif(game ->> 'groupPairingCode', '$undefined') ~ '^[A-Za-z]+$'
         then upper(game ->> 'groupPairingCode')

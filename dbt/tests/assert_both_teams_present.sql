@@ -1,5 +1,4 @@
--- A game must contribute exactly two team rows. One row means half the game
--- parsed; three would mean a duplicate.
+-- Two team rows per game. One means half of it parsed, three means a dupe.
 
 select
     game_id,

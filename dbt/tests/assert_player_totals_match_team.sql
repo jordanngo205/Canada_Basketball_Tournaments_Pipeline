@@ -1,16 +1,13 @@
--- Cross-grain reconciliation: the players on a team must account for exactly
--- the team's points and assists.
+-- The players have to account for exactly the team's points and assists.
 --
--- This is what catches a roster entry that silently failed to parse — the team
--- total stays right while a player row goes missing, so no single-table test
--- would notice.
+-- Catches a roster row that quietly failed to parse: the team total stays
+-- right while a player goes missing, so nothing on a single table would spot it.
 --
--- Rebounds are deliberately NOT tested for equality. A team rebound — the ball
--- going out of bounds off the defence, a missed final free throw that deadballs
--- — is credited to the team and to no player, so the team total legitimately
--- runs above the sum of its players. Measured across four games in two
--- tournaments that gap ran 2 to 8 rebounds. What must hold is the direction:
--- the team can never have FEWER rebounds than its players combined.
+-- Rebounds are NOT checked for equality, and this took me a while to work out.
+-- Team rebounds — ball out off the defence, missed last free throw — belong to
+-- the team and to no player, so the team total legitimately runs higher. Across
+-- four games the gap was 2 to 8. Direction still has to hold though: a team
+-- can't have fewer rebounds than its players combined.
 
 with player_totals as (
 

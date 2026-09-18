@@ -1,5 +1,4 @@
--- Makes cannot exceed attempts, and total field goals must be the sum of the
--- two- and three-point components.
+-- Can't make more than you attempt, and FG has to be 2PT + 3PT.
 
 select
     game_id,

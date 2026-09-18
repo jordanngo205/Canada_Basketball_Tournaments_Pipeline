@@ -1,12 +1,10 @@
--- The test you asked for: a team's final score must equal the sum of the
--- points it scored in each period.
+-- A team's final score has to equal the sum of its per-period points.
 --
--- This is the highest-value test in the project because it reconciles two
--- independently-parsed parts of the payload. `final_score` comes from
--- gameDetails.c[side].Score; the period points come from
--- gameDetails.quartersScores. If either parse drifts, this fails.
+-- Probably the most useful test here: the two numbers come from different
+-- parts of the payload (gameDetails.c[side].Score vs quartersScores), so if
+-- either parse drifts this catches it.
 --
--- A dbt singular test passes when it returns zero rows.
+-- Singular tests pass on zero rows.
 
 with period_totals as (
 

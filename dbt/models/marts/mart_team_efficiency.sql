@@ -1,8 +1,7 @@
--- One row per team per game, with the rate stats a scouting page actually shows.
+-- One row per team per game, with the rates a scouting page actually shows.
 --
--- Everything here is per-100-possessions rather than per-game, because pace
--- varies enough between FIBA sides that raw totals mislead: a team that plays
--- fast looks better on points and worse on defence than it is.
+-- Per 100 possessions, not per game. Pace varies a lot between FIBA sides and
+-- raw totals flatter fast teams on offence while punishing them on defence.
 
 select
     game_id,
@@ -22,26 +21,24 @@ select
     opp_pts,
     possessions,
 
-    -- Offensive and defensive rating: points scored / allowed per 100 trips.
+    -- Points scored and allowed per 100 trips.
     round(100.0 * pts / nullif(possessions, 0), 1)          as ortg,
     round(100.0 * opp_pts / nullif(opp_possessions, 0), 1)  as drtg,
     round(100.0 * pts / nullif(possessions, 0)
         - 100.0 * opp_pts / nullif(opp_possessions, 0), 1)  as net_rtg,
 
-    -- Effective field goal % credits a three as 1.5 twos, which is the whole
-    -- point of shooting them.
+    -- eFG counts a three as 1.5 twos, which is rather the point of them.
     round(100.0 * (fgm + 0.5 * fg3m) / nullif(fga, 0), 1)   as efg_pct,
     round(100.0 * fg3m / nullif(fg3a, 0), 1)                as fg3_pct,
     round(100.0 * ftm / nullif(fta, 0), 1)                  as ft_pct,
 
     round(100.0 * tov / nullif(possessions, 0), 1)          as tov_pct,
 
-    -- Offensive rebound rate is share of available misses, not a raw count:
-    -- a team that misses a lot has more chances to rebound its own shot.
+    -- Share of available misses, not a count — miss more, rebound more.
     round(100.0 * oreb / nullif(oreb + opp_dreb, 0), 1)     as oreb_pct,
     round(100.0 * dreb / nullif(dreb + opp_oreb, 0), 1)     as dreb_pct,
 
-    -- How often a made basket was set up, a rough read on ball movement.
+    -- Rough proxy for ball movement.
     round(100.0 * ast / nullif(fgm, 0), 1)                  as ast_to_fgm_pct,
 
     round(100.0 * paint_fgm / nullif(fgm, 0), 1)            as pct_fgm_in_paint,

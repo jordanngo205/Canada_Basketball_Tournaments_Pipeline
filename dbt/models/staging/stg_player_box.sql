@@ -1,8 +1,8 @@
--- One row per player per game — the grain the whole scouting report is built on.
+-- One row per player per game. Everything else builds on this.
 --
--- Stats sit at gameDetails.c[side].Children[*].Stats. The roster (names,
--- positions, shirt numbers) sits in a separate top-level array and joins on a
--- prefixed id: the stat block says 'P_342479', the roster says 342479.
+-- Stats are at gameDetails.c[side].Children[*].Stats. Names and shirt numbers
+-- are in a completely separate array, joined on an id that's prefixed on one
+-- side and not the other: 'P_342479' vs 342479.
 
 with games as (
 
@@ -16,9 +16,8 @@ with games as (
 
 sides as (
 
-    -- c[0] is the home team and c[1] the away team, so the array index is the
-    -- side. `with ordinality` makes that positional fact explicit rather than
-    -- something a reader has to know.
+    -- c[0] is home, c[1] is away. `with ordinality` so that's written down
+    -- rather than something you have to already know.
     select
         g.game_id,
         g.payload,
@@ -96,7 +95,7 @@ select
     (sl.st ->> 'FTM')::int    as ftm,
     (sl.st ->> 'FTA')::int    as fta,
 
-    -- Points in the paint, as FIBA counts them.
+    -- Paint stats, FIBA's definition.
     (sl.st ->> 'FGIM')::int   as paint_fgm,
     (sl.st ->> 'FGIA')::int   as paint_fga,
 

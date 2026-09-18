@@ -1,9 +1,8 @@
--- Every game has exactly one winner and one loser, so across a competition the
--- wins and losses must balance. If they do not, a game was ingested for one
--- team but not the other — the kind of half-loaded state that makes a
--- standings table quietly wrong.
+-- One winner, one loser per game, so wins and losses balance across a comp.
 --
--- Ties are impossible in FIBA: a drawn game goes to overtime.
+-- Out of balance means a game landed for one team and not the other, which is
+-- exactly the sort of half-loaded state that makes standings quietly wrong.
+-- (No ties to worry about — FIBA plays overtime.)
 
 select
     competition,

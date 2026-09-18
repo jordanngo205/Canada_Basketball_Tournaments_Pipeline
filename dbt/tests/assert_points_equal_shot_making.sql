@@ -1,8 +1,7 @@
--- Basketball arithmetic that cannot be false: points are two per made
--- two-pointer, three per made three, one per made free throw.
+-- Arithmetic that can't be false. Two per two, three per three, one per FT.
 --
--- Unlike a threshold someone guessed at, a failure here is unambiguously a
--- parsing bug — most likely a stat key mapped to the wrong column.
+-- Nothing to argue about here — a failure means a stat key got mapped to the
+-- wrong column.
 
 select
     game_id,

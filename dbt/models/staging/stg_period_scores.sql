@@ -1,10 +1,10 @@
--- Points scored in each period, one row per game per period per team.
+-- Points scored in each period.
 --
--- Two sources on the page disagree in meaning and only one is usable directly:
--- `playByPlay.items.<period>.scoreA` is the RUNNING total at the end of that
--- period, while `gameDetails.quartersScores` holds the points scored IN the
--- period. This model uses the latter. Canada's Q1-Q4 in game 135067 read
--- 22/19/17/14 here and 22/40/59/72 there, against a 72-point final.
+-- There are two sources for this on the page and they mean different things.
+-- playByPlay period scores are RUNNING TOTALS. gameDetails.quartersScores is
+-- points scored IN the period. Use the latter.
+--
+-- Canada, game 135067: 22/19/17/14 here vs 22/40/59/72 there. Final was 72.
 
 with source as (
 

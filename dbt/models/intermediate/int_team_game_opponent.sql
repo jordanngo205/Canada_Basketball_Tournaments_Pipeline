@@ -1,14 +1,12 @@
--- Each team-game paired with what its opponent did in the same game.
+-- Each team-game next to what the opponent did in the same game.
 --
--- Almost every rating needs both sides — you cannot compute a defensive rating
--- from a team's own row. Doing the self-join once here means the marts above
--- stay readable and nobody repeats the join condition slightly differently.
+-- You can't work out a defensive rating from your own row, and nearly every
+-- rating needs both sides. Doing the self-join once here keeps the marts
+-- readable and stops three of them writing slightly different join conditions.
 --
--- Possessions use the standard estimator:
---     FGA - OR + TO + 0.44 * FTA
--- The 0.44 approximates how many free throw attempts end a possession: most
--- trips are two shots (only the last ends it), some are and-ones that do not
--- end it at all, and technicals sit outside the flow entirely.
+-- Possessions: FGA - OR + TO + 0.44 * FTA. The 0.44 is the usual fudge for how
+-- many free throws actually end a possession — most trips are two shots where
+-- only the second ends it, and-ones end nothing, technicals aren't in the flow.
 
 with team_games as (
 
@@ -63,8 +61,8 @@ select
     (t.pts > o.pts)::int as win,
     (t.pts < o.pts)::int as loss,
 
-    -- Rounded to whole possessions: the estimator is not precise enough for
-    -- decimals to mean anything, and a whole number reads better on a chart.
+    -- Whole numbers. It's an estimate — decimals would imply precision that
+    -- isn't there.
     round(t.fga - t.oreb + t.tov + 0.44 * t.fta)     as possessions,
     round(o.fga - o.oreb + o.tov + 0.44 * o.fta)     as opp_possessions
 
