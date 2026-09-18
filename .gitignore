@@ -7,3 +7,6 @@ __pycache__/
 *.pyc
 .venv/
 package-lock.yml
+
+# docs/data is the published copy and IS tracked - see the export step in the
+# DAG. Only the scratch out/ directory above is ignored.
