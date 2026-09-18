@@ -33,6 +33,11 @@ services:
   airflow-init:
     &airflow-common
     build: .
+    # All three Airflow services share one image. Without an explicit name,
+    # `build: .` tags a separate image per service, so rebuilding one leaves
+    # the other two running stale code — which looks exactly like a fix not
+    # taking effect, and cost an hour of chasing the wrong cause.
+    image: fiba-pipeline:latest
     depends_on:
       postgres:
         condition: service_healthy
