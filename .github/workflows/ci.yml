@@ -52,7 +52,7 @@ jobs:
       - name: Create the raw schema
         # Only the schema file — the database itself already exists, created
         # by the service container above.
-        run: psql "$WAREHOUSE_DSN" -v ON_ERROR_STOP=1 -f sql/init/02_raw_schema.sql
+        run: psql "$WAREHOUSE_DSN" -v ON_ERROR_STOP=1 -f sql/schema/raw_schema.sql
 
       - name: Seed fixture games
         # Committed fixtures rather than a live scrape: CI must not fail
