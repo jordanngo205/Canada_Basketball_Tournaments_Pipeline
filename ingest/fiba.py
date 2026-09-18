@@ -1,17 +1,14 @@
-"""Fetch a FIBA game page and reassemble its embedded RSC payload.
+"""Fetch a FIBA game page and pull the JSON out of it.
 
-This module is deliberately narrow. It fetches, it parses, it returns a dict.
-It does not clean values, rename columns, compute anything, or touch a
-database — those are the jobs of the load and transform layers. Keeping the
-boundary here is what makes the raw layer replayable: if a KPI is wrong six
-months from now, the fix is a dbt model change and a re-run, never a re-scrape.
+Fetch, parse, return a dict. Nothing else — no cleaning, no renaming, no
+maths, no database. All of that is dbt's job downstream. Keep it that way:
+the whole point of the raw layer is that a wrong formula costs a re-run
+instead of a re-scrape.
 
-fiba.basketball is a Next.js App Router site, so every game page is fully
-server-rendered. A plain GET returns the whole game — box score, rosters and
-play-by-play with shot coordinates — with no browser or JS execution needed.
-The data arrives as React Server Component wire format: a series of
-`self.__next_f.push([1, "<chunk-id>:<json>"])` script tags whose chunk ids
-vary in length from page to page.
+The pages are Next.js App Router, fully server-rendered, so a plain GET gets
+you everything including play-by-play with shot coordinates. No Selenium.
+It arrives as RSC wire format — self.__next_f.push([1, "<id>:<json>"]) script
+tags, chunk ids varying in length page to page.
 """
 
 from __future__ import annotations
@@ -32,10 +29,10 @@ UA = (
     "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 )
 
-# Next.js serialises an absent value as this literal string rather than null.
+# Next.js writes missing values as this string. Not null. Bites every time.
 UNDEFINED = "$undefined"
 
-# The keys that identify the one node on the page holding the whole game.
+# A node with all three of these is the game. Nothing else on the page has them.
 GAME_NODE_KEYS = frozenset({"game", "playersTeamA", "gameDetails"})
 
 _PREFIX = "self.__next_f.push("
@@ -53,7 +50,7 @@ class GameNotFound(Exception):
 
 @dataclass
 class RawGame:
-    """One game exactly as FIBA served it, plus the provenance to replay it."""
+    """One game as FIBA served it, plus enough to know where it came from."""
 
     game_id: str
     source_url: str
@@ -62,11 +59,10 @@ class RawGame:
     warnings: list[str] = field(default_factory=list)
 
     def periods(self) -> dict[str, dict[str, Any]]:
-        """The per-period blocks, keyed Q1..Q4 plus OT1.. when a game goes long.
+        """Q1..Q4, plus OT1.. if it went long.
 
-        FIBA nests play-by-play two levels deep: `playByPlay.items` is keyed by
-        period, and each period carries its own `items` list of actions
-        alongside that period's running score.
+        Nested two deep: playByPlay.items is keyed by period, and each period
+        has its own items list.
         """
         pbp = self.payload.get("playByPlay") or {}
         items = pbp.get("items") or {}
@@ -76,12 +72,10 @@ class RawGame:
         return sum(len(p.get("items") or []) for p in self.periods().values())
 
     def period_scores(self) -> dict[str, tuple[Any, Any]]:
-        """Cumulative score at the END of each period, as FIBA stores it.
+        """Running total at the end of each period. NOT points scored in it.
 
-        Note the semantics: `scoreA` on the Q2 block is the running total after
-        two quarters, not the points scored in Q2. Canada's Q1-Q4 blocks in
-        game 135067 read 22, 40, 59, 72 against a 72-point final. Use
-        `period_points()` for the per-period figures a box score shows.
+        Caught me out: Canada's Q1-Q4 in game 135067 read 22, 40, 59, 72 with
+        a 72-point final. Want the box-score numbers? Use period_points().
         """
         return {
             name: (block.get("scoreA"), block.get("scoreB"))
@@ -99,18 +93,17 @@ class RawGame:
         return points
 
     def final_score(self) -> tuple[Any, Any]:
-        """The game's final score as the payload's own top-level fields give it."""
+        """Final score, straight off the top-level fields."""
         return (
             undefined_to_none(self.payload.get("teamAScore")),
             undefined_to_none(self.payload.get("teamBScore")),
         )
 
     def summary(self) -> dict[str, Any]:
-        """A few fields pulled out for logging and smoke tests only.
+        """For logs and smoke tests. Don't build anything on this.
 
-        Nothing downstream should read the game through this — dbt reads the
-        payload column directly. This exists so a failed ingest is legible in
-        an Airflow log without dumping a megabyte of JSON.
+        dbt reads the payload column directly. This just keeps a failed ingest
+        readable in the Airflow log without dumping a megabyte of JSON.
         """
         game = self.payload.get("game") or {}
         team_a = game.get("teamA") or {}
@@ -134,16 +127,14 @@ class RawGame:
 
 
 def undefined_to_none(value: Any) -> Any:
-    """Normalise Next.js's `$undefined` sentinel to None."""
     return None if value == UNDEFINED else value
 
 
 def fetch(url: str, tries: int = 5, pause: float = 3.0) -> str:
-    """GET a page, retrying the transport errors fiba.basketball throws.
+    """GET with retries. FIBA drops connections when a tournament is live.
 
-    Backoff is linear rather than exponential: FIBA's failures are short
-    connection resets under load, not rate limiting, so waiting minutes buys
-    nothing over waiting seconds.
+    Linear backoff, not exponential — these are short connection resets, not
+    rate limiting, so there's nothing to be gained by waiting minutes.
     """
     last: Exception | None = None
     for attempt in range(1, tries + 1):
@@ -159,10 +150,10 @@ def fetch(url: str, tries: int = 5, pause: float = 3.0) -> str:
 
 
 def rsc_payloads(html: str) -> Iterator[Any]:
-    """Yield every JSON payload embedded in the page's RSC script tags.
+    """Every JSON payload in the page's script tags.
 
-    Longest scripts first, since the game payload is invariably the biggest
-    thing on the page and this lets callers stop early.
+    Biggest first — the game data is always the largest thing on the page, so
+    callers usually hit it on the first yield and stop.
     """
     soup = BeautifulSoup(html, "html.parser")
     scripts = sorted(
@@ -181,13 +172,13 @@ def rsc_payloads(html: str) -> Iterator[Any]:
         try:
             yield json.loads(body)
         except ValueError:
-            # Chunks split mid-string across pushes are expected and skipped;
-            # the complete game node always lands in a single chunk.
+            # Some chunks are split mid-string across pushes. Fine to skip —
+            # the game node always arrives whole in one chunk.
             continue
 
 
 def find_nodes(obj: Any, required: frozenset[str], limit: int | None = None) -> list[dict]:
-    """Collect dicts anywhere in a nested structure that hold all `required` keys."""
+    """Find dicts anywhere in the tree that have all of `required` as keys."""
     found: list[dict] = []
 
     def walk(node: Any, depth: int) -> None:
@@ -212,10 +203,10 @@ def game_id_from_url(url: str) -> str | None:
 
 
 def parse_game(html: str, source_url: str) -> RawGame:
-    """Reassemble one game's payload out of a fetched page.
+    """Pull one game's payload out of a fetched page.
 
-    Raises GameNotFound when the page carries no game node — which happens for
-    fixtures FIBA has scheduled but not yet played.
+    Raises GameNotFound for scheduled-but-not-played fixtures, which have a
+    page but no game node.
     """
     for payload in rsc_payloads(html):
         hits = find_nodes(payload, GAME_NODE_KEYS, limit=1)
@@ -230,9 +221,9 @@ def parse_game(html: str, source_url: str) -> RawGame:
         if not game_id:
             raise GameNotFound(f"Game node found but carries no gameId: {source_url}")
 
-        # Flag missing sections instead of failing: a game can legitimately be
-        # final with no play-by-play (FIBA backfills some events), and the
-        # ingest should still land the box score rather than lose the game.
+        # Warn, don't fail. Some finished games genuinely have no play-by-play
+        # (FIBA backfills certain events) and we'd rather have the box score
+        # than nothing.
         warnings = [
             f"missing {key}"
             for key in ("playByPlay", "playersTeamA", "playersTeamB")
@@ -251,7 +242,6 @@ def parse_game(html: str, source_url: str) -> RawGame:
 
 
 def scrape_game(url: str) -> RawGame:
-    """Fetch and parse a single game page."""
     return parse_game(fetch(url), url)
 
 
