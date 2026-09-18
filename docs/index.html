@@ -201,6 +201,7 @@
     <div class="tabs" role="tablist">
       <button class="tab" role="tab" data-view="standings" aria-selected="true">Standings</button>
       <button class="tab" role="tab" data-view="efficiency" aria-selected="false">Team Efficiency</button>
+      <button class="tab" role="tab" data-view="shooting" aria-selected="false">Shot Profile</button>
       <button class="tab" role="tab" data-view="players" aria-selected="false">Leaders</button>
       <button class="tab" role="tab" data-view="games" aria-selected="false">Results</button>
     </div>
@@ -219,7 +220,8 @@
 
 <script src="assets/flags.js"></script>
 <script>
-const FILES = ["standings", "player_leaders", "team_efficiency", "games", "period_scores", "manifest"];
+const FILES = ["standings", "player_leaders", "team_efficiency", "games", "period_scores",
+               "four_factors", "shot_zones", "manifest"];
 const D = {};
 let comp = null, view = "standings";
 const sortState = {};
@@ -321,6 +323,9 @@ function render() {
   const out = document.getElementById("view");
   if (view === "standings") out.innerHTML = renderStandings(stand);
   if (view === "efficiency") out.innerHTML = renderEfficiency(eff);
+  if (view === "shooting") out.innerHTML = renderShooting(
+        D.shot_zones.filter(r => r.competition === comp),
+        D.four_factors.filter(r => r.competition === comp));
   if (view === "players") out.innerHTML = renderPlayers(players);
   if (view === "games") out.innerHTML = renderGames(games);
 }
@@ -430,6 +435,82 @@ function renderPlayers(rows) {
       { k: "plus_minus_per_game", h: "+/−", f: r => chip(r.plus_minus_per_game) },
     ], q, { highlight: r => isCan(r.team_code), defaultSort: s => s.sort((a, b) => b.ppg - a.ppg) })}
     <div class="note">Percentages come from summed makes and attempts, not averaged per-game percentages — otherwise a 1-for-1 night counts as much as 10-for-20.</div>
+  </div>`;
+}
+
+// Zone order is court order — under the basket outward — so the table reads
+// like a shot chart rather than like a spreadsheet.
+const ZONE_ORDER = ["Rim", "Paint", "Mid-range", "Corner 3", "Above the break 3"];
+
+function renderShooting(zones, ff) {
+  if (!zones.length) return `<div class="panel"><div class="empty">No shot data for this tournament.</div></div>`;
+
+  const teams = [...new Set(zones.map(z => z.team_code))].sort();
+  const best = Math.max(...zones.map(z => z.pts_per_attempt));
+
+  // League-wide baseline for each zone, so a team's number has something to be
+  // read against. A 0.95 corner three means nothing on its own.
+  const league = {};
+  ZONE_ORDER.forEach(z => {
+    const rows = zones.filter(r => r.shot_zone === z);
+    const att = rows.reduce((s, r) => s + r.attempts, 0);
+    const mk = rows.reduce((s, r) => s + r.makes, 0);
+    const pts = rows.reduce((s, r) => s + r.makes * (z.endsWith("3") ? 3 : 2), 0);
+    league[z] = { att, fg: att ? 100 * mk / att : 0, ppa: att ? pts / att : 0 };
+  });
+
+  const zoneTable = teams.map(t => {
+    const rows = ZONE_ORDER.map(z => zones.find(r => r.team_code === t && r.shot_zone === z))
+                           .filter(Boolean);
+    if (!rows.length) return "";
+    return `<tr class="${isCan(t) ? "can" : ""}">
+      <td class="l">${teamCell(t, D.teamName[t] || t)}</td>
+      ${ZONE_ORDER.map(z => {
+        const r = rows.find(x => x.shot_zone === z);
+        if (!r) return `<td>—</td>`;
+        const edge = r.pts_per_attempt - league[z].ppa;
+        return `<td title="${r.makes}/${r.attempts}, ${r.share_of_shots}% of shots">
+          <b>${r.pts_per_attempt.toFixed(2)}</b>
+          <span class="${cls(edge)}" style="font-size:11px"> ${signed(edge, 2)}</span></td>`;
+      }).join("")}
+    </tr>`;
+  }).join("");
+
+  const header = `<tr><th class="l">Team</th>${ZONE_ORDER.map(z =>
+    `<th title="League: ${league[z].ppa.toFixed(2)} PPA on ${league[z].att} attempts">${z}</th>`).join("")}</tr>`;
+
+  return `<div class="panel">
+    <header><span class="kick">Shot Profile</span><h2>Points per attempt by zone</h2>
+      <span class="sub">vs tournament average</span></header>
+    <div class="scroll"><table><thead>${header}</thead><tbody>${zoneTable}</tbody></table></div>
+    <div class="note">Points per attempt, not FG% — a 33% three is worth 1.00 a shot and a 45%
+      mid-range only 0.90, so the lower percentage is the better shot and FG% says the opposite.
+      The small figure is the gap to this tournament's average for that zone. Zones were derived
+      from the play-by-play coordinates: shooting drops from 54% inside y=40 to 40% by y=60 and
+      30% beyond it, which is where the boundaries sit.</div>
+  </div>
+  ${renderFourFactors(ff)}`;
+}
+
+function renderFourFactors(ff) {
+  if (!ff.length) return "";
+  return `<div class="panel">
+    <header><span class="kick">Four Factors</span><h2>What's driving it</h2>
+      <span class="sub">own vs opponent</span></header>
+    ${table("ff", [
+      { k: "team_code", h: "Team", l: true, f: r => teamCell(r.team_code, D.teamName[r.team_code] || r.team_code) },
+      { k: "efg_pct", h: "eFG%", t: "Shooting — the biggest of the four", f: r => num(r.efg_pct) },
+      { k: "opp_efg_pct", h: "opp eFG%", f: r => num(r.opp_efg_pct) },
+      { k: "tov_pct", h: "TOV%", t: "Turnovers per 100 possessions — lower is better", f: r => num(r.tov_pct) },
+      { k: "opp_tov_pct", h: "opp TOV%", f: r => num(r.opp_tov_pct) },
+      { k: "oreb_pct", h: "OREB%", t: "Share of available offensive rebounds", f: r => num(r.oreb_pct) },
+      { k: "dreb_pct", h: "DREB%", f: r => num(r.dreb_pct) },
+      { k: "ft_rate", h: "FT rate", t: "Free throw attempts per field goal attempt", f: r => num(r.ft_rate) },
+      { k: "net_rtg", h: "Net", f: r => chip(r.net_rtg) },
+    ], ff, { highlight: r => isCan(r.team_code), defaultSort: s => s.sort((a, b) => b.net_rtg - a.net_rtg) })}
+    <div class="note">Shooting, turnovers, rebounding, free throws — roughly in that order of
+      importance. Each is paired with the opponent's version, because conceding a 60% eFG is as
+      much a fact about your defence as your own shooting is about your offence.</div>
   </div>`;
 }
 
