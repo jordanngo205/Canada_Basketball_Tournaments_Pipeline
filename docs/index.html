@@ -3,333 +3,376 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Canada Basketball Tournaments</title>
+<title>Canada Basketball — Scouting</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,400..800&family=Inter:wght@400;450;500;600;700&display=swap">
 <style>
-  /* Dark editorial. Committed to one world rather than two half-tuned ones:
-     a near-black ground lets the court and the diverging scale carry the
-     colour, and Canada red works as a precision accent instead of a banner. */
+  /* An application shell, not a document: fixed rail on the left, a working
+     surface on the right. Slate-navy ground so the court and the diverging
+     scale carry the colour; Canada red for identity, teal for "good". */
   :root {
-    --bg:      #0a0b0d;
-    --card:    #131519;
-    --raised:  #191c21;
-    --sunk:    #101216;
-    --ink:     #f3f4f6;
-    --ink-2:   #a8aeb9;
-    --ink-3:   #6e7680;
-    --line:    #23262c;
-    --line-2:  #31353d;
-    --red:     #e8474f;
-    --red-dim: #b9313a;
-    --red-soft: rgba(232, 71, 79, .11);
-    --good:    #4fbf92;
-    --bad:     #f07a72;
-    --blue:    #6ba4e0;
-    --amber:   #ddab4e;
+    --bg:       #12171f;
+    --panel:    #1a212c;
+    --raised:   #222b38;
+    --rail:     #0e131a;
+    --ink:      #eef2f8;
+    --ink-2:    #97a4b5;
+    --ink-3:    #65738a;
+    --line:     #273140;
+    --line-2:   #35404f;
+
+    --red:      #e8474f;
+    --red-soft: rgba(232,71,79,.13);
+    --teal:     #2fd6a8;
+    --teal-soft: rgba(47,214,168,.12);
+    --amber:    #e7b457;
+    --blue:     #5ba3f5;
 
     /* Diverging scale for shooting against the field. Blue cold, red hot,
-       neutral in between — the vernacular a basketball audience already reads.
+       neutral between — the vernacular a basketball audience already reads.
        Stepped for this surface and checked with the palette validator: each
-       arm is a single hue, monotone in lightness, and the step nearest the
-       ground clears 2:1 so no zone dissolves into the page. Poles separate at
-       delta-E 24.7 under deuteranopia.
-
-       Ordered so the extremes are the vivid ones. An earlier version ran the
-       arms to pale tints at the far end, which is technically monotone but
-       reads backwards: the rim at plus fifteen points came out pale pink while
-       a zone two points above average sat in deep red. Saturation is what the
-       eye reads as "strong", so that is where the strong values go. */
+       arm one hue, monotone in lightness, mild end clearing 2:1 against the
+       panel, poles separating at delta-E 24.7 under deuteranopia. Vivid steps
+       are the extremes, because saturation is what reads as "strong". */
     --cold-3: #5ba3f5; --cold-2: #2c6cb0; --cold-1: #2d5580;
-    --mid:    #2b2f36;
+    --mid:    #2b3440;
     --hot-1:  #7a2f30; --hot-2:  #a8332f; --hot-3:  #ef4d46;
-    --court-line: #454b55;
-    --zone-empty: #16181c;
+    --court-line: #47536580;
+    --zone-empty: #19202a;
 
     --display: Archivo, "Helvetica Neue", Arial, sans-serif;
     --body: Inter, system-ui, -apple-system, sans-serif;
+    --rail-w: 232px;
   }
 
   * { box-sizing: border-box; }
   ::selection { background: var(--red); color: #fff; }
-
   body {
     margin: 0; background: var(--bg); color: var(--ink);
     font-family: var(--body); font-size: 13.5px; line-height: 1.55;
-    -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
   }
-  .wrap { max-width: 1320px; margin: 0 auto; padding: 0 28px; }
   h1, h2, h3, .num { font-family: var(--display); font-variant-numeric: tabular-nums; }
+  ::-webkit-scrollbar { width: 9px; height: 9px; }
+  ::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
 
-  /* ---------- masthead ---------- */
-  .masthead { border-bottom: 1px solid var(--line); background: var(--sunk); }
-  .masthead .wrap {
-    display: flex; align-items: flex-end; gap: 20px; padding: 26px 28px 20px; flex-wrap: wrap;
+  /* ---------- rail ---------- */
+  .shell { display: grid; grid-template-columns: var(--rail-w) 1fr; min-height: 100vh; }
+  .rail {
+    background: var(--rail); border-right: 1px solid var(--line);
+    padding: 22px 0 28px; position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    display: flex; flex-direction: column; gap: 4px;
   }
-  .crest {
-    width: 40px; height: 40px; flex: none; border-radius: 9px;
-    background: var(--red); display: grid; place-items: center; font-size: 20px;
-    box-shadow: 0 0 0 1px rgba(255,255,255,.07);
+  .brand { display: flex; align-items: center; gap: 11px; padding: 0 20px 22px; }
+  .brand .mark {
+    width: 34px; height: 34px; border-radius: 9px; background: var(--red);
+    display: grid; place-items: center; font-size: 17px; flex: none;
   }
-  .mh-text { min-width: 0; flex: 1; }
-  .eyebrow {
-    font-family: var(--display); font-size: 10px; font-weight: 600;
-    letter-spacing: .24em; text-transform: uppercase; color: var(--red); margin-bottom: 6px;
+  .brand .txt { min-width: 0; }
+  .brand .t1 {
+    font-family: var(--display); font-size: 13.5px; font-weight: 700;
+    letter-spacing: -0.01em; line-height: 1.15;
   }
-  .masthead h1 {
-    margin: 0; font-size: clamp(22px, 3.1vw, 36px); font-weight: 700;
-    letter-spacing: -0.03em; line-height: 1.04; font-stretch: 88%; text-wrap: balance;
+  .brand .t2 {
+    font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-3);
+    margin-top: 2px; font-family: var(--display); font-weight: 600;
   }
-  .mh-meta { text-align: right; font-size: 12.5px; color: var(--ink-3); padding-bottom: 3px; }
-  .pill-live {
-    display: inline-block; margin-top: 6px; padding: 3px 9px; border-radius: 5px;
-    background: var(--raised); border: 1px solid var(--line-2);
-    font-family: var(--display); font-size: 10.5px; font-weight: 600;
-    letter-spacing: .06em; color: var(--ink-2);
+  .rail-group {
+    font-family: var(--display); font-size: 9.5px; font-weight: 600; letter-spacing: .18em;
+    text-transform: uppercase; color: var(--ink-3); padding: 16px 20px 7px;
   }
+  .nav {
+    display: flex; align-items: center; gap: 11px; width: 100%;
+    background: none; border: 0; cursor: pointer; text-align: left;
+    font: inherit; font-size: 13px; font-weight: 500; color: var(--ink-2);
+    padding: 9px 20px; border-left: 2px solid transparent; transition: color .12s, background .12s;
+  }
+  .nav:hover { color: var(--ink); background: rgba(255,255,255,.03); }
+  .nav[aria-current="true"] {
+    color: var(--ink); background: var(--red-soft); border-left-color: var(--red); font-weight: 600;
+  }
+  .nav svg { width: 15px; height: 15px; flex: none; stroke: currentColor; fill: none; stroke-width: 1.7; }
+  .rail-foot { margin-top: auto; padding: 18px 20px 0; border-top: 1px solid var(--line); }
+  .rail-foot a { color: var(--ink-3); font-size: 11.5px; text-decoration: none; }
+  .rail-foot a:hover { color: var(--red); }
 
-  /* ---------- nav ---------- */
-  .navbar { background: var(--bg); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 20; }
-  .navbar .wrap { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; padding: 0 28px; }
-  .tabs { display: flex; overflow-x: auto; scrollbar-width: none; }
-  .tabs::-webkit-scrollbar { display: none; }
-  .tab {
-    font-family: var(--display); font-size: 12.5px; font-weight: 600; letter-spacing: .02em;
-    background: none; border: 0; border-bottom: 2px solid transparent; cursor: pointer;
-    color: var(--ink-3); padding: 16px 0 13px; margin-right: 26px; white-space: nowrap;
-    transition: color .13s;
+  /* ---------- top bar ---------- */
+  .main { min-width: 0; }
+  .topbar {
+    display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+    padding: 22px 30px 20px; border-bottom: 1px solid var(--line); background: var(--bg);
+    position: sticky; top: 0; z-index: 30;
   }
-  .tab:hover { color: var(--ink-2); }
-  .tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--red); }
+  .topbar h1 { margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.03em; }
+  .topbar .sub { font-size: 12.5px; color: var(--ink-3); margin-top: 3px; }
+  .status {
+    display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: var(--ink-2);
+    background: var(--panel); border: 1px solid var(--line); border-radius: 7px; padding: 6px 11px;
+  }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 0 3px var(--teal-soft); }
+  .spacer { margin-left: auto; }
   select {
-    font: inherit; font-size: 12.5px; font-weight: 500; color: var(--ink); background: var(--raised);
-    border: 1px solid var(--line-2); border-radius: 7px; padding: 7px 11px; margin-left: auto; max-width: 100%;
+    font: inherit; font-size: 12.5px; font-weight: 500; color: var(--ink); background: var(--panel);
+    border: 1px solid var(--line-2); border-radius: 8px; padding: 8px 12px; max-width: 340px;
   }
-  .tab:focus-visible, select:focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
+  select:focus-visible, .nav:focus-visible, .tab:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
 
-  /* ---------- stat strip: hairlines, not boxes ---------- */
-  .tiles {
-    display: grid; grid-template-columns: 1.5fr repeat(4, 1fr);
-    margin: 26px 0 22px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
-  }
-  @media (max-width: 980px) { .tiles { grid-template-columns: 1fr 1fr; } }
-  .tile { padding: 18px 22px 17px; border-right: 1px solid var(--line); }
-  .tile:last-child { border-right: 0; }
-  .tile.hero { box-shadow: inset 2px 0 0 var(--red); background: var(--red-soft); }
-  .tile .k {
-    font-family: var(--display); font-size: 10px; font-weight: 600;
-    letter-spacing: .16em; text-transform: uppercase; color: var(--ink-3);
-  }
-  .tile .v {
-    font-family: var(--display); font-size: 32px; font-weight: 700; letter-spacing: -0.04em;
-    margin-top: 7px; font-variant-numeric: tabular-nums; display: flex; align-items: baseline; gap: 7px;
-    line-height: 1;
-  }
-  .tile.hero .v { font-size: 46px; color: var(--red); }
-  .tile .v .unit { font-size: 11px; font-weight: 600; color: var(--ink-3); letter-spacing: .12em; }
-  .tile .s { font-size: 12px; color: var(--ink-2); margin-top: 7px; line-height: 1.4; }
+  .content { padding: 22px 30px 60px; display: flex; flex-direction: column; gap: 18px; }
 
-  /* ---------- panels ---------- */
-  .panel {
-    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
-    margin-bottom: 20px; overflow: hidden;
+  /* ---------- grid + cards ---------- */
+  .grid { display: grid; gap: 16px; align-items: start; }
+  .g-kpi { grid-template-columns: repeat(auto-fit, minmax(212px, 1fr)); }
+  .g-2-1 { grid-template-columns: 1.62fr 1fr; }
+  .g-1-1 { grid-template-columns: 1fr 1fr; }
+  /* Each column stacks independently, so a short card doesn't leave a hole
+     waiting for a taller neighbour in the same row. */
+  .col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  @media (max-width: 1100px) { .g-2-1, .g-1-1 { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 13px;
+    overflow: hidden; min-width: 0;
   }
-  .panel > header {
-    display: flex; align-items: baseline; gap: 13px; padding: 16px 22px 14px;
+  .card > header {
+    display: flex; align-items: baseline; gap: 12px; padding: 15px 18px 13px;
     border-bottom: 1px solid var(--line);
   }
-  .panel > header .kick {
-    font-family: var(--display); font-size: 9.5px; font-weight: 700; letter-spacing: .2em;
-    text-transform: uppercase; color: var(--red);
+  .card > header h2 { margin: 0; font-size: 14.5px; font-weight: 700; letter-spacing: -0.015em; }
+  .card > header .hint { margin-left: auto; font-size: 11.5px; color: var(--ink-3); }
+  .card .body { padding: 16px 18px; }
+  .card .note {
+    font-size: 11.5px; color: var(--ink-3); padding: 11px 18px; border-top: 1px solid var(--line);
+    background: var(--rail); line-height: 1.6;
   }
-  .panel > header h2 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: -0.028em; }
-  .panel > header .sub { margin-left: auto; font-size: 12px; color: var(--ink-3); }
-  .scroll { overflow-x: auto; }
-  .note {
-    font-size: 12px; color: var(--ink-3); padding: 13px 22px; border-top: 1px solid var(--line);
-    background: var(--sunk); line-height: 1.6;
+
+  /* KPI tile with a ring */
+  .kpi { display: flex; align-items: center; gap: 15px; padding: 16px 18px; }
+  .kpi .txt { min-width: 0; flex: 1; }
+  .kpi .k {
+    font-family: var(--display); font-size: 9.5px; font-weight: 600; letter-spacing: .17em;
+    text-transform: uppercase; color: var(--ink-3);
+  }
+  .kpi .v {
+    font-family: var(--display); font-size: 27px; font-weight: 700; letter-spacing: -0.035em;
+    line-height: 1.08; margin-top: 5px; font-variant-numeric: tabular-nums;
+  }
+  .kpi .s { font-size: 11.5px; color: var(--ink-2); margin-top: 4px; line-height: 1.35; }
+  .ring { flex: none; }
+  .ring text {
+    font-family: var(--display); font-size: 13px; font-weight: 700; fill: var(--ink);
+    text-anchor: middle; dominant-baseline: central;
   }
 
   /* ---------- tables ---------- */
   table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
-  th, td { padding: 11px 15px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--line); }
+  th, td { padding: 10px 14px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--line); }
   th:first-child, td:first-child, th.l, td.l { text-align: left; }
   thead th {
-    font-family: var(--display); font-size: 9.5px; font-weight: 600; letter-spacing: .14em;
+    font-family: var(--display); font-size: 9.5px; font-weight: 600; letter-spacing: .13em;
     text-transform: uppercase; color: var(--ink-3); cursor: pointer; user-select: none;
-    background: var(--card); border-bottom: 1px solid var(--line-2); padding: 14px 15px 10px;
+    background: var(--panel); border-bottom: 1px solid var(--line-2); padding: 13px 14px 9px;
+    position: sticky; top: 0;
   }
   thead th:hover { color: var(--ink-2); }
   thead th[data-dir]::after { content: " ▾"; color: var(--red); }
   thead th[data-dir="asc"]::after { content: " ▴"; }
   tbody tr:last-child td { border-bottom: 0; }
   tbody tr:hover td { background: var(--raised); }
-  .team { display: inline-flex; align-items: center; gap: 10px; font-weight: 500; }
+  .scroll { overflow-x: auto; }
+  .team { display: inline-flex; align-items: center; gap: 9px; font-weight: 500; }
   .team .fl { font-size: 15px; line-height: 1; }
   tr.can td { background: var(--red-soft); }
   tr.can:hover td { background: var(--red-soft); }
   tr.can td:first-child { box-shadow: inset 2px 0 0 var(--red); }
   tr.can .team { font-weight: 650; }
   .rank { color: var(--ink-3); font-weight: 600; font-family: var(--display); }
-  .pos { color: var(--good); font-weight: 600; }
-  .neg { color: var(--bad); font-weight: 600; }
+  .pos { color: var(--teal); font-weight: 600; }
+  .neg { color: var(--red); font-weight: 600; }
   .chip {
-    display: inline-block; min-width: 50px; text-align: center; padding: 3px 9px; border-radius: 5px;
+    display: inline-block; min-width: 48px; text-align: center; padding: 3px 8px; border-radius: 5px;
     font-family: var(--display); font-size: 11.5px; font-weight: 600; font-variant-numeric: tabular-nums;
   }
-  .chip.p { background: rgba(79,191,146,.13); color: var(--good); }
-  .chip.n { background: rgba(240,122,114,.13); color: var(--bad); }
+  .chip.p { background: var(--teal-soft); color: var(--teal); }
+  .chip.n { background: var(--red-soft); color: var(--red); }
   .chip.z { background: var(--raised); color: var(--ink-3); }
 
-  /* ---------- game cards ---------- */
-  .games { display: grid; gap: 12px; }
-  .game { background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
-  .game > .gh {
-    display: flex; align-items: center; gap: 10px; padding: 10px 18px;
-    border-bottom: 1px solid var(--line); background: var(--sunk);
-    font-family: var(--display); font-size: 10px; font-weight: 600; letter-spacing: .14em;
-    text-transform: uppercase; color: var(--ink-3);
-  }
-  .game > .gh .date { margin-left: auto; letter-spacing: .06em; }
-  .score-row { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px; padding: 20px 18px 15px; }
-  .side { display: flex; align-items: center; gap: 13px; min-width: 0; }
-  .side.away { justify-content: flex-end; text-align: right; }
-  .side .fl { font-size: 28px; line-height: 1; }
-  .side .nm { font-family: var(--display); font-size: 19px; font-weight: 700; letter-spacing: -0.025em; }
-  .side .full { font-size: 11.5px; color: var(--ink-3); }
-  .score {
-    font-family: var(--display); font-size: 32px; font-weight: 700; letter-spacing: -0.04em;
-    font-variant-numeric: tabular-nums; display: flex; gap: 11px; align-items: baseline;
-  }
-  .score .l { color: var(--ink-3); }
-  .score .d { color: var(--line-2); font-weight: 500; }
-  .winner-note {
-    text-align: center; font-size: 10.5px; color: var(--ink-3); margin-top: 3px;
-    font-family: var(--display); font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
-  }
-  .qtr { display: flex; justify-content: center; gap: 6px; padding: 0 18px 14px; flex-wrap: wrap; }
-  .qtr span {
-    font-size: 11px; font-weight: 500; color: var(--ink-2); background: var(--raised);
-    border: 1px solid var(--line); border-radius: 5px; padding: 3px 9px; font-variant-numeric: tabular-nums;
+  /* ---------- line chart ---------- */
+  .lc { width: 100%; display: block; overflow: visible; }
+  .lc .grid-l { stroke: var(--line); stroke-width: 1; }
+  .lc .zero { stroke: var(--line-2); stroke-width: 1.2; stroke-dasharray: 3 3; }
+  .lc .area { opacity: .16; }
+  .lc .ln { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+  .lc .pt { stroke: var(--panel); stroke-width: 2; }
+  .lc .ax { font-family: var(--body); font-size: 9px; fill: var(--ink-3); }
+  .lc .hit { fill: transparent; cursor: pointer; }
+
+  /* ---------- horizontal bars ---------- */
+  .hbars { display: flex; flex-direction: column; gap: 9px; }
+  .hbar { display: grid; grid-template-columns: 132px 1fr 46px; gap: 11px; align-items: center; font-size: 12.5px; }
+  .hbar .nm { color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .hbar .tr { display: block; height: 17px; background: var(--raised); border-radius: 4px; overflow: hidden; }
+  .hbar .fi { display: block; height: 100%; border-radius: 4px; }
+  .hbar .vl {
+    text-align: right; font-family: var(--display); font-weight: 700; font-size: 13px;
+    font-variant-numeric: tabular-nums;
   }
 
-  .empty { padding: 48px 20px; text-align: center; color: var(--ink-3); }
-  footer {
-    margin: 34px 0 70px; padding-top: 18px; border-top: 1px solid var(--line);
-    font-size: 11.5px; color: var(--ink-3); line-height: 1.7;
+  /* ---------- results list ---------- */
+  .rlist { display: flex; flex-direction: column; }
+  .ritem {
+    display: grid; grid-template-columns: 30px 1fr auto; gap: 11px; align-items: center;
+    padding: 11px 18px; border-bottom: 1px solid var(--line);
   }
-  footer a { color: var(--red); text-decoration: none; }
-  footer a:hover { text-decoration: underline; }
-  @media (max-width: 760px) {
-    .wrap { padding: 0 18px; }
-    .mh-meta { text-align: left; }
-    select { margin-left: 0; width: 100%; }
-    .score-row { grid-template-columns: 1fr; gap: 10px; text-align: center; }
-    .side, .side.away { justify-content: center; text-align: center; }
+  .ritem:last-child { border-bottom: 0; }
+  .ritem:hover { background: var(--raised); }
+  .ritem .wl {
+    width: 22px; height: 22px; border-radius: 6px; display: grid; place-items: center;
+    font-family: var(--display); font-size: 10.5px; font-weight: 700;
+  }
+  .ritem .wl.w { background: var(--teal-soft); color: var(--teal); }
+  .ritem .wl.l { background: var(--red-soft); color: var(--red); }
+  .ritem .op { font-weight: 500; }
+  .ritem .dt { font-size: 11px; color: var(--ink-3); }
+  .ritem .sc { font-family: var(--display); font-weight: 700; font-variant-numeric: tabular-nums; font-size: 13.5px; }
+
+  /* ---------- game cards ---------- */
+  .games { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+  .game { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .game .gh {
+    display: flex; gap: 9px; padding: 9px 15px; border-bottom: 1px solid var(--line); background: var(--rail);
+    font-family: var(--display); font-size: 9.5px; font-weight: 600; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--ink-3);
+  }
+  .game .gh .date { margin-left: auto; letter-spacing: .06em; }
+  .score-row { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px; padding: 16px 15px 12px; }
+  .side { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .side.away { justify-content: flex-end; text-align: right; }
+  .side .fl { font-size: 23px; line-height: 1; }
+  .side .nm { font-family: var(--display); font-size: 16px; font-weight: 700; letter-spacing: -0.02em; }
+  .score { font-family: var(--display); font-size: 25px; font-weight: 700; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; display: flex; gap: 8px; }
+  .score .l { color: var(--ink-3); }
+  .score .d { color: var(--line-2); font-weight: 500; }
+  .qtr { display: flex; justify-content: center; gap: 5px; padding: 0 15px 12px; flex-wrap: wrap; }
+  .qtr span {
+    font-size: 10.5px; color: var(--ink-2); background: var(--raised); border-radius: 4px;
+    padding: 2px 7px; font-variant-numeric: tabular-nums;
   }
 
   /* ---------- shot chart ---------- */
-  .chart-row { display: grid; grid-template-columns: minmax(340px, 1.5fr) minmax(250px, 0.85fr); gap: 0; }
-  @media (max-width: 860px) { .chart-row { grid-template-columns: 1fr; } }
-  .court-wrap { padding: 18px 22px 12px; border-right: 1px solid var(--line); display: grid; place-items: center; }
-  @media (max-width: 860px) { .court-wrap { border-right: 0; border-bottom: 1px solid var(--line); } }
-  .court { width: 100%; height: auto; display: block; }
-  .court .lines * { fill: none; stroke: var(--court-line); stroke-width: 1.6; stroke-linecap: round; pointer-events: none; }
+  .chart-row { display: grid; grid-template-columns: minmax(300px, 1.25fr) minmax(230px, 1fr); }
+  @media (max-width: 980px) { .chart-row { grid-template-columns: 1fr; } }
+  .court-wrap { padding: 16px 18px 8px; border-right: 1px solid var(--line); display: grid; place-items: center; }
+  @media (max-width: 980px) { .court-wrap { border-right: 0; border-bottom: 1px solid var(--line); } }
+  .court { width: 100%; height: auto; display: block; max-height: 460px; }
+  .court .lines * { fill: none; stroke: var(--court-line); stroke-width: 1.5; pointer-events: none; }
   .court .zone { stroke: none; shape-rendering: crispEdges; cursor: pointer; transition: opacity .1s; }
-  .court .zone:hover { opacity: .78; }
+  .court .zone:hover { opacity: .74; }
   .court .zlab { pointer-events: none; }
   .court .zpct {
-    font-family: var(--display); font-size: 12px; font-weight: 700; fill: var(--ink);
-    text-anchor: middle; paint-order: stroke; stroke: var(--card); stroke-width: 3.5px; stroke-linejoin: round;
+    font-family: var(--display); font-size: 11.5px; font-weight: 700; fill: #fff;
+    text-anchor: middle; paint-order: stroke; stroke: rgba(0,0,0,.55); stroke-width: 3px; stroke-linejoin: round;
   }
   .court .zn {
-    font-family: var(--body); font-size: 8.5px; font-weight: 500; fill: var(--ink-2);
-    text-anchor: middle; paint-order: stroke; stroke: var(--card); stroke-width: 3px; stroke-linejoin: round;
+    font-family: var(--body); font-size: 8px; font-weight: 500; fill: rgba(255,255,255,.72);
+    text-anchor: middle; paint-order: stroke; stroke: rgba(0,0,0,.5); stroke-width: 2.5px; stroke-linejoin: round;
   }
-
-  .legend { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 4px 18px 14px; font-size: 11.5px; color: var(--ink-2); }
-  .legend .swatches { display: flex; align-items: center; gap: 3px; }
-  .legend .sw { width: 26px; height: 14px; border-radius: 3px; }
-  .legend .sizes { display: flex; align-items: center; gap: 6px; margin-left: auto; }
-  .legend .sizes i { display: inline-block; background: var(--ink-3); border-radius: 2px; opacity: .55; }
+  .legend { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 4px 18px 14px; font-size: 11px; color: var(--ink-3); }
+  .legend .sw { width: 24px; height: 11px; border-radius: 3px; }
+  .legend .swatches { display: flex; gap: 3px; }
+  .zone-side { padding: 16px 18px; display: flex; flex-direction: column; justify-content: center; gap: 12px; }
 
   .tip {
     position: fixed; pointer-events: none; z-index: 60; opacity: 0;
-    background: var(--ink); color: var(--card); font-size: 12px; line-height: 1.45;
-    padding: 8px 10px; border-radius: 7px; max-width: 220px;
-    box-shadow: 0 4px 16px rgba(0,0,0,.28); transition: opacity .09s;
+    background: #05080c; color: var(--ink); font-size: 12px; line-height: 1.45;
+    padding: 9px 11px; border-radius: 8px; max-width: 230px; border: 1px solid var(--line-2);
+    box-shadow: 0 8px 26px rgba(0,0,0,.5); transition: opacity .08s;
   }
-  .tip b { font-size: 12.5px; }
-  .tip .muted { opacity: .72; }
+  .tip b { font-family: var(--display); }
+  .tip .muted { color: var(--ink-3); }
 
-  .zone-side { padding: 20px 22px; display: flex; flex-direction: column; justify-content: center; gap: 14px; }
-  .zone-row { display: grid; grid-template-columns: 104px 1fr 66px; gap: 12px; align-items: center; font-size: 12.5px; }
-  .zone-row .zname { color: var(--ink-2); font-weight: 500; }
-  .zone-row .track { height: 20px; background: var(--sunk); border-radius: 3px; position: relative; overflow: hidden; }
-  .zone-row .fill { position: absolute; inset: 0 auto 0 0; border-radius: 3px; }
-  .zone-row .val { text-align: right; font-family: var(--display); font-weight: 700; font-size: 15px; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
-  .zone-row .sub { color: var(--ink-3); font-weight: 500; font-size: 11px; }
+  .empty { padding: 52px 20px; text-align: center; color: var(--ink-3); }
 
-  .empty { padding: 42px 18px; text-align: center; color: var(--ink-3); }
-  footer { margin: 28px 0 60px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 12px; color: var(--ink-3); }
-  footer a { color: var(--red); }
-  @media (max-width: 720px) {
-    .mh-meta { margin-left: 0; text-align: left; width: 100%; }
-    select { margin-left: 0; width: 100%; }
-    .score-row { grid-template-columns: 1fr; gap: 8px; text-align: center; }
-    .side, .side.away { justify-content: center; text-align: center; }
+  @media (max-width: 860px) {
+    :root { --rail-w: 0px; }
+    .shell { grid-template-columns: 1fr; }
+    .rail {
+      position: static; height: auto; flex-direction: row; overflow-x: auto; align-items: center;
+      padding: 10px 12px; gap: 2px; border-right: 0; border-bottom: 1px solid var(--line);
+    }
+    .brand, .rail-group, .rail-foot { display: none; }
+    .nav { width: auto; white-space: nowrap; border-left: 0; border-bottom: 2px solid transparent; padding: 8px 12px; }
+    .nav[aria-current="true"] { border-left: 0; border-bottom-color: var(--red); background: none; }
+    .topbar, .content { padding-left: 16px; padding-right: 16px; }
   }
 </style>
 </head>
 <body>
 
-<div class="masthead">
-  <div class="wrap">
-    <div class="crest">🍁</div>
-    <div class="mh-text">
-      <div class="eyebrow">Canada Basketball</div>
-      <h1 id="compTitle">2026 Tournaments</h1>
+<div class="shell">
+  <aside class="rail">
+    <div class="brand">
+      <div class="mark">🍁</div>
+      <div class="txt">
+        <div class="t1">Canada Basketball</div>
+        <div class="t2">Scouting</div>
+      </div>
     </div>
-    <div class="mh-meta">
-      <div id="compMeta">—</div>
-      <div class="pill-live" id="updated">loading…</div>
-    </div>
-  </div>
-</div>
 
-<div class="navbar">
-  <div class="wrap">
-    <div class="tabs" role="tablist">
-      <button class="tab" role="tab" data-view="standings" aria-selected="true">Standings</button>
-      <button class="tab" role="tab" data-view="efficiency" aria-selected="false">Team Efficiency</button>
-      <button class="tab" role="tab" data-view="shooting" aria-selected="false">Shot Profile</button>
-      <button class="tab" role="tab" data-view="players" aria-selected="false">Leaders</button>
-      <button class="tab" role="tab" data-view="games" aria-selected="false">Results</button>
-    </div>
-    <select id="comp" aria-label="Tournament"></select>
-  </div>
-</div>
+    <div class="rail-group">Overview</div>
+    <button class="nav" data-view="overview" aria-current="true">
+      <svg viewBox="0 0 20 20"><rect x="2.5" y="2.5" width="6" height="6" rx="1.5"/><rect x="11.5" y="2.5" width="6" height="6" rx="1.5"/><rect x="2.5" y="11.5" width="6" height="6" rx="1.5"/><rect x="11.5" y="11.5" width="6" height="6" rx="1.5"/></svg>
+      Dashboard</button>
 
-<div class="wrap">
-  <div class="tiles" id="tiles"></div>
-  <div id="view"><div class="panel"><div class="empty">Loading…</div></div></div>
-  <footer>
-    Built by the <a href="https://github.com/jordanngo205/Canada_Basketball_Tournaments_Pipeline">Canada Basketball Tournaments pipeline</a>
-    — FIBA game pages → Postgres → dbt → these tables. Every figure passed 56 data-quality tests before it was written out.
-  </footer>
+    <div class="rail-group">Team</div>
+    <button class="nav" data-view="standings">
+      <svg viewBox="0 0 20 20"><path d="M3 16.5h14M5.5 16.5V9M10 16.5V4M14.5 16.5v-5"/></svg>
+      Standings</button>
+    <button class="nav" data-view="efficiency">
+      <svg viewBox="0 0 20 20"><path d="M3 13l4.2-4.6 3.3 2.9L17 5"/><path d="M13 5h4v4"/></svg>
+      Four Factors</button>
+    <button class="nav" data-view="shooting">
+      <svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="7.2"/><path d="M2.8 10h14.4M10 2.8c2.6 2 2.6 12.4 0 14.4M10 2.8c-2.6 2-2.6 12.4 0 14.4"/></svg>
+      Shot Chart</button>
+
+    <div class="rail-group">Players</div>
+    <button class="nav" data-view="leaders">
+      <svg viewBox="0 0 20 20"><circle cx="10" cy="6.5" r="3"/><path d="M4 16.5c0-3 2.7-4.6 6-4.6s6 1.6 6 4.6"/></svg>
+      Leaders</button>
+
+    <div class="rail-group">Schedule</div>
+    <button class="nav" data-view="results">
+      <svg viewBox="0 0 20 20"><rect x="3" y="4.5" width="14" height="12.5" rx="2"/><path d="M3 8.5h14M7 2.8v3.4M13 2.8v3.4"/></svg>
+      Results</button>
+
+    <div class="rail-foot">
+      <a href="https://github.com/jordanngo205/Canada_Basketball_Tournaments_Pipeline" target="_blank" rel="noopener">Pipeline source ↗</a>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <h1 id="pageTitle">Dashboard</h1>
+        <div class="sub" id="pageSub">—</div>
+      </div>
+      <div class="spacer"></div>
+      <span class="status"><span class="dot"></span><span id="freshness">loading</span></span>
+      <select id="comp" aria-label="Tournament"></select>
+    </div>
+    <div class="content" id="view"><div class="card"><div class="empty">Loading…</div></div></div>
+  </div>
 </div>
 
 <script src="assets/flags.js"></script>
 <script>
 const FILES = ["standings", "player_leaders", "team_efficiency", "games", "period_scores",
-               "four_factors", "shot_zones", "manifest"];
-// shot_grid is ~800KB and only the Shot Chart tab needs it, so it loads on
-// demand rather than holding up first paint.
+               "four_factors", "manifest"];
+// court_zones is only wanted by the shot chart, so it loads on demand.
 const LAZY = ["court_zones", "player_shot_zones"];
-let shotTeam = null;
 const D = {};
-let comp = null, view = "standings";
+let comp = null, view = "overview", shotTeam = null;
 const sortState = {};
 
 const num = (v, d = 1) => (v === null || v === undefined || v === "") ? "—" : Number(v).toFixed(d);
@@ -338,298 +381,93 @@ const isCan = t => t === "CAN";
 const cls = v => v > 0 ? "pos" : v < 0 ? "neg" : "";
 const chip = v => `<span class="chip ${v > 0 ? "p" : v < 0 ? "n" : "z"}">${signed(v)}</span>`;
 const teamCell = (code, name) => `<span class="team"><span class="fl">${flag(code)}</span>${name || code}</span>`;
-const ordinal = n => {
-  const s = ["th", "st", "nd", "rd"], v = n % 100;
-  return n + (s[(v - 20) % 10] || s[v] || s[0]);
-};
 const fmtDate = d => new Date(d + "T00:00:00").toLocaleDateString(undefined, { day: "numeric", month: "short" });
+const ordinal = n => { const s = ["th","st","nd","rd"], v = n % 100; return n + (s[(v-20)%10] || s[v] || s[0]); };
 
-async function boot() {
-  try {
-    const loaded = await Promise.all(FILES.map(n => fetch(`data/${n}.json`).then(r => {
-      if (!r.ok) throw new Error(`${n}.json → ${r.status}`);
-      return r.json();
-    })));
-    FILES.forEach((n, i) => D[n] = loaded[i]);
-  } catch (err) {
-    document.getElementById("view").innerHTML =
-      `<div class="panel"><div class="empty"><b>Couldn't load the data</b> — ${err.message}.<br><br>
-       Opening this file directly won't work; browsers block local fetches.<br>
-       Run <code>python3 -m http.server -d docs</code> and open localhost:8000.</div></div>`;
-    document.getElementById("updated").textContent = "";
-    return;
-  }
-
-  D.byGame = {};
-  D.period_scores.forEach(p => (D.byGame[p.game_id] ||= []).push(p));
-  D.teamName = {};
-  D.games.forEach(g => { D.teamName[g.home_code] = g.home_team; D.teamName[g.away_code] = g.away_team; });
-
-  const when = new Date(D.manifest.generated_at);
-  document.getElementById("updated").textContent =
-    "Updated " + when.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
-
-  const counts = {};
-  D.games.forEach(g => counts[g.competition] = (counts[g.competition] || 0) + 1);
-  const comps = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
-  const sel = document.getElementById("comp");
-  sel.innerHTML = comps.map(c => `<option value="${c}">${c}</option>`).join("");
-  comp = comps[0];
-  sel.onchange = e => { comp = e.target.value; render(); };
-
-  document.querySelectorAll(".tab").forEach(b => b.onclick = () => {
-    document.querySelectorAll(".tab").forEach(x => x.setAttribute("aria-selected", x === b));
-    view = b.dataset.view;
-    render();
-    if (view === "shooting" && !D.court_zones) loadShotData();
-  });
-
-  render();
-}
-
-// Kept separate from render() on purpose. An earlier version caught both in one
-// chain, so a ReferenceError in the renderer set shot_grid to [] and the page
-// said "no shot data" — a code bug wearing a missing-data costume. A fetch
-// failure and a render failure are different problems and get different
-// handling.
-function loadShotData() {
-  Promise.all(LAZY.map(n =>
-    fetch(`data/${n}.json`).then(r => {
-      if (!r.ok) throw new Error(`${n}.json → ${r.status}`);
-      return r.json();
-    })
-  )).then(res => {
-    LAZY.forEach((n, i) => D[n] = res[i]);
-  }).catch(err => {
-    D.court_zones = [];
-    console.error("shot data failed to load:", err);
-  }).finally(render);
-}
-
-function sortRows(rows, key, dir, fallback) {
-  const s = [...rows];
-  if (!key) return fallback ? fallback(s) : s;
-  s.sort((a, b) => {
-    const x = a[key], y = b[key];
-    if (x === y) return 0;
-    if (x === null || x === undefined) return 1;
-    if (y === null || y === undefined) return -1;
-    const r = typeof x === "number" ? x - y : String(x).localeCompare(String(y));
-    return dir === "asc" ? r : -r;
-  });
-  return s;
-}
-
-function table(id, cols, rows, opts = {}) {
-  const st = sortState[id] || {};
-  const sorted = sortRows(rows, st.key, st.dir, opts.defaultSort);
-  const head = cols.map(c =>
-    `<th data-col="${c.k}" ${st.key === c.k ? `data-dir="${st.dir}"` : ""} class="${c.l ? "l" : ""}" title="${c.t || ""}">${c.h}</th>`).join("");
-  const body = sorted.map(r =>
-    `<tr class="${opts.highlight && opts.highlight(r) ? "can" : ""}">${cols.map(c =>
-      `<td class="${c.l ? "l" : ""} ${c.cls ? c.cls(r) : ""}">${c.f(r)}</td>`).join("")}</tr>`).join("");
-  setTimeout(() => document.querySelectorAll(`#${id} thead th`).forEach(th => th.onclick = () => {
-    const k = th.dataset.col, cur = sortState[id] || {};
-    sortState[id] = { key: k, dir: cur.key === k && cur.dir === "desc" ? "asc" : "desc" };
-    render();
-  }), 0);
-  return `<div class="scroll"><table id="${id}"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
-}
-
-function render() {
-  const games = D.games.filter(g => g.competition === comp);
-  const stand = D.standings.filter(r => r.competition === comp);
-  const eff = D.team_efficiency.filter(r => r.competition === comp);
-  const players = D.player_leaders.filter(r => r.competition === comp);
-
-  document.getElementById("compTitle").textContent = comp;
-  const dates = games.map(g => g.game_date).sort();
-  const venue = games[0] ? [games[0].city, games[0].country].filter(Boolean).join(", ") : "";
-  document.getElementById("compMeta").textContent =
-    (dates.length ? `${fmtDate(dates[0])} – ${fmtDate(dates[dates.length - 1])}` : "") + (venue ? ` · ${venue}` : "");
-
-  renderTiles(games, stand, eff, players);
-
-  const out = document.getElementById("view");
-  if (view === "standings") out.innerHTML = renderStandings(stand);
-  if (view === "efficiency") out.innerHTML = renderEfficiency(eff);
-  if (view === "shooting") out.innerHTML = renderShooting(
-        D.shot_zones.filter(r => r.competition === comp),
-        D.four_factors.filter(r => r.competition === comp));
-  if (view === "players") out.innerHTML = renderPlayers(players);
-  if (view === "games") out.innerHTML = renderGames(games);
-}
-
-function rollUp(eff) {
-  const by = {};
-  eff.forEach(r => {
-    const t = by[r.team_code] ||= { team_code: r.team_code, g: 0, pts: 0, opp: 0, poss: 0, oppPoss: 0, efg: 0, tov: 0, oreb: 0, ft: 0 };
-    t.g++; t.pts += r.pts; t.opp += r.opp_pts; t.poss += r.possessions; t.oppPoss += r.possessions;
-    t.efg += r.efg_pct; t.tov += r.tov_pct; t.oreb += r.oreb_pct; t.ft += r.ft_pct || 0;
-  });
-  return Object.values(by).map(t => ({
-    team_code: t.team_code, games: t.g,
-    ortg: 100 * t.pts / t.poss, drtg: 100 * t.opp / t.oppPoss,
-    net: 100 * t.pts / t.poss - 100 * t.opp / t.oppPoss,
-    pace: t.poss / t.g, efg: t.efg / t.g, tov: t.tov / t.g, oreb: t.oreb / t.g, ft: t.ft / t.g,
-  }));
-}
-
-function renderTiles(games, stand, eff, players) {
-  const agg = rollUp(eff);
-  const best = [...agg].sort((a, b) => b.ortg - a.ortg)[0];
-  const bestD = [...agg].sort((a, b) => a.drtg - b.drtg)[0];
-  const top = [...players].sort((a, b) => b.ppg - a.ppg)[0];
-  const can = stand.find(r => isCan(r.team_code));
-  const pace = agg.length ? agg.reduce((s, a) => s + a.pace, 0) / agg.length : null;
-
-  const canEff = can ? agg.find(a => a.team_code === "CAN") : null;
-  const t = [
-    { c: "hero", k: "Canada", v: can ? `${can.overall_wins}–${can.overall_losses}` : "—",
-      s: can ? `Group ${can.group_code}, finished ${ordinal(can.standing_rank)}${canEff ? ` · net ${signed(canEff.net)} per 100` : ""}`
-             : "no group-phase games" },
-    { k: "Games", v: games.length, s: `${agg.length} teams · ${num(pace, 0)} possessions a game` },
-    { k: "Best offence", v: best ? num(best.ortg) : "—", unit: "ORTG",
-      s: best ? `${flag(best.team_code)} ${best.team_code} scoring per 100` : "" },
-    { k: "Best defence", v: bestD ? num(bestD.drtg) : "—", unit: "DRTG",
-      s: bestD ? `${flag(bestD.team_code)} ${bestD.team_code} conceding per 100` : "" },
-    { k: "Leading scorer", v: top ? num(top.ppg) : "—", unit: "PPG",
-      s: top ? `${flag(top.team_code)} ${top.player_name}` : "" },
-  ];
-  document.getElementById("tiles").innerHTML = t.map(x =>
-    `<div class="tile ${x.c || ""}"><div class="k">${x.k}</div>
-     <div class="v">${x.v}${x.unit ? `<span class="unit">${x.unit}</span>` : ""}</div>
-     <div class="s">${x.s || ""}</div></div>`).join("");
-}
-
-function renderStandings(rows) {
-  if (!rows.length) return `<div class="panel"><div class="empty">No group-phase standings for this tournament.</div></div>`;
-  const groups = [...new Set(rows.map(r => r.group_code))].sort();
-  return groups.map(g => {
-    const sub = rows.filter(r => r.group_code === g);
-    return `<div class="panel">
-      <header><span class="kick">Group Phase</span><h2>Group ${g}</h2><span class="sub">${sub.length} teams</span></header>
-      ${table("st" + g, [
-        { k: "standing_rank", h: "#", l: true, f: r => `<span class="rank">${r.standing_rank}</span>` },
-        { k: "team_name", h: "Team", l: true, f: r => teamCell(r.team_code, r.team_name) },
-        { k: "wins", h: "W", f: r => r.wins },
-        { k: "losses", h: "L", f: r => r.losses },
-        { k: "point_differential", h: "Diff", f: r => signed(r.point_differential, 0), cls: r => cls(r.point_differential) },
-        { k: "ppg", h: "PPG", f: r => num(r.ppg) },
-        { k: "opp_ppg", h: "OPP", f: r => num(r.opp_ppg) },
-        { k: "ortg", h: "ORTG", t: "Points scored per 100 possessions", f: r => num(r.ortg) },
-        { k: "drtg", h: "DRTG", t: "Points allowed per 100 possessions", f: r => num(r.drtg) },
-        { k: "net_rtg", h: "Net", f: r => chip(r.net_rtg) },
-        { k: "overall_wins", h: "Overall", t: "Including knockout games", f: r => `${r.overall_wins}–${r.overall_losses}` },
-      ], sub, { highlight: r => isCan(r.team_code), defaultSort: s => s.sort((a, b) => a.standing_rank - b.standing_rank) })}
-      <div class="note">Ordered by wins, then point difference. Real FIBA tiebreaks run a head-to-head mini-league between the tied teams only, so treat this as display order.</div>
-    </div>`;
-  }).join("");
-}
-
-function renderEfficiency(eff) {
-  const agg = rollUp(eff);
-  if (!agg.length) return `<div class="panel"><div class="empty">No games yet.</div></div>`;
-  return `<div class="panel">
-    <header><span class="kick">Four Factors</span><h2>Team Efficiency</h2><span class="sub">per 100 possessions</span></header>
-    ${table("eff", [
-      { k: "team_code", h: "Team", l: true, f: r => teamCell(r.team_code, D.teamName[r.team_code] || r.team_code) },
-      { k: "games", h: "G", f: r => r.games },
-      { k: "ortg", h: "ORTG", f: r => num(r.ortg) },
-      { k: "drtg", h: "DRTG", f: r => num(r.drtg) },
-      { k: "net", h: "Net", f: r => chip(r.net) },
-      { k: "pace", h: "Pace", t: "Possessions per game", f: r => num(r.pace, 0) },
-      { k: "efg", h: "eFG%", t: "Shooting — counts a three as 1.5 twos", f: r => num(r.efg) },
-      { k: "tov", h: "TOV%", t: "Turnovers per 100 possessions", f: r => num(r.tov) },
-      { k: "oreb", h: "OREB%", t: "Share of available offensive rebounds", f: r => num(r.oreb) },
-      { k: "ft", h: "FT%", f: r => num(r.ft) },
-    ], agg, { highlight: r => isCan(r.team_code), defaultSort: s => s.sort((a, b) => b.net - a.net) })}
-    <div class="note">Shooting, turnovers, rebounding and free throws — the four factors. Rates rather than totals, since FIBA sides vary enough in pace that per-game numbers flatter the fast ones.</div>
-  </div>`;
-}
-
-function renderPlayers(rows) {
-  const q = rows.filter(r => r.games_played >= 2);
-  if (!q.length) return `<div class="panel"><div class="empty">No players with two or more appearances yet.</div></div>`;
-  return `<div class="panel">
-    <header><span class="kick">Leaders</span><h2>Player Leaders</h2><span class="sub">${q.length} players · 2+ games</span></header>
-    ${table("pl", [
-      { k: "player_name", h: "Player", l: true, f: r => `<span class="team"><span class="fl">${flag(r.team_code)}</span>${r.player_name}</span>` },
-      { k: "team_code", h: "Team", l: true, f: r => r.team_code },
-      { k: "games_played", h: "G", f: r => r.games_played },
-      { k: "ppg", h: "PPG", f: r => num(r.ppg) },
-      { k: "rpg", h: "RPG", f: r => num(r.rpg) },
-      { k: "apg", h: "APG", f: r => num(r.apg) },
-      { k: "spg", h: "SPG", f: r => num(r.spg) },
-      { k: "fg3_pct", h: "3P%", f: r => num(r.fg3_pct) },
-      { k: "ts_pct", h: "TS%", t: "True shooting — counts free throws", f: r => num(r.ts_pct) },
-      { k: "eff_per_game", h: "EFF", f: r => num(r.eff_per_game) },
-      { k: "plus_minus_per_game", h: "+/−", f: r => chip(r.plus_minus_per_game) },
-    ], q, { highlight: r => isCan(r.team_code), defaultSort: s => s.sort((a, b) => b.ppg - a.ppg) })}
-    <div class="note">Percentages come from summed makes and attempts, not averaged per-game percentages — otherwise a 1-for-1 night counts as much as 10-for-20.</div>
-  </div>`;
-}
-
-// Zone order is court order — under the basket outward — so the table reads
-// like a shot chart rather than like a spreadsheet.
-const ZONE_ORDER = ["Rim", "Paint", "Mid-range", "Corner 3", "Above the break 3"];
-
-// Court geometry, derived from the data and then checked against FIBA's real
-// dimensions — the two agree, which is the point.
-//
-// The hoop is the coordinate origin, not the baseline. Sweeping candidate
-// basket positions, y=0 is the only one where twos and threes separate
-// cleanly. And x spans exactly 0-280 across a 15m floor, so one metre is
-// 18.67 units.
-//
-// That predicts the three-point line at 6.75 x 18.67 = 126, and the corner
-// three at 6.6m = 123. Binning every shot by distance from the hoop and asking
-// what fraction were worth three:
-//
-//     <=123   0%      inside both lines
-//     124-128 4-27%   corner threes only — they're 15cm shorter
-//     129     53%     the crossover
-//     >=131   81%+
-//
-// which is the corner line, then the arc, exactly where the metres put them.
-// An earlier version fitted the radius straight off the shot distances and got
-// 131 — that measures where players stand, which is behind the line, not the
-// line itself.
-const M = 280 / 15;                        // units per metre
-const m = x => x * M;
-const COURT = {
-  w: 280,
-  basketX: 140,
-  baselineY: -m(1.575),                    // hoop sits 1.575m off the baseline
-  topY: 200,                               // 99.5% of shots fall inside this
-  paintW: m(4.9),
-  paintTopY: m(5.8) - m(1.575),            // key measured from the hoop
-  ftR: m(1.8),
-  arcR: m(6.75),
-  cornerR: m(6.6),
-  cornerX: m(0.9),
-  rimR: m(0.225),
-  backboardW: m(1.8),
-  backboardY: -m(1.2),
+const TITLES = {
+  overview:   ["Dashboard", "Canada's tournament at a glance"],
+  standings:  ["Standings", "Group tables and overall records"],
+  efficiency: ["Four Factors", "Shooting, turnovers, rebounding, free throws"],
+  shooting:   ["Shot Chart", "Where the shots come from, and how they fall"],
+  leaders:    ["Leaders", "Per-player tournament averages"],
+  results:    ["Results", "Every game with its period breakdown"],
 };
-COURT.paintX = COURT.basketX - COURT.paintW / 2;
-// Where the straight corner run meets the arc.
-COURT.cornerY = Math.sqrt(Math.max(COURT.arcR ** 2 - (COURT.basketX - COURT.cornerX) ** 2, 0));
 
-// Seven buckets, diverging about zero. Thresholds are in points per attempt:
-// 0.15 is about the gap between an average and a genuinely good shooting team
-// from a given spot, so three steps either side covers the real range without
-// making every bin extreme.
-function ppaColor(d) {
-  if (d <= -0.30) return "var(--cold-3)";
-  if (d <= -0.15) return "var(--cold-2)";
-  if (d <= -0.05) return "var(--cold-1)";
-  if (d <   0.05) return "var(--mid)";
-  if (d <   0.15) return "var(--hot-1)";
-  if (d <   0.30) return "var(--hot-2)";
-  return "var(--hot-3)";
+/* ---------- small chart primitives ---------- */
+
+// Ring gauge. Fraction of a full circle, with the headline value in the middle.
+function ring(frac, color, label, size = 54) {
+  const r = size / 2 - 5, c = 2 * Math.PI * r;
+  const off = c * (1 - Math.max(0, Math.min(1, frac)));
+  return `<svg class="ring" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" aria-hidden="true">
+    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="var(--raised)" stroke-width="5"></circle>
+    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${color}" stroke-width="5"
+      stroke-linecap="round" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}"
+      transform="rotate(-90 ${size/2} ${size/2})"></circle>
+    <text x="${size/2}" y="${size/2}">${label}</text>
+  </svg>`;
 }
 
+function kpi(k, v, s, frac, color, ringLabel) {
+  return `<div class="card"><div class="kpi">
+    <div class="txt"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s || ""}</div></div>
+    ${frac === null ? "" : ring(frac, color, ringLabel)}
+  </div></div>`;
+}
+
+// One line per series over an ordered x. Crosshair-free: each point has a hit
+// target, which is enough for a dozen games and avoids a nearest-point search.
+function lineChart(points, series, opts = {}) {
+  const W = 680, H = 210, P = { t: 14, r: 14, b: 26, l: 34 };
+  if (!points.length) return `<div class="empty">No games yet.</div>`;
+  const all = series.flatMap(s => points.map(p => p[s.key])).filter(v => v !== null && v !== undefined);
+  let lo = Math.min(...all), hi = Math.max(...all);
+  if (opts.zero) { lo = Math.min(lo, 0); hi = Math.max(hi, 0); }
+  const pad = (hi - lo) * 0.16 || 1;
+  lo -= pad; hi += pad;
+  const x = i => P.l + (points.length === 1 ? (W - P.l - P.r) / 2 : i * (W - P.l - P.r) / (points.length - 1));
+  const y = v => P.t + (hi - v) * (H - P.t - P.b) / (hi - lo);
+
+  const ticks = 4;
+  const gridLines = Array.from({ length: ticks + 1 }, (_, i) => {
+    const v = lo + (hi - lo) * i / ticks, yy = y(v);
+    return `<line class="grid-l" x1="${P.l}" y1="${yy.toFixed(1)}" x2="${W - P.r}" y2="${yy.toFixed(1)}"></line>
+            <text class="ax" x="${P.l - 7}" y="${(yy + 3).toFixed(1)}" text-anchor="end">${v.toFixed(0)}</text>`;
+  }).join("");
+  const zeroLine = (lo < 0 && hi > 0)
+    ? `<line class="zero" x1="${P.l}" y1="${y(0).toFixed(1)}" x2="${W - P.r}" y2="${y(0).toFixed(1)}"></line>` : "";
+
+  const lines = series.map(s => {
+    const pts = points.map((p, i) => [x(i), y(p[s.key])]);
+    const d = pts.map(([px, py], i) => `${i ? "L" : "M"}${px.toFixed(1)} ${py.toFixed(1)}`).join(" ");
+    const area = s.area
+      ? `<path class="area" fill="${s.color}" d="${d} L${x(points.length-1).toFixed(1)} ${y(lo).toFixed(1)} L${x(0).toFixed(1)} ${y(lo).toFixed(1)} Z"></path>` : "";
+    return area + `<path class="ln" stroke="${s.color}" d="${d}"></path>` +
+      pts.map(([px, py], i) => `<circle class="pt" cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="3.4" fill="${s.color}"></circle>`).join("");
+  }).join("");
+
+  const hits = points.map((p, i) =>
+    `<rect class="hit" x="${(x(i) - 18).toFixed(1)}" y="${P.t}" width="36" height="${H - P.t - P.b}"
+       data-t="${p.label}|${series.map(s => `${s.name} ${num(p[s.key])}`).join(" · ")}|${p.sub || ""}"></rect>`).join("");
+
+  const xlabels = points.map((p, i) =>
+    points.length > 9 && i % 2 ? "" :
+    `<text class="ax" x="${x(i).toFixed(1)}" y="${H - 8}" text-anchor="middle">${p.x}</text>`).join("");
+
+  return `<svg class="lc" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="height:210px">
+    ${gridLines}${zeroLine}${lines}${xlabels}${hits}</svg>`;
+}
+
+function hbars(rows, color) {
+  const max = Math.max(...rows.map(r => r.v), 0.001);
+  return `<div class="hbars">${rows.map(r => `<div class="hbar">
+    <span class="nm">${r.label}</span>
+    <span class="tr"><span class="fi" style="width:${(100 * r.v / max).toFixed(1)}%;background:${r.color || color}"></span></span>
+    <span class="vl">${r.display ?? num(r.v)}</span>
+  </div>`).join("")}</div>`;
+}
+
+/* ---------- tooltip ---------- */
 let tipEl = null;
 function tip(html, evt) {
   if (!tipEl) { tipEl = document.createElement("div"); tipEl.className = "tip"; document.body.appendChild(tipEl); }
@@ -640,40 +478,61 @@ function tip(html, evt) {
   let x = evt.clientX + pad, y = evt.clientY - r.height - pad;
   if (x + r.width > innerWidth - 8) x = evt.clientX - r.width - pad;
   if (y < 8) y = evt.clientY + pad;
-  tipEl.style.left = x + "px";
-  tipEl.style.top = y + "px";
+  tipEl.style.left = x + "px"; tipEl.style.top = y + "px";
+}
+function bindTips() {
+  document.querySelectorAll("[data-t]").forEach(el => {
+    el.onmousemove = e => {
+      const [a, b, c] = el.dataset.t.split("|");
+      tip(`<b>${a}</b>${b ? `<br>${b}` : ""}${c ? `<br><span class="muted">${c}</span>` : ""}`, e);
+    };
+    el.onmouseleave = () => tip(null);
+  });
 }
 
-// The twelve zones, rasterised from the same rule the SQL classifies with.
-//
-// Two earlier attempts drew these as polygons and then as clipped sectors, and
-// both drifted from the data — sectors radiating from the hoop don't respect
-// the key, leave the strip under the hoop uncovered, and put wing threes in
-// the wrong place. Any hand-drawn geometry is a second implementation of the
-// classification, and second implementations disagree.
-//
-// So: walk a grid over the court, classify every cell with classifyZone below,
-// merge each row's runs into rectangles, and emit one path per zone. The shape
-// on screen is the rule, so it cannot be wrong about where a zone ends.
-//
-// One exception. A cell is classified by its centre, so a cell whose centre is
-// a hair inside the arc still paints a cell's width past it — mid-range red
-// bleeding over the three-point line. Straight boundaries don't show this
-// because neighbouring zones tile against each other, but the arc has nothing
-// on the far side to cover it. So the two-point zones are additionally clipped
-// to the exact arc, and the three-point zones to its complement. Raster for the
-// angles and rectangles, analytic geometry for the curve.
-const RIM_R = 40;
-const CELL = 1;   // ~5cm, fine enough that the diagonals don't read as stairs
+/* ---------- tables ---------- */
+function sortRows(rows, key, dir, fallback) {
+  const s = [...rows];
+  if (!key) return fallback ? fallback(s) : s;
+  s.sort((a, b) => {
+    const x = a[key], y = b[key];
+    if (x === y) return 0;
+    if (x == null) return 1;
+    if (y == null) return -1;
+    const r = typeof x === "number" ? x - y : String(x).localeCompare(String(y));
+    return dir === "asc" ? r : -r;
+  });
+  return s;
+}
+function table(id, cols, rows, opts = {}) {
+  const st = sortState[id] || {};
+  const sorted = sortRows(rows, st.key, st.dir, opts.defaultSort);
+  const head = cols.map(c => `<th data-col="${c.k}" ${st.key === c.k ? `data-dir="${st.dir}"` : ""} class="${c.l ? "l" : ""}" title="${c.t || ""}">${c.h}</th>`).join("");
+  const body = sorted.map(r => `<tr class="${opts.highlight && opts.highlight(r) ? "can" : ""}">${cols.map(c => `<td class="${c.l ? "l" : ""} ${c.cls ? c.cls(r) : ""}">${c.f(r)}</td>`).join("")}</tr>`).join("");
+  setTimeout(() => document.querySelectorAll(`#${id} thead th`).forEach(th => th.onclick = () => {
+    const k = th.dataset.col, cur = sortState[id] || {};
+    sortState[id] = { key: k, dir: cur.key === k && cur.dir === "desc" ? "asc" : "desc" };
+    render();
+  }), 0);
+  return `<div class="scroll"><table id="${id}"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
+}
 
-// Mirrors the CASE expression in int_shots.court_zone exactly. Change one,
-// change the other.
+/* ---------- court ---------- */
+const M = 280 / 15;
+const COURT = {
+  w: 280, basketX: 140, baselineY: -1.575 * M, topY: 200,
+  paintW: 4.9 * M, paintTopY: (5.8 - 1.575) * M, ftR: 1.8 * M,
+  arcR: 6.75 * M, cornerX: 0.9 * M, rimR: 0.225 * M, backboardW: 1.8 * M, backboardY: -1.2 * M,
+};
+COURT.paintX = COURT.basketX - COURT.paintW / 2;
+COURT.cornerY = Math.sqrt(Math.max(COURT.arcR ** 2 - (COURT.basketX - COURT.cornerX) ** 2, 0));
+const RIM_R = 40, CELL = 1;
+
+// Mirrors the CASE in int_shots.court_zone exactly. Change one, change the other.
 function classifyZone(x, y) {
   const dist = Math.hypot(x - 140, y);
   if (dist <= RIM_R) return "At the Rim";
   if (x >= 94.3 && x <= 185.7 && y <= 78.9) return "Paint (non-RA)";
-  // Below the hoop line the angle is degenerate, so pin it to the baseline and
-  // let the side decide. Real shots are all y >= 0; this is for the drawing.
   const deg = Math.atan2(Math.max(y, 0.0001), x - 140) * 180 / Math.PI;
   if (dist < 126) {
     if (deg < 36) return "Mid-Range Right";
@@ -688,68 +547,76 @@ function classifyZone(x, y) {
   return "Left Wing 3";
 }
 
-// One path per zone, built from horizontal runs of same-zone cells.
+// Rasterised from the rule above rather than drawn as polygons. Two earlier
+// versions drew the geometry by hand and both drifted from the data — any
+// drawn shape is a second implementation of the classification, and second
+// implementations disagree. Here the shape IS the rule.
+let ZONE_CACHE = null;
 function zonePathsFromGrid() {
-  const c = COURT;
-  const out = {};
+  const c = COURT, out = {};
   for (let y = c.baselineY; y < c.topY; y += CELL) {
-    let runZone = null, runStart = null;
+    let rz = null, rs = null;
     for (let x = 0; x <= c.w; x += CELL) {
-      const zone = x === c.w ? null : classifyZone(x + CELL / 2, y + CELL / 2);
-      if (zone !== runZone) {
-        if (runZone) {
-          (out[runZone] ||= []).push(
-            `M${runStart.toFixed(1)} ${y.toFixed(1)}h${(x - runStart).toFixed(1)}v${CELL}h${(runStart - x).toFixed(1)}z`);
-        }
-        runZone = zone; runStart = x;
+      const z = x === c.w ? null : classifyZone(x + CELL / 2, y + CELL / 2);
+      if (z !== rz) {
+        if (rz) (out[rz] ||= []).push(`M${rs.toFixed(1)} ${y.toFixed(1)}h${(x - rs).toFixed(1)}v${CELL}h${(rs - x).toFixed(1)}z`);
+        rz = z; rs = x;
       }
     }
   }
-  const paths = {};
-  for (const k in out) paths[k] = out[k].join("");
+  const paths = {}; for (const k in out) paths[k] = out[k].join("");
   return paths;
 }
 
-let ZONE_PATH_CACHE = null;
+const ZONE_LABEL = {
+  "At the Rim": [21, 90], "Paint (non-RA)": [62, 90],
+  "Mid-Range Right": [84, 18], "Mid-Range Right Centre": [96, 54], "Mid-Range Centre": [104, 90],
+  "Mid-Range Left Centre": [96, 126], "Mid-Range Left": [84, 162],
+  "Right Corner 3": [135, 5], "Left Corner 3": [135, 175],
+  "Right Wing 3": [158, 36], "Top of Key 3": [162, 90], "Left Wing 3": [158, 144],
+};
+function zoneFill(d) {
+  if (d == null) return "var(--zone-empty)";
+  if (d <= -8) return "var(--cold-3)";
+  if (d <= -4) return "var(--cold-2)";
+  if (d <= -1.5) return "var(--cold-1)";
+  if (d < 1.5) return "var(--mid)";
+  if (d < 4) return "var(--hot-1)";
+  if (d < 8) return "var(--hot-2)";
+  return "var(--hot-3)";
+}
 
 function courtSvg(rows, teamCode) {
   const c = COURT, CX = c.basketX, BY = c.baselineY, TOP = c.topY, W = c.w;
   const f = n => n.toFixed(1);
-  const by = {};
-  rows.forEach(r => by[r.court_zone] = r);
-  ZONE_PATH_CACHE ||= zonePathsFromGrid();
+  const by = {}; rows.forEach(r => by[r.court_zone] = r);
+  ZONE_CACHE ||= zonePathsFromGrid();
 
-  // Everything inside the arc gets clipped to it; everything outside gets
-  // clipped to the complement.
-  const TWO = new Set(["At the Rim", "Paint (non-RA)", "Mid-Range Right", "Mid-Range Right Centre",
-                       "Mid-Range Centre", "Mid-Range Left Centre", "Mid-Range Left"]);
-  const zones = Object.entries(ZONE_PATH_CACHE).map(([name, d]) => {
-    const r = by[name];
-    return `<path class="zone" d="${d}" clip-path="url(#${TWO.has(name) ? "cIn" : "cOut"})"
-      fill="${zoneFill(r ? r.fg_pct_vs_league : null)}"
-      data-t="${name}|${r ? `${r.makes}/${r.attempts} · ${r.fg_pct}%` : "no attempts"}|${r ? `field shoots ${r.league_fg_pct}% here` : ""}"></path>`;
-  }).join("");
-
-  // The two-point region: baseline, up the corner lines, round the arc.
-  // Sweep 0, matching the arc drawn in the lines group. Inside the flipped
-  // group a sweep of 1 bulges the arc toward the baseline instead of away,
-  // which turns this region into its own complement.
+  // Cells are classified by their centre, so a cell just inside the arc paints
+  // a cell past it. Straight boundaries don't show this because neighbouring
+  // zones tile against each other; the arc has nothing on the far side. So the
+  // curve is enforced analytically: two-pointers clip to the arc, threes to its
+  // complement. Sweep 0 matches the arc drawn in the lines group — inside the
+  // flipped group a sweep of 1 bulges the wrong way and inverts the region.
   const twoPt = `M ${f(c.cornerX)} ${f(BY)} L ${f(c.cornerX)} ${f(c.cornerY)}
                  A ${f(c.arcR)} ${f(c.arcR)} 0 0 0 ${f(W - c.cornerX)} ${f(c.cornerY)}
                  L ${f(W - c.cornerX)} ${f(BY)} Z`;
   const courtRect = `M 0 ${f(BY)} L ${W} ${f(BY)} L ${W} ${f(TOP)} L 0 ${f(TOP)} Z`;
+  const TWO = new Set(["At the Rim","Paint (non-RA)","Mid-Range Right","Mid-Range Right Centre",
+                       "Mid-Range Centre","Mid-Range Left Centre","Mid-Range Left"]);
+
+  const zones = Object.entries(ZONE_CACHE).map(([n, d]) => {
+    const r = by[n];
+    return `<path class="zone" d="${d}" clip-path="url(#${TWO.has(n) ? "cIn" : "cOut"})"
+      fill="${zoneFill(r ? r.fg_pct_vs_league : null)}"
+      data-t="${n}|${r ? `${r.makes}/${r.attempts} · ${r.fg_pct}%` : "no attempts"}|${r ? `field shoots ${r.league_fg_pct}% here` : ""}"></path>`;
+  }).join("");
 
   return `<svg class="court" viewBox="-6 ${f(-TOP - 6)} ${W + 12} ${f(TOP - BY + 12)}"
-       role="img" aria-label="Shot chart for ${teamCode}, twelve court zones shaded by field goal percentage against the tournament average">
+       role="img" aria-label="Shot chart for ${teamCode}: twelve court zones shaded by field goal percentage against the tournament average">
     <defs>
-      <!-- No transform here: a clipPath is resolved in the coordinate system of
-           the element that references it, and the zones already sit inside the
-           flipped group. Adding the flip again inverts the clip and erases the
-           three-point zones entirely. -->
       <clipPath id="cIn"><path d="${twoPt}"></path></clipPath>
-      <clipPath id="cOut" clipPathUnits="userSpaceOnUse">
-        <path d="${courtRect} ${twoPt}" clip-rule="evenodd"></path>
-      </clipPath>
+      <clipPath id="cOut"><path d="${courtRect} ${twoPt}" clip-rule="evenodd"></path></clipPath>
     </defs>
     <g transform="scale(1 -1)">
       <rect x="0" y="${f(BY)}" width="${W}" height="${f(TOP - BY)}" fill="var(--zone-empty)"></rect>
@@ -759,160 +626,226 @@ function courtSvg(rows, teamCode) {
       <rect x="0" y="${f(BY)}" width="${W}" height="${f(TOP - BY)}"></rect>
       <rect x="${f(c.paintX)}" y="${f(BY)}" width="${f(c.paintW)}" height="${f(c.paintTopY - BY)}"></rect>
       <path d="M ${f(CX - c.ftR)} ${f(c.paintTopY)} A ${f(c.ftR)} ${f(c.ftR)} 0 0 0 ${f(CX + c.ftR)} ${f(c.paintTopY)}"></path>
-      <line x1="${f(CX - c.backboardW / 2)}" y1="${f(c.backboardY)}" x2="${f(CX + c.backboardW / 2)}" y2="${f(c.backboardY)}"></line>
+      <line x1="${f(CX - c.backboardW/2)}" y1="${f(c.backboardY)}" x2="${f(CX + c.backboardW/2)}" y2="${f(c.backboardY)}"></line>
       <circle cx="${CX}" cy="0" r="${f(c.rimR)}"></circle>
       <line x1="${f(c.cornerX)}" y1="${f(BY)}" x2="${f(c.cornerX)}" y2="${f(c.cornerY)}"></line>
       <line x1="${f(W - c.cornerX)}" y1="${f(BY)}" x2="${f(W - c.cornerX)}" y2="${f(c.cornerY)}"></line>
       <path d="M ${f(c.cornerX)} ${f(c.cornerY)} A ${f(c.arcR)} ${f(c.arcR)} 0 0 0 ${f(W - c.cornerX)} ${f(c.cornerY)}"></path>
     </g>
     ${Object.entries(ZONE_LABEL).map(([n, [rad, deg]]) => {
-      const r = by[n];
-      if (!r || r.attempts < 3) return "";
+      const r = by[n]; if (!r || r.attempts < 3) return "";
       const a = deg * Math.PI / 180;
       const x = Math.min(Math.max(CX + rad * Math.cos(a), 20), W - 20);
       return `<g class="zlab" transform="translate(${f(x)} ${f(-rad * Math.sin(a))})">
-        <text class="zpct" y="-1">${r.fg_pct}%</text>
-        <text class="zn" y="10">${r.makes}/${r.attempts}</text></g>`;
+        <text class="zpct" y="-1">${r.fg_pct}%</text><text class="zn" y="10">${r.makes}/${r.attempts}</text></g>`;
     }).join("")}
   </svg>`;
 }
 
-// Where each zone's number sits: distance and angle from the hoop.
-const ZONE_LABEL = {
-  "At the Rim":             [21, 90],
-  "Paint (non-RA)":         [62, 90],
-  "Mid-Range Right":        [84, 18],
-  "Mid-Range Right Centre": [96, 54],
-  "Mid-Range Centre":       [104, 90],
-  "Mid-Range Left Centre":  [96, 126],
-  "Mid-Range Left":         [84, 162],
-  "Right Corner 3":         [135, 5],
-  "Left Corner 3":          [135, 175],
-  "Right Wing 3":           [158, 36],
-  "Top of Key 3":           [162, 90],
-  "Left Wing 3":            [158, 144],
-};
-
-function zoneFill(d) {
-  if (d === null || d === undefined) return "var(--zone-empty)";
-  if (d <= -8) return "var(--cold-3)";
-  if (d <= -4) return "var(--cold-2)";
-  if (d <= -1.5) return "var(--cold-1)";
-  if (d <   1.5) return "var(--mid)";
-  if (d <   4) return "var(--hot-1)";
-  if (d <   8) return "var(--hot-2)";
-  return "var(--hot-3)";
-}
-
 function legend() {
-  const steps = ["--cold-3", "--cold-2", "--cold-1", "--mid", "--hot-1", "--hot-2", "--hot-3"];
-  return `<div class="legend">
-    <span>Colder</span>
+  const steps = ["--cold-3","--cold-2","--cold-1","--mid","--hot-1","--hot-2","--hot-3"];
+  return `<div class="legend"><span>Colder</span>
     <span class="swatches">${steps.map(v => `<span class="sw" style="background:var(${v})"></span>`).join("")}</span>
-    <span>Hotter</span>
-    <span class="muted">points per attempt vs this tournament</span>
-    <span class="sizes"><i style="width:9px;height:9px"></i><i style="width:15px;height:15px"></i><i style="width:21px;height:21px"></i>
-      <span>volume</span></span>
-  </div>`;
+    <span>Hotter</span><span>— field goal % against the rest of this tournament</span></div>`;
 }
 
-function zoneBars(rows, teamCode) {
-  const mine = ZONE_ORDER.map(z => rows.find(r => r.shot_zone === z && r.team_code === teamCode)).filter(Boolean);
-  if (!mine.length) return "";
-  const maxPpa = Math.max(...rows.map(r => r.pts_per_attempt), 1.4);
-  return `<div class="zone-side">
-    ${mine.map(r => {
-      const lg = rows.filter(x => x.shot_zone === r.shot_zone);
-      const lgPpa = lg.reduce((s, x) => s + x.pts_per_attempt * x.attempts, 0) / lg.reduce((s, x) => s + x.attempts, 0);
-      return `<div class="zone-row">
-        <span class="zname">${r.shot_zone}</span>
-        <span class="track" title="${r.makes}/${r.attempts}">
-          <span class="fill" style="width:${(100 * r.pts_per_attempt / maxPpa).toFixed(1)}%;background:${ppaColor(r.pts_per_attempt - lgPpa)}"></span>
-        </span>
-        <span class="val">${r.pts_per_attempt.toFixed(2)}<br><span class="sub">${r.share_of_shots}% of shots</span></span>
-      </div>`;
-    }).join("")}
-  </div>`;
-}
+/* ---------- data ---------- */
+async function boot() {
+  try {
+    const got = await Promise.all(FILES.map(n => fetch(`data/${n}.json`).then(r => {
+      if (!r.ok) throw new Error(`${n}.json → ${r.status}`); return r.json();
+    })));
+    FILES.forEach((n, i) => D[n] = got[i]);
+  } catch (err) {
+    document.getElementById("view").innerHTML =
+      `<div class="card"><div class="empty"><b>Couldn't load the data</b> — ${err.message}.<br><br>
+       Opening the file directly won't work; browsers block local fetches.<br>
+       Run <code>python3 -m http.server -d docs</code> and open localhost:8000.</div></div>`;
+    return;
+  }
+  D.byGame = {};
+  D.period_scores.forEach(p => (D.byGame[p.game_id] ||= []).push(p));
+  D.teamName = {};
+  D.games.forEach(g => { D.teamName[g.home_code] = g.home_team; D.teamName[g.away_code] = g.away_team; });
 
-function renderShooting(zones, ff) {
-  if (!zones.length) return `<div class="panel"><div class="empty">No shot data for this tournament.</div></div>`;
-  if (!D.court_zones) return `<div class="panel"><div class="empty">Loading shot locations…</div></div>`;
+  document.getElementById("freshness").textContent =
+    "Updated " + new Date(D.manifest.generated_at).toLocaleDateString(undefined, { day: "numeric", month: "short" });
 
-  const teams = [...new Set(zones.map(z => z.team_code))].sort();
-  if (!shotTeam || !teams.includes(shotTeam)) shotTeam = teams.includes("CAN") ? "CAN" : teams[0];
-  const zrows = (D.court_zones || []).filter(b => b.competition === comp && b.team_code === shotTeam);
-  const total = zrows.reduce((s, b) => s + b.attempts, 0);
+  const counts = {};
+  D.games.forEach(g => counts[g.competition] = (counts[g.competition] || 0) + 1);
+  const comps = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
+  const sel = document.getElementById("comp");
+  sel.innerHTML = comps.map(c => `<option value="${c}">${c}</option>`).join("");
+  comp = comps[0];
+  sel.onchange = e => { comp = e.target.value; shotTeam = null; render(); };
 
-  setTimeout(() => {
-    const sel = document.getElementById("shotTeam");
-    if (sel) sel.onchange = e => { shotTeam = e.target.value; render(); };
-    document.querySelectorAll(".court .zone").forEach(el => {
-      el.onmousemove = e => {
-        const [a, b, c] = el.dataset.t.split("|");
-        tip(`<b>${a}</b><br>${b}<br><span class="muted">${c}</span>`, e);
-      };
-      el.onmouseleave = () => tip(null);
-    });
-  }, 0);
-
-  return `<div class="panel">
-    <header>
-      <span class="kick">Shot Chart</span><h2>${shotTeam} — where the shots come from</h2>
-      <span class="sub">
-        <select id="shotTeam" style="margin:0;padding:4px 8px;font-size:12px">
-          ${teams.map(t => `<option value="${t}" ${t === shotTeam ? "selected" : ""}>${t}</option>`).join("")}
-        </select>
-      </span>
-    </header>
-    <div class="chart-row">
-      <div class="court-wrap">${courtSvg(zrows, shotTeam)}</div>
-      ${zoneBars(zones, shotTeam)}
-    </div>
-    ${legend()}
-    <div class="note">${total.toLocaleString()} attempts. Each zone is shaded by field goal percentage against what the
-      rest of the tournament shoots from the same zone — 34% is poor at the rim and excellent from the corner, so the
-      comparison is the number that means anything. The court is drawn from the data itself: the hoop is the coordinate
-      origin, the floor is 280 units across a 15m court, and binning every shot by distance puts the crossover from twos
-      to threes at 129, exactly FIBA's 6.6m corner and 6.75m arc at that scale.</div>
-  </div>
-  ${renderZoneTable(zones)}
-  ${renderFourFactors(ff)}`;
-}
-
-function renderZoneTable(zones) {
-  const teams = [...new Set(zones.map(z => z.team_code))].sort();
-  const league = {};
-  ZONE_ORDER.forEach(z => {
-    const rows = zones.filter(r => r.shot_zone === z);
-    const att = rows.reduce((s, r) => s + r.attempts, 0);
-    const pts = rows.reduce((s, r) => s + r.pts_per_attempt * r.attempts, 0);
-    league[z] = { att, ppa: att ? pts / att : 0 };
+  document.querySelectorAll(".nav").forEach(b => b.onclick = () => {
+    document.querySelectorAll(".nav").forEach(x => x.setAttribute("aria-current", x === b));
+    view = b.dataset.view;
+    if ((view === "shooting" || view === "overview") && !D.court_zones) loadShotData();
+    render();
   });
-  const body = teams.map(t => `<tr class="${isCan(t) ? "can" : ""}">
-    <td class="l">${teamCell(t, D.teamName[t] || t)}</td>
-    ${ZONE_ORDER.map(z => {
-      const r = zones.find(x => x.team_code === t && x.shot_zone === z);
-      if (!r) return `<td>—</td>`;
-      const edge = r.pts_per_attempt - league[z].ppa;
-      return `<td title="${r.makes}/${r.attempts}, ${r.share_of_shots}% of shots"><b>${r.pts_per_attempt.toFixed(2)}</b>
-        <span class="${cls(edge)}" style="font-size:11px"> ${signed(edge, 2)}</span></td>`;
-    }).join("")}</tr>`).join("");
-  return `<div class="panel">
-    <header><span class="kick">By Zone</span><h2>Points per attempt</h2><span class="sub">vs tournament average</span></header>
-    <div class="scroll"><table><thead><tr><th class="l">Team</th>${ZONE_ORDER.map(z =>
-      `<th title="Field: ${league[z].ppa.toFixed(2)} on ${league[z].att} attempts">${z}</th>`).join("")}</tr></thead>
-      <tbody>${body}</tbody></table></div>
-    <div class="note">Points per attempt, not FG% — a 33% three is worth 1.00 a shot and a 45% mid-range only 0.90,
-      so the lower percentage is the better shot and FG% says the opposite.</div>
+  loadShotData();
+  render();
+}
+
+// Kept separate from render on purpose. An earlier version caught both in one
+// promise chain, so a ReferenceError in the renderer emptied the data and the
+// page reported "no shots" — a code bug wearing a missing-data costume.
+function loadShotData() {
+  if (D._loadingShots) return;
+  D._loadingShots = true;
+  Promise.all(LAZY.map(n => fetch(`data/${n}.json`).then(r => {
+    if (!r.ok) throw new Error(`${n}.json → ${r.status}`); return r.json();
+  }))).then(res => { LAZY.forEach((n, i) => D[n] = res[i]); })
+    .catch(err => { D.court_zones = []; console.error("shot data failed:", err); })
+    .finally(render);
+}
+
+/* ---------- views ---------- */
+function ctx() {
+  const games = D.games.filter(g => g.competition === comp);
+  const stand = D.standings.filter(r => r.competition === comp);
+  const eff = D.team_efficiency.filter(r => r.competition === comp);
+  const players = D.player_leaders.filter(r => r.competition === comp);
+  const ff = (D.four_factors || []).filter(r => r.competition === comp);
+  return { games, stand, eff, players, ff };
+}
+
+function render() {
+  const [t, sub] = TITLES[view];
+  document.getElementById("pageTitle").textContent = t;
+  const { games } = ctx();
+  const dates = games.map(g => g.game_date).sort();
+  const venue = games[0] ? [games[0].city, games[0].country].filter(Boolean).join(", ") : "";
+  document.getElementById("pageSub").textContent =
+    sub + (dates.length ? ` · ${fmtDate(dates[0])}–${fmtDate(dates[dates.length-1])}` : "") + (venue ? ` · ${venue}` : "");
+
+  const out = document.getElementById("view");
+  out.innerHTML = ({
+    overview: renderOverview, standings: renderStandings, efficiency: renderFourFactors,
+    shooting: renderShooting, leaders: renderLeaders, results: renderResults,
+  })[view]();
+  bindTips();
+  const sel = document.getElementById("shotTeam");
+  if (sel) sel.onchange = e => { shotTeam = e.target.value; render(); };
+}
+
+function rollUp(eff) {
+  const by = {};
+  eff.forEach(r => {
+    const t = by[r.team_code] ||= { team_code: r.team_code, g: 0, pts: 0, opp: 0, poss: 0 };
+    t.g++; t.pts += r.pts; t.opp += r.opp_pts; t.poss += r.possessions;
+  });
+  return Object.values(by).map(t => ({
+    team_code: t.team_code, games: t.g,
+    ortg: 100 * t.pts / t.poss, drtg: 100 * t.opp / t.poss,
+    net: 100 * t.pts / t.poss - 100 * t.opp / t.poss, pace: t.poss / t.g,
+  }));
+}
+
+function renderOverview() {
+  const { games, stand, eff, players } = ctx();
+  const agg = rollUp(eff);
+  const can = stand.find(r => isCan(r.team_code));
+  const canEff = agg.find(a => a.team_code === "CAN");
+  const canGames = eff.filter(r => isCan(r.team_code)).sort((a, b) => a.game_date < b.game_date ? -1 : 1);
+  const ranked = [...agg].sort((a, b) => b.net - a.net);
+  const canRank = ranked.findIndex(a => a.team_code === "CAN") + 1;
+  const offRank = [...agg].sort((a, b) => b.ortg - a.ortg).findIndex(a => a.team_code === "CAN") + 1;
+  const defRank = [...agg].sort((a, b) => a.drtg - b.drtg).findIndex(a => a.team_code === "CAN") + 1;
+  const n = agg.length || 1;
+
+  if (!can && !canEff) return `<div class="card"><div class="empty">Canada didn't play in this tournament.</div></div>`;
+
+  const winPct = canEff ? canGames.filter(g => g.win).length / Math.max(canGames.length, 1) : 0;
+  const kpis = `<div class="grid g-kpi">
+    ${kpi("Record", canGames.length ? `${canGames.filter(g=>g.win).length}–${canGames.filter(g=>g.loss).length}` : "—",
+          can ? `Group ${can.group_code} · finished ${ordinal(can.standing_rank)}` : "knockout only",
+          winPct, "var(--teal)", `${Math.round(winPct*100)}%`)}
+    ${kpi("Net rating", canEff ? signed(canEff.net) : "—", "points per 100 possessions",
+          canRank ? (n - canRank + 1) / n : 0, "var(--red)", canRank ? `#${canRank}` : "—")}
+    ${kpi("Offence", canEff ? num(canEff.ortg) : "—", `${ordinal(offRank)} of ${n} teams`,
+          (n - offRank + 1) / n, "var(--amber)", `#${offRank}`)}
+    ${kpi("Defence", canEff ? num(canEff.drtg) : "—", `${ordinal(defRank)} of ${n} teams`,
+          (n - defRank + 1) / n, "var(--blue)", `#${defRank}`)}
+  </div>`;
+
+  const pts = canGames.map((g, i) => ({
+    x: g.opp_team_code, label: `vs ${g.opp_team_code} · ${fmtDate(g.game_date)}`,
+    sub: `${g.pts}–${g.opp_pts}`, ortg: g.ortg, drtg: g.drtg,
+  }));
+  const trend = `<div class="card">
+    <header><h2>Game by game</h2><span class="hint">per 100 possessions</span></header>
+    <div class="body">${lineChart(pts, [
+      { key: "ortg", name: "Offence", color: "var(--teal)" },
+      { key: "drtg", name: "Defence", color: "var(--red)" },
+    ])}</div>
+    <div class="note">Two lines, one scale. The gap between them is the margin — where teal sits above red, Canada
+      outscored the opponent over the same number of possessions.</div>
+  </div>`;
+
+  const results = `<div class="card">
+    <header><h2>Results</h2><span class="hint">${canGames.length} games</span></header>
+    <div class="rlist">${canGames.slice().reverse().map(g => `<div class="ritem">
+      <span class="wl ${g.win ? "w" : "l"}">${g.win ? "W" : "L"}</span>
+      <span><span class="op">${flag(g.opp_team_code)} ${D.teamName[g.opp_team_code] || g.opp_team_code}</span>
+        <br><span class="dt">${g.round_name || ""} · ${fmtDate(g.game_date)}</span></span>
+      <span class="sc">${g.pts}–${g.opp_pts}</span>
+    </div>`).join("")}</div>
+  </div>`;
+
+  const top = [...players].filter(p => isCan(p.team_code)).sort((a, b) => b.ppg - a.ppg).slice(0, 7);
+  const scorers = `<div class="card">
+    <header><h2>Canada's scorers</h2><span class="hint">points per game</span></header>
+    <div class="body">${hbars(top.map(p => ({ label: p.player_name, v: p.ppg })), "var(--red)")}</div>
+  </div>`;
+
+  const zrows = (D.court_zones || []).filter(r => r.competition === comp && isCan(r.team_code));
+  const shot = `<div class="card">
+    <header><h2>Shot chart</h2><span class="hint">vs tournament average</span></header>
+    ${zrows.length ? `<div class="court-wrap" style="border-right:0">${courtSvg(zrows, "CAN")}</div>${legend()}`
+                   : `<div class="empty">Loading shot locations…</div>`}
+  </div>`;
+
+  return kpis + `<div class="grid g-2-1">
+    <div class="col">${trend}${shot}</div>
+    <div class="col">${results}${scorers}</div>
   </div>`;
 }
 
-function renderFourFactors(ff) {
-  if (!ff.length) return "";
-  return `<div class="panel">
-    <header><span class="kick">Four Factors</span><h2>What's driving it</h2>
-      <span class="sub">own vs opponent</span></header>
+function renderStandings() {
+  const { stand } = ctx();
+  if (!stand.length) return `<div class="card"><div class="empty">No group-phase standings for this tournament.</div></div>`;
+  const groups = [...new Set(stand.map(r => r.group_code))].sort();
+  return groups.map(g => {
+    const sub = stand.filter(r => r.group_code === g);
+    return `<div class="card">
+      <header><h2>Group ${g}</h2><span class="hint">${sub.length} teams</span></header>
+      ${table("st" + g, [
+        { k: "standing_rank", h: "#", l: true, f: r => `<span class="rank">${r.standing_rank}</span>` },
+        { k: "team_name", h: "Team", l: true, f: r => teamCell(r.team_code, r.team_name) },
+        { k: "wins", h: "W", f: r => r.wins },
+        { k: "losses", h: "L", f: r => r.losses },
+        { k: "point_differential", h: "Diff", f: r => signed(r.point_differential, 0), cls: r => cls(r.point_differential) },
+        { k: "ppg", h: "PPG", f: r => num(r.ppg) },
+        { k: "opp_ppg", h: "OPP", f: r => num(r.opp_ppg) },
+        { k: "ortg", h: "ORTG", t: "Points scored per 100 possessions", f: r => num(r.ortg) },
+        { k: "drtg", h: "DRTG", t: "Points allowed per 100 possessions", f: r => num(r.drtg) },
+        { k: "net_rtg", h: "Net", f: r => chip(r.net_rtg) },
+        { k: "overall_wins", h: "Overall", t: "Including knockout games", f: r => `${r.overall_wins}–${r.overall_losses}` },
+      ], sub, { highlight: r => isCan(r.team_code), defaultSort: s => s.sort((a, b) => a.standing_rank - b.standing_rank) })}
+      <div class="note">Ordered by wins, then point difference. Real FIBA tiebreaks run a head-to-head mini-league
+        between the tied teams only, so treat this as display order.</div>
+    </div>`;
+  }).join("");
+}
+
+function renderFourFactors() {
+  const { ff } = ctx();
+  if (!ff.length) return `<div class="card"><div class="empty">No data for this tournament.</div></div>`;
+  return `<div class="card">
+    <header><h2>Four factors</h2><span class="hint">own vs opponent</span></header>
     ${table("ff", [
       { k: "team_code", h: "Team", l: true, f: r => teamCell(r.team_code, D.teamName[r.team_code] || r.team_code) },
       { k: "efg_pct", h: "eFG%", t: "Shooting — the biggest of the four", f: r => num(r.efg_pct) },
@@ -922,35 +855,91 @@ function renderFourFactors(ff) {
       { k: "oreb_pct", h: "OREB%", t: "Share of available offensive rebounds", f: r => num(r.oreb_pct) },
       { k: "dreb_pct", h: "DREB%", f: r => num(r.dreb_pct) },
       { k: "ft_rate", h: "FT rate", t: "Free throw attempts per field goal attempt", f: r => num(r.ft_rate) },
+      { k: "ortg", h: "ORTG", f: r => num(r.ortg) },
+      { k: "drtg", h: "DRTG", f: r => num(r.drtg) },
       { k: "net_rtg", h: "Net", f: r => chip(r.net_rtg) },
     ], ff, { highlight: r => isCan(r.team_code), defaultSort: s => s.sort((a, b) => b.net_rtg - a.net_rtg) })}
-    <div class="note">Shooting, turnovers, rebounding, free throws — roughly in that order of importance.
-      Each is paired with the opponent's version, because conceding a 60% eFG is as much a fact about your
-      defence as your own shooting is about your offence.</div>
+    <div class="note">Shooting, turnovers, rebounding, free throws — roughly in that order of importance. Each is
+      paired with the opponent's version, because conceding a 60% eFG is as much a fact about your defence as your
+      own shooting is about your offence.</div>
   </div>`;
 }
 
-function renderGames(rows) {
-  if (!rows.length) return `<div class="panel"><div class="empty">No games.</div></div>`;
-  const sorted = [...rows].sort((a, b) => a.game_date < b.game_date ? 1 : a.game_date > b.game_date ? -1 : 0);
+function renderShooting() {
+  if (!D.court_zones) return `<div class="card"><div class="empty">Loading shot locations…</div></div>`;
+  const rows = D.court_zones.filter(r => r.competition === comp);
+  if (!rows.length) return `<div class="card"><div class="empty">No shot data for this tournament.</div></div>`;
+  const teams = [...new Set(rows.map(r => r.team_code))].sort();
+  if (!shotTeam || !teams.includes(shotTeam)) shotTeam = teams.includes("CAN") ? "CAN" : teams[0];
+  const mine = rows.filter(r => r.team_code === shotTeam);
+  const total = mine.reduce((s, r) => s + r.attempts, 0);
+
+  const ZO = ["At the Rim","Paint (non-RA)","Mid-Range Left","Mid-Range Left Centre","Mid-Range Centre",
+              "Mid-Range Right Centre","Mid-Range Right","Left Corner 3","Left Wing 3","Top of Key 3",
+              "Right Wing 3","Right Corner 3"];
+  const bars = ZO.map(z => mine.find(r => r.court_zone === z)).filter(Boolean)
+    .sort((a, b) => b.attempts - a.attempts).slice(0, 8)
+    .map(r => ({ label: r.court_zone, v: r.attempts, display: `${r.fg_pct}%`,
+                 color: zoneFill(r.fg_pct_vs_league) }));
+
+  return `<div class="card">
+    <header><h2>${shotTeam} — shot chart</h2>
+      <span class="hint"><select id="shotTeam" style="padding:5px 9px;font-size:12px">
+        ${teams.map(t => `<option value="${t}" ${t === shotTeam ? "selected" : ""}>${t}</option>`).join("")}
+      </select></span></header>
+    <div class="chart-row">
+      <div class="court-wrap">${courtSvg(mine, shotTeam)}</div>
+      <div class="zone-side">
+        <div class="k" style="font-family:var(--display);font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink-3)">Volume by zone</div>
+        ${hbars(bars, "var(--red)")}
+      </div>
+    </div>
+    ${legend()}
+    <div class="note">${total.toLocaleString()} attempts. Each zone is shaded by field goal percentage against what the
+      rest of the tournament shoots from the same zone — 34% is poor at the rim and excellent from the corner, so the
+      comparison is the number that means anything. The court is drawn from the data itself: the hoop is the coordinate
+      origin, the floor is 280 units across a 15m court, and binning every shot by distance puts the crossover from twos
+      to threes at 129, exactly FIBA's 6.6m corner and 6.75m arc at that scale.</div>
+  </div>`;
+}
+
+function renderLeaders() {
+  const { players } = ctx();
+  const q = players.filter(r => r.games_played >= 2);
+  if (!q.length) return `<div class="card"><div class="empty">No players with two or more appearances.</div></div>`;
+  return `<div class="card">
+    <header><h2>Player leaders</h2><span class="hint">${q.length} players · 2+ games</span></header>
+    ${table("pl", [
+      { k: "player_name", h: "Player", l: true, f: r => `<span class="team"><span class="fl">${flag(r.team_code)}</span>${r.player_name}</span>` },
+      { k: "team_code", h: "Team", l: true, f: r => r.team_code },
+      { k: "games_played", h: "G", f: r => r.games_played },
+      { k: "ppg", h: "PPG", f: r => num(r.ppg) },
+      { k: "rpg", h: "RPG", f: r => num(r.rpg) },
+      { k: "apg", h: "APG", f: r => num(r.apg) },
+      { k: "spg", h: "SPG", f: r => num(r.spg) },
+      { k: "fg3_pct", h: "3P%", f: r => num(r.fg3_pct) },
+      { k: "ts_pct", h: "TS%", t: "True shooting — counts free throws", f: r => num(r.ts_pct) },
+      { k: "eff_per_game", h: "EFF", f: r => num(r.eff_per_game) },
+      { k: "plus_minus_per_game", h: "+/−", f: r => chip(r.plus_minus_per_game) },
+    ], q, { highlight: r => isCan(r.team_code), defaultSort: s => s.sort((a, b) => b.ppg - a.ppg) })}
+    <div class="note">Percentages come from summed makes and attempts, not averaged per-game percentages — otherwise a
+      1-for-1 night counts as much as 10-for-20.</div>
+  </div>`;
+}
+
+function renderResults() {
+  const { games } = ctx();
+  if (!games.length) return `<div class="card"><div class="empty">No games.</div></div>`;
+  const sorted = [...games].sort((a, b) => a.game_date < b.game_date ? 1 : -1);
   return `<div class="games">` + sorted.map(g => {
     const p = (D.byGame[g.game_id] || []).sort((a, b) => a.period_number - b.period_number);
     const homeWin = g.home_score > g.away_score;
     return `<article class="game">
-      <div class="gh"><span>${g.round_name || "Game"}</span>${g.group_code ? `<span>Group ${g.group_code}</span>` : ""}<span class="date">${fmtDate(g.game_date)}</span></div>
+      <div class="gh"><span>${g.round_name || "Game"}</span>${g.group_code ? `<span>· Group ${g.group_code}</span>` : ""}<span class="date">${fmtDate(g.game_date)}</span></div>
       <div class="score-row">
-        <div class="side"><span class="fl">${flag(g.home_code)}</span>
-          <span><span class="nm">${g.home_code}</span><br><span class="full">${g.home_team}</span></span></div>
-        <div>
-          <div class="score">
-            <span class="${homeWin ? "" : "l"}">${g.home_score}</span>
-            <span class="d">–</span>
-            <span class="${homeWin ? "l" : ""}">${g.away_score}</span>
-          </div>
-          <div class="winner-note">${homeWin ? g.home_code : g.away_code} wins by ${Math.abs(g.home_score - g.away_score)}</div>
-        </div>
-        <div class="side away"><span><span class="nm">${g.away_code}</span><br><span class="full">${g.away_team}</span></span>
-          <span class="fl">${flag(g.away_code)}</span></div>
+        <div class="side"><span class="fl">${flag(g.home_code)}</span><span class="nm">${g.home_code}</span></div>
+        <div class="score"><span class="${homeWin ? "" : "l"}">${g.home_score}</span><span class="d">–</span><span class="${homeWin ? "l" : ""}">${g.away_score}</span></div>
+        <div class="side away"><span class="nm">${g.away_code}</span><span class="fl">${flag(g.away_code)}</span></div>
       </div>
       ${p.length ? `<div class="qtr">${p.map(x => `<span>${x.period} ${x.home_points}–${x.away_points}</span>`).join("")}</div>` : ""}
     </article>`;
