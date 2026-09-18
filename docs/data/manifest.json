@@ -1,10 +1,12 @@
 {
- "generated_at": "2026-09-18T02:32:16+00:00",
+ "generated_at": "2026-09-18T05:39:58+00:00",
  "files": {
   "standings.json": 66,
   "player_leaders.json": 796,
   "team_efficiency.json": 336,
   "games.json": 168,
-  "period_scores.json": 676
+  "period_scores.json": 676,
+  "four_factors.json": 54,
+  "shot_zones.json": 270
  }
 }
