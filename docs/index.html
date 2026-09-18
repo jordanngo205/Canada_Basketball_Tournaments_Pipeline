@@ -8,210 +8,225 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,400..800&family=Inter:wght@400;450;500;600;700&display=swap">
 <style>
+  /* Dark editorial. Committed to one world rather than two half-tuned ones:
+     a near-black ground lets the court and the diverging scale carry the
+     colour, and Canada red works as a precision accent instead of a banner. */
   :root {
-    --red: #c8262c;
-    --red-dark: #a81e24;
-    --red-soft: #fdeeef;
-    --bg: #f7f7f8;
-    --card: #ffffff;
-    --sunk: #f1f2f4;
-    --ink: #16181d;
-    --ink-2: #5b6170;
-    --ink-3: #9096a3;
-    --line: #e6e8ec;
-    --line-2: #d3d7de;
-    --good: #12805a;
-    --good-soft: #e4f5ee;
-    --bad: #c23b34;
-    --bad-soft: #fdeceb;
-    --blue: #2f6fb5;
-    --amber: #c57f12;
-    --shadow: 0 1px 1px rgba(16,20,28,.04), 0 2px 6px rgba(16,20,28,.04);
-    --shadow-lift: 0 1px 2px rgba(16,20,28,.06), 0 8px 24px rgba(16,20,28,.07);
+    --bg:      #0a0b0d;
+    --card:    #131519;
+    --raised:  #191c21;
+    --sunk:    #101216;
+    --ink:     #f3f4f6;
+    --ink-2:   #a8aeb9;
+    --ink-3:   #6e7680;
+    --line:    #23262c;
+    --line-2:  #31353d;
+    --red:     #e8474f;
+    --red-dim: #b9313a;
+    --red-soft: rgba(232, 71, 79, .11);
+    --good:    #4fbf92;
+    --bad:     #f07a72;
+    --blue:    #6ba4e0;
+    --amber:   #ddab4e;
+
+    /* Diverging scale for shooting against the field. Blue cold, red hot,
+       neutral in between — the vernacular a basketball audience already reads.
+       Stepped for this surface and checked with the palette validator: each
+       arm is a single hue, monotone in lightness, and the step nearest the
+       ground clears 2:1 so no zone dissolves into the page. Poles separate at
+       delta-E 24.7 under deuteranopia.
+
+       Ordered so the extremes are the vivid ones. An earlier version ran the
+       arms to pale tints at the far end, which is technically monotone but
+       reads backwards: the rim at plus fifteen points came out pale pink while
+       a zone two points above average sat in deep red. Saturation is what the
+       eye reads as "strong", so that is where the strong values go. */
+    --cold-3: #5ba3f5; --cold-2: #2c6cb0; --cold-1: #2d5580;
+    --mid:    #2b2f36;
+    --hot-1:  #7a2f30; --hot-2:  #a8332f; --hot-3:  #ef4d46;
+    --court-line: #454b55;
+    --zone-empty: #16181c;
+
     --display: Archivo, "Helvetica Neue", Arial, sans-serif;
     --body: Inter, system-ui, -apple-system, sans-serif;
-
-    /* Diverging scale for shot efficiency vs the tournament average.
-       Blue (cold) to red (hot), gray midpoint — the vernacular a basketball
-       audience already reads. Every step validated against the light surface:
-       each arm is a single hue, monotone in lightness, and the step nearest
-       the surface clears 2:1 so a mark never dissolves into the page. */
-    --cold-3: #1c5cab; --cold-2: #3987e5; --cold-1: #86b6ef;
-    --mid:    #e6e4e0;
-    --hot-1:  #eb8b89; --hot-2:  #e34948; --hot-3:  #a51f1f;
-    --court-line: #aeb4bf;
-    --zone-empty: #f4f4f5;
   }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --red: #e8474f; --red-dark: #c8262c; --red-soft: #33191b;
-      --bg: #0f1114; --card: #181b20; --sunk: #20242b;
-      --ink: #eff1f5; --ink-2: #a8afbc; --ink-3: #767d8b;
-      --line: #282d35; --line-2: #3a414c;
-      --good: #4fbf92; --good-soft: #15291f; --bad: #f07a72; --bad-soft: #2b1917;
-      --blue: #6ba4e0; --amber: #ddab4e;
-      --shadow: 0 1px 1px rgba(0,0,0,.34), 0 2px 6px rgba(0,0,0,.28);
-      --shadow-lift: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.34);
 
-      /* Re-stepped for the dark surface, not flipped. Magnitude now runs
-         dark -> light, and the step nearest the surface again clears 2:1. */
-      --cold-3: #9ec5f4; --cold-2: #3987e5; --cold-1: #184f95;
-      --mid:    #383835;
-      --hot-1:  #9a2424; --hot-2:  #e34948; --hot-3:  #f3b0ae;
-      --court-line: #4c5563;
-      --zone-empty: #1f2228;
-    }
-  }
   * { box-sizing: border-box; }
+  ::selection { background: var(--red); color: #fff; }
+
   body {
     margin: 0; background: var(--bg); color: var(--ink);
-    font-family: var(--body);
-    font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased;
-    font-feature-settings: "cv05" 1, "ss01" 1;
+    font-family: var(--body); font-size: 13.5px; line-height: 1.55;
+    -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
   }
-  .wrap { max-width: 1260px; margin: 0 auto; padding: 0 24px; }
+  .wrap { max-width: 1320px; margin: 0 auto; padding: 0 28px; }
   h1, h2, h3, .num { font-family: var(--display); font-variant-numeric: tabular-nums; }
 
   /* ---------- masthead ---------- */
-  .masthead {
-    background: linear-gradient(180deg, var(--red) 0%, var(--red-dark) 100%);
-    color: #fff; box-shadow: inset 0 -1px 0 rgba(0,0,0,.14);
+  .masthead { border-bottom: 1px solid var(--line); background: var(--sunk); }
+  .masthead .wrap {
+    display: flex; align-items: flex-end; gap: 20px; padding: 26px 28px 20px; flex-wrap: wrap;
   }
-  .masthead .wrap { display: flex; align-items: center; gap: 16px; padding: 18px 24px; flex-wrap: wrap; }
   .crest {
-    width: 46px; height: 46px; flex: none; border-radius: 11px;
-    background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.22);
-    display: grid; place-items: center; font-size: 23px;
+    width: 40px; height: 40px; flex: none; border-radius: 9px;
+    background: var(--red); display: grid; place-items: center; font-size: 20px;
+    box-shadow: 0 0 0 1px rgba(255,255,255,.07);
   }
-  .mh-text { min-width: 0; }
+  .mh-text { min-width: 0; flex: 1; }
   .eyebrow {
-    font-family: var(--display); font-size: 10.5px; font-weight: 600;
-    letter-spacing: .2em; text-transform: uppercase; opacity: .72; margin-bottom: 3px;
+    font-family: var(--display); font-size: 10px; font-weight: 600;
+    letter-spacing: .24em; text-transform: uppercase; color: var(--red); margin-bottom: 6px;
   }
   .masthead h1 {
-    margin: 0; font-size: clamp(19px, 2.6vw, 29px); font-weight: 700;
-    letter-spacing: -0.021em; font-stretch: 92%; line-height: 1.12;
+    margin: 0; font-size: clamp(22px, 3.1vw, 36px); font-weight: 700;
+    letter-spacing: -0.03em; line-height: 1.04; font-stretch: 88%; text-wrap: balance;
   }
-  .mh-meta { margin-left: auto; text-align: right; font-size: 13px; opacity: .92; }
+  .mh-meta { text-align: right; font-size: 12.5px; color: var(--ink-3); padding-bottom: 3px; }
   .pill-live {
-    display: inline-block; background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.3);
-    padding: 3px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 700; margin-top: 4px;
+    display: inline-block; margin-top: 6px; padding: 3px 9px; border-radius: 5px;
+    background: var(--raised); border: 1px solid var(--line-2);
+    font-family: var(--display); font-size: 10.5px; font-weight: 600;
+    letter-spacing: .06em; color: var(--ink-2);
   }
 
   /* ---------- nav ---------- */
-  .navbar { background: var(--card); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 20; }
-  .navbar .wrap { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding: 0 22px; }
+  .navbar { background: var(--bg); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 20; }
+  .navbar .wrap { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; padding: 0 28px; }
   .tabs { display: flex; overflow-x: auto; scrollbar-width: none; }
   .tabs::-webkit-scrollbar { display: none; }
   .tab {
-    font-family: var(--display); font-size: 12.5px; font-weight: 600; letter-spacing: .015em;
+    font-family: var(--display); font-size: 12.5px; font-weight: 600; letter-spacing: .02em;
     background: none; border: 0; border-bottom: 2px solid transparent; cursor: pointer;
-    color: var(--ink-3); padding: 15px 2px 12px; margin-right: 22px; white-space: nowrap;
-    transition: color .12s;
+    color: var(--ink-3); padding: 16px 0 13px; margin-right: 26px; white-space: nowrap;
+    transition: color .13s;
   }
   .tab:hover { color: var(--ink-2); }
-  .tab[aria-selected="true"] { color: var(--red); border-bottom-color: var(--red); }
+  .tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--red); }
   select {
-    font: inherit; font-weight: 600; font-size: 13px; color: var(--ink); background: var(--card);
-    border: 1px solid var(--line-2); border-radius: 7px; padding: 7px 10px; margin-left: auto; max-width: 100%;
+    font: inherit; font-size: 12.5px; font-weight: 500; color: var(--ink); background: var(--raised);
+    border: 1px solid var(--line-2); border-radius: 7px; padding: 7px 11px; margin-left: auto; max-width: 100%;
   }
-  .tab:focus-visible, select:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
+  .tab:focus-visible, select:focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
 
-  /* ---------- tiles ---------- */
+  /* ---------- stat strip: hairlines, not boxes ---------- */
   .tiles {
-    display: grid; grid-template-columns: 1.35fr repeat(4, 1fr); gap: 0;
-    margin: 22px 0; background: var(--card); border: 1px solid var(--line);
-    border-radius: 14px; box-shadow: var(--shadow); overflow: hidden;
+    display: grid; grid-template-columns: 1.5fr repeat(4, 1fr);
+    margin: 26px 0 22px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
   }
-  @media (max-width: 960px) { .tiles { grid-template-columns: 1fr 1fr; } }
-  .tile { padding: 16px 18px 15px; border-right: 1px solid var(--line); }
+  @media (max-width: 980px) { .tiles { grid-template-columns: 1fr 1fr; } }
+  .tile { padding: 18px 22px 17px; border-right: 1px solid var(--line); }
   .tile:last-child { border-right: 0; }
-  .tile.hero { background: var(--red-soft); box-shadow: inset 3px 0 0 var(--red); }
+  .tile.hero { box-shadow: inset 2px 0 0 var(--red); background: var(--red-soft); }
   .tile .k {
-    font-family: var(--display); font-size: 10.5px; font-weight: 600;
-    letter-spacing: .13em; text-transform: uppercase; color: var(--ink-3);
+    font-family: var(--display); font-size: 10px; font-weight: 600;
+    letter-spacing: .16em; text-transform: uppercase; color: var(--ink-3);
   }
   .tile .v {
-    font-family: var(--display); font-size: 30px; font-weight: 700; letter-spacing: -0.035em;
-    margin-top: 5px; font-variant-numeric: tabular-nums; display: flex; align-items: baseline; gap: 6px;
-    line-height: 1.05;
+    font-family: var(--display); font-size: 32px; font-weight: 700; letter-spacing: -0.04em;
+    margin-top: 7px; font-variant-numeric: tabular-nums; display: flex; align-items: baseline; gap: 7px;
+    line-height: 1;
   }
-  .tile.hero .v { font-size: 40px; color: var(--red); }
-  .tile .v .unit { font-size: 11.5px; font-weight: 600; color: var(--ink-3); letter-spacing: .1em; }
-  .tile .s { font-size: 12px; color: var(--ink-2); margin-top: 5px; line-height: 1.4; }
+  .tile.hero .v { font-size: 46px; color: var(--red); }
+  .tile .v .unit { font-size: 11px; font-weight: 600; color: var(--ink-3); letter-spacing: .12em; }
+  .tile .s { font-size: 12px; color: var(--ink-2); margin-top: 7px; line-height: 1.4; }
 
   /* ---------- panels ---------- */
   .panel {
-    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
-    box-shadow: var(--shadow); margin-bottom: 18px; overflow: hidden;
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    margin-bottom: 20px; overflow: hidden;
   }
   .panel > header {
-    display: flex; align-items: baseline; gap: 12px; padding: 15px 20px 14px;
+    display: flex; align-items: baseline; gap: 13px; padding: 16px 22px 14px;
     border-bottom: 1px solid var(--line);
   }
   .panel > header .kick {
-    font-family: var(--display); font-size: 10px; font-weight: 700; letter-spacing: .16em;
-    text-transform: uppercase; color: var(--red); padding-top: 2px;
+    font-family: var(--display); font-size: 9.5px; font-weight: 700; letter-spacing: .2em;
+    text-transform: uppercase; color: var(--red);
   }
-  .panel > header h2 { margin: 0; font-size: 17.5px; font-weight: 700; letter-spacing: -0.024em; }
+  .panel > header h2 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: -0.028em; }
   .panel > header .sub { margin-left: auto; font-size: 12px; color: var(--ink-3); }
   .scroll { overflow-x: auto; }
-  .note { font-size: 12.5px; color: var(--ink-2); padding: 11px 18px; border-top: 1px solid var(--line); background: var(--sunk); }
+  .note {
+    font-size: 12px; color: var(--ink-3); padding: 13px 22px; border-top: 1px solid var(--line);
+    background: var(--sunk); line-height: 1.6;
+  }
 
   /* ---------- tables ---------- */
   table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
-  th, td { padding: 10px 14px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--line); }
-  td { font-variant-numeric: tabular-nums; }
+  th, td { padding: 11px 15px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--line); }
   th:first-child, td:first-child, th.l, td.l { text-align: left; }
   thead th {
-    font-family: var(--display); font-size: 10px; font-weight: 600; letter-spacing: .11em;
+    font-family: var(--display); font-size: 9.5px; font-weight: 600; letter-spacing: .14em;
     text-transform: uppercase; color: var(--ink-3); cursor: pointer; user-select: none;
-    background: var(--card); border-bottom: 1px solid var(--line-2); padding-top: 13px; padding-bottom: 9px;
+    background: var(--card); border-bottom: 1px solid var(--line-2); padding: 14px 15px 10px;
   }
-  thead th:hover { color: var(--ink); }
+  thead th:hover { color: var(--ink-2); }
   thead th[data-dir]::after { content: " ▾"; color: var(--red); }
   thead th[data-dir="asc"]::after { content: " ▴"; }
   tbody tr:last-child td { border-bottom: 0; }
-  tbody tr:hover td { background: var(--sunk); }
-  .team { display: inline-flex; align-items: center; gap: 9px; font-weight: 550; }
-  .team .fl { font-size: 16px; line-height: 1; }
+  tbody tr:hover td { background: var(--raised); }
+  .team { display: inline-flex; align-items: center; gap: 10px; font-weight: 500; }
+  .team .fl { font-size: 15px; line-height: 1; }
   tr.can td { background: var(--red-soft); }
   tr.can:hover td { background: var(--red-soft); }
-  tr.can td:first-child { box-shadow: inset 3px 0 0 var(--red); }
-  .rank { color: var(--ink-3); font-weight: 700; }
-  .pos { color: var(--good); font-weight: 700; }
-  .neg { color: var(--bad); font-weight: 700; }
+  tr.can td:first-child { box-shadow: inset 2px 0 0 var(--red); }
+  tr.can .team { font-weight: 650; }
+  .rank { color: var(--ink-3); font-weight: 600; font-family: var(--display); }
+  .pos { color: var(--good); font-weight: 600; }
+  .neg { color: var(--bad); font-weight: 600; }
   .chip {
-    display: inline-block; min-width: 52px; text-align: center; padding: 3px 9px; border-radius: 6px;
-    font-family: var(--display); font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums;
+    display: inline-block; min-width: 50px; text-align: center; padding: 3px 9px; border-radius: 5px;
+    font-family: var(--display); font-size: 11.5px; font-weight: 600; font-variant-numeric: tabular-nums;
   }
-  .chip.p { background: var(--good-soft); color: var(--good); }
-  .chip.n { background: var(--bad-soft); color: var(--bad); }
-  .chip.z { background: var(--sunk); color: var(--ink-2); }
+  .chip.p { background: rgba(79,191,146,.13); color: var(--good); }
+  .chip.n { background: rgba(240,122,114,.13); color: var(--bad); }
+  .chip.z { background: var(--raised); color: var(--ink-3); }
 
   /* ---------- game cards ---------- */
   .games { display: grid; gap: 12px; }
-  .game { background: var(--card); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); overflow: hidden; }
+  .game { background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
   .game > .gh {
-    display: flex; align-items: center; gap: 10px; padding: 9px 16px;
+    display: flex; align-items: center; gap: 10px; padding: 10px 18px;
     border-bottom: 1px solid var(--line); background: var(--sunk);
-    font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3);
+    font-family: var(--display); font-size: 10px; font-weight: 600; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--ink-3);
   }
-  .game > .gh .date { margin-left: auto; letter-spacing: .04em; }
-  .score-row { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 14px; padding: 18px 16px 14px; }
-  .side { display: flex; align-items: center; gap: 11px; min-width: 0; }
+  .game > .gh .date { margin-left: auto; letter-spacing: .06em; }
+  .score-row { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px; padding: 20px 18px 15px; }
+  .side { display: flex; align-items: center; gap: 13px; min-width: 0; }
   .side.away { justify-content: flex-end; text-align: right; }
-  .side .fl { font-size: 30px; line-height: 1; }
-  .side .nm { font-size: 19px; font-weight: 800; letter-spacing: -0.02em; }
-  .side .full { font-size: 12px; color: var(--ink-3); }
-  .score { font-size: 30px; font-weight: 800; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; display: flex; gap: 10px; align-items: baseline; }
+  .side .fl { font-size: 28px; line-height: 1; }
+  .side .nm { font-family: var(--display); font-size: 19px; font-weight: 700; letter-spacing: -0.025em; }
+  .side .full { font-size: 11.5px; color: var(--ink-3); }
+  .score {
+    font-family: var(--display); font-size: 32px; font-weight: 700; letter-spacing: -0.04em;
+    font-variant-numeric: tabular-nums; display: flex; gap: 11px; align-items: baseline;
+  }
   .score .l { color: var(--ink-3); }
-  .score .d { color: var(--line-2); font-weight: 600; }
-  .winner-note { text-align: center; font-size: 11.5px; color: var(--ink-3); margin-top: 2px; font-weight: 600; }
-  .qtr { display: flex; justify-content: center; gap: 6px; padding: 0 16px 12px; flex-wrap: wrap; }
+  .score .d { color: var(--line-2); font-weight: 500; }
+  .winner-note {
+    text-align: center; font-size: 10.5px; color: var(--ink-3); margin-top: 3px;
+    font-family: var(--display); font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+  }
+  .qtr { display: flex; justify-content: center; gap: 6px; padding: 0 18px 14px; flex-wrap: wrap; }
   .qtr span {
-    font-size: 11.5px; font-weight: 600; color: var(--ink-2); background: var(--sunk);
-    border-radius: 5px; padding: 3px 8px; font-variant-numeric: tabular-nums;
+    font-size: 11px; font-weight: 500; color: var(--ink-2); background: var(--raised);
+    border: 1px solid var(--line); border-radius: 5px; padding: 3px 9px; font-variant-numeric: tabular-nums;
+  }
+
+  .empty { padding: 48px 20px; text-align: center; color: var(--ink-3); }
+  footer {
+    margin: 34px 0 70px; padding-top: 18px; border-top: 1px solid var(--line);
+    font-size: 11.5px; color: var(--ink-3); line-height: 1.7;
+  }
+  footer a { color: var(--red); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+  @media (max-width: 760px) {
+    .wrap { padding: 0 18px; }
+    .mh-meta { text-align: left; }
+    select { margin-left: 0; width: 100%; }
+    .score-row { grid-template-columns: 1fr; gap: 10px; text-align: center; }
+    .side, .side.away { justify-content: center; text-align: center; }
   }
 
   /* ---------- shot chart ---------- */
@@ -640,6 +655,14 @@ function tip(html, evt) {
 // So: walk a grid over the court, classify every cell with classifyZone below,
 // merge each row's runs into rectangles, and emit one path per zone. The shape
 // on screen is the rule, so it cannot be wrong about where a zone ends.
+//
+// One exception. A cell is classified by its centre, so a cell whose centre is
+// a hair inside the arc still paints a cell's width past it — mid-range red
+// bleeding over the three-point line. Straight boundaries don't show this
+// because neighbouring zones tile against each other, but the arc has nothing
+// on the far side to cover it. So the two-point zones are additionally clipped
+// to the exact arc, and the three-point zones to its complement. Raster for the
+// angles and rectangles, analytic geometry for the curve.
 const RIM_R = 40;
 const CELL = 1;   // ~5cm, fine enough that the diagonals don't read as stairs
 
@@ -696,14 +719,38 @@ function courtSvg(rows, teamCode) {
   rows.forEach(r => by[r.court_zone] = r);
   ZONE_PATH_CACHE ||= zonePathsFromGrid();
 
+  // Everything inside the arc gets clipped to it; everything outside gets
+  // clipped to the complement.
+  const TWO = new Set(["At the Rim", "Paint (non-RA)", "Mid-Range Right", "Mid-Range Right Centre",
+                       "Mid-Range Centre", "Mid-Range Left Centre", "Mid-Range Left"]);
   const zones = Object.entries(ZONE_PATH_CACHE).map(([name, d]) => {
     const r = by[name];
-    return `<path class="zone" d="${d}" fill="${zoneFill(r ? r.fg_pct_vs_league : null)}"
+    return `<path class="zone" d="${d}" clip-path="url(#${TWO.has(name) ? "cIn" : "cOut"})"
+      fill="${zoneFill(r ? r.fg_pct_vs_league : null)}"
       data-t="${name}|${r ? `${r.makes}/${r.attempts} · ${r.fg_pct}%` : "no attempts"}|${r ? `field shoots ${r.league_fg_pct}% here` : ""}"></path>`;
   }).join("");
 
+  // The two-point region: baseline, up the corner lines, round the arc.
+  // Sweep 0, matching the arc drawn in the lines group. Inside the flipped
+  // group a sweep of 1 bulges the arc toward the baseline instead of away,
+  // which turns this region into its own complement.
+  const twoPt = `M ${f(c.cornerX)} ${f(BY)} L ${f(c.cornerX)} ${f(c.cornerY)}
+                 A ${f(c.arcR)} ${f(c.arcR)} 0 0 0 ${f(W - c.cornerX)} ${f(c.cornerY)}
+                 L ${f(W - c.cornerX)} ${f(BY)} Z`;
+  const courtRect = `M 0 ${f(BY)} L ${W} ${f(BY)} L ${W} ${f(TOP)} L 0 ${f(TOP)} Z`;
+
   return `<svg class="court" viewBox="-6 ${f(-TOP - 6)} ${W + 12} ${f(TOP - BY + 12)}"
        role="img" aria-label="Shot chart for ${teamCode}, twelve court zones shaded by field goal percentage against the tournament average">
+    <defs>
+      <!-- No transform here: a clipPath is resolved in the coordinate system of
+           the element that references it, and the zones already sit inside the
+           flipped group. Adding the flip again inverts the clip and erases the
+           three-point zones entirely. -->
+      <clipPath id="cIn"><path d="${twoPt}"></path></clipPath>
+      <clipPath id="cOut" clipPathUnits="userSpaceOnUse">
+        <path d="${courtRect} ${twoPt}" clip-rule="evenodd"></path>
+      </clipPath>
+    </defs>
     <g transform="scale(1 -1)">
       <rect x="0" y="${f(BY)}" width="${W}" height="${f(TOP - BY)}" fill="var(--zone-empty)"></rect>
       ${zones}
