@@ -14,6 +14,9 @@ services:
       # Runs once on an empty volume: creates the warehouse database and the
       # raw schema the ingest writes into.
       - ./sql/init:/docker-entrypoint-initdb.d:ro
+      # The schema itself lives outside the init directory so Postgres' runner
+      # does not also apply it to the default database.
+      - ./sql/schema:/opt/sql:ro
     ports:
       - "5433:5432"   # 5433 on the host so it can't collide with a local Postgres
     healthcheck:

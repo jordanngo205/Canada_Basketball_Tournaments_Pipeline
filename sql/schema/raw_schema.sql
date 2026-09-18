@@ -1,10 +1,12 @@
--- Runs once, on first boot of an empty Postgres volume.
+-- The raw layer, applied to whichever database psql is pointed at.
 --
--- The warehouse is a separate database from Airflow's metadata so that a
--- `dbt run` can never contend with, or corrupt, the scheduler's own state.
-CREATE DATABASE warehouse;
-
-\connect warehouse
+-- Deliberately contains no \connect. A schema file that overrides the
+-- connection it was handed is a trap: an earlier version of this carried one,
+-- and when it was first tested against a throwaway database it silently wrote
+-- to the wrong one instead. Callers choose the target — sql/init applies it to
+-- the warehouse on first boot, CI applies it to $WAREHOUSE_DSN.
+--
+-- Safe to re-run: every statement is IF NOT EXISTS or OR REPLACE.
 
 -- Raw is append-only and holds FIBA's payload exactly as served. Nothing here
 -- is cleaned, renamed or computed: that is dbt's job, downstream. Keeping this
@@ -25,9 +27,9 @@ CREATE TABLE IF NOT EXISTS raw.raw_games (
 CREATE INDEX IF NOT EXISTS raw_games_game_id_fetched_idx
     ON raw.raw_games (game_id, fetched_at DESC);
 
--- A view giving exactly one row per game: the most recent successful fetch.
--- dbt sources read this rather than raw_games, so re-ingesting a game to pick
--- up a correction never double-counts it downstream.
+-- Exactly one row per game: the most recent fetch. dbt sources read this rather
+-- than raw_games, so re-ingesting a game to pick up a correction replaces it
+-- downstream instead of duplicating it.
 CREATE OR REPLACE VIEW raw.latest_games AS
 SELECT DISTINCT ON (game_id)
        game_id, source_url, fetched_at, payload

@@ -3,6 +3,11 @@ name: ci
 on:
   push:
   pull_request:
+  schedule:
+    # Once a day, to catch FIBA changing their page structure before a
+    # tournament run does.
+    - cron: "0 7 * * *"
+  workflow_dispatch:
 
 jobs:
   dbt:
@@ -30,6 +35,7 @@ jobs:
       POSTGRES_PORT: "5432"
       POSTGRES_USER: fiba
       POSTGRES_PASSWORD: fiba
+      PGPASSWORD: fiba
       WAREHOUSE_DSN: postgresql://fiba:fiba@localhost:5432/warehouse
 
     steps:
@@ -40,33 +46,47 @@ jobs:
           python-version: "3.11"
           cache: pip
 
-      - name: Install
+      - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Create raw schema
-        run: psql "$WAREHOUSE_DSN" -f sql/init/01_warehouse.sql -v ON_ERROR_STOP=0
+      - name: Create the raw schema
+        # Only the schema file — the database itself already exists, created
+        # by the service container above.
+        run: psql "$WAREHOUSE_DSN" -v ON_ERROR_STOP=1 -f sql/init/02_raw_schema.sql
 
-      - name: Seed a fixture game
+      - name: Seed fixture games
         # Committed fixtures rather than a live scrape: CI must not fail
-        # because fiba.basketball is slow, and it must not hammer their site
-        # on every push.
-        run: python3 -m tests.seed_fixtures
+        # because fiba.basketball is having a slow morning, and it must not
+        # hit their site on every push. The live check is the parser job below.
+        run: python -m tests.seed_fixtures
 
       - name: dbt deps
         working-directory: dbt
         run: dbt deps --profiles-dir .
 
       - name: dbt build
-        # `build` runs models and their tests interleaved, so a model that
-        # fails its test never feeds the model below it.
+        # `build` interleaves models and their tests, so a model that fails its
+        # test never becomes the input to the model below it.
         working-directory: dbt
         run: dbt build --profiles-dir .
+
+      - name: Export marts
+        run: python -m reports.export_marts
+
+      - name: Upload exported JSON
+        uses: actions/upload-artifact@v4
+        with:
+          name: marts-json
+          path: out/*.json
+          if-no-files-found: error
 
   parser:
     name: Parser smoke test against live FIBA
     runs-on: ubuntu-latest
-    # Live-network test, so it runs on a schedule and on demand rather than on
-    # every push — this is the job that tells us FIBA changed their page.
+    # Live-network test, so it does not gate every push — a FIBA outage should
+    # not turn someone's commit red. It runs on the daily schedule and on
+    # demand, which is when it is actually useful: it tells us FIBA changed
+    # their page before a real ingest discovers it.
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v4
@@ -74,4 +94,4 @@ jobs:
         with:
           python-version: "3.11"
       - run: pip install requests beautifulsoup4
-      - run: python3 tests/test_parser.py
+      - run: python tests/test_parser.py
