@@ -1,0 +1,10 @@
+{
+ "generated_at": "2026-09-18T02:32:16+00:00",
+ "files": {
+  "standings.json": 66,
+  "player_leaders.json": 796,
+  "team_efficiency.json": 336,
+  "games.json": 168,
+  "period_scores.json": 676
+ }
+}
