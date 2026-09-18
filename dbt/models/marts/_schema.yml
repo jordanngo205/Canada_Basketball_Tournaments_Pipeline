@@ -8,14 +8,18 @@ models:
           combination_of_columns: [game_id, team_id]
     columns:
       - name: ortg
-        description: Points scored per 100 possessions.
+        description: >
+          Points scored per 100 possessions. The range is wide on purpose:
+          USA beat Cote d'Ivoire 117-24 at the U17s, which is a real ORTG of
+          27. This is here to catch a broken possessions estimate, not to
+          flag a blowout, and the possessions range below does the tighter job.
         tests:
           - not_null
-          - dbt_utils.accepted_range: {min_value: 40, max_value: 200}
+          - dbt_utils.accepted_range: {min_value: 20, max_value: 250}
       - name: drtg
         tests:
           - not_null
-          - dbt_utils.accepted_range: {min_value: 40, max_value: 200}
+          - dbt_utils.accepted_range: {min_value: 20, max_value: 250}
       - name: efg_pct
         tests:
           - dbt_utils.accepted_range: {min_value: 0, max_value: 100}
@@ -27,10 +31,13 @@ models:
           - dbt_utils.accepted_range: {min_value: 50, max_value: 110}
 
   - name: mart_standings
-    description: Tournament table, one row per team per competition.
+    description: >
+      Group tables. One row per team per GROUP, not per competition — some
+      formats have two group phases and a team plays in both. Canada is in
+      group B and then group F of the World Cup 2027 Americas Qualifiers.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [competition, team_id]
+          combination_of_columns: [competition, group_code, team_id]
     columns:
       - name: games_played
         tests: [not_null]

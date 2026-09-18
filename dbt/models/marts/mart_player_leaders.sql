@@ -33,12 +33,18 @@ with appearances as (
 select
     competition,
     person_id,
-    player_name,
-    team_code,
-    team_name,
-    -- A player can shift position between games; report the one most used.
-    mode() within group (order by position) as position,
-    min(jersey)                            as jersey,
+
+    -- Grouped on person_id alone, deliberately. FIBA spells the same player
+    -- differently between games in the same tournament — 202510 is "Pako
+    -- Saldivar" in two games and "Pako Cruz" in six, 418801 is "Samuel
+    -- Hincapie" once and "Samuel Hincapie Alzate" twice. Including the name in
+    -- the grouping splits them into two half-players. The id is the identity;
+    -- everything else is an attribute, so take the most common value.
+    mode() within group (order by player_name) as player_name,
+    mode() within group (order by team_code)   as team_code,
+    mode() within group (order by team_name)   as team_name,
+    mode() within group (order by position)    as position,
+    min(jersey)                                as jersey,
 
     count(*)                               as games_played,
     sum(is_starter::int)                   as games_started,
@@ -73,4 +79,4 @@ select
     rank() over (partition by competition order by avg(pts) desc) as ppg_rank
 
 from appearances
-group by competition, person_id, player_name, team_code, team_name
+group by competition, person_id
