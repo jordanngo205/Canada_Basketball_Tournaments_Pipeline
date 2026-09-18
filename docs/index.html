@@ -6,32 +6,37 @@
 <title>Canada Basketball Tournaments</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
 <style>
   :root {
-    --red: #d80621;
-    --red-soft: #fdecee;
-    --bg: #f5f6f8;
+    --red: #c8262c;
+    --red-dark: #a81e24;
+    --red-soft: #fdeeef;
+    --bg: #f7f7f8;
     --card: #ffffff;
-    --sunk: #eef0f3;
+    --sunk: #f1f2f4;
     --ink: #16181d;
-    --ink-2: #5a6070;
-    --ink-3: #8b91a1;
-    --line: #e4e7ec;
-    --line-2: #cfd4dd;
-    --good: #16794a;
-    --good-soft: #e8f4ee;
-    --bad: #b03027;
+    --ink-2: #5b6170;
+    --ink-3: #9096a3;
+    --line: #e6e8ec;
+    --line-2: #d3d7de;
+    --good: #12805a;
+    --good-soft: #e4f5ee;
+    --bad: #c23b34;
     --bad-soft: #fdeceb;
+    --blue: #2f6fb5;
+    --amber: #c57f12;
+    --shadow: 0 1px 2px rgba(20,24,35,.06), 0 4px 14px rgba(20,24,35,.05);
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --red: #ff5a68; --red-soft: #3a191d;
-      --bg: #101216; --card: #191c22; --sunk: #21252d;
-      --ink: #eef0f4; --ink-2: #a9b0be; --ink-3: #79808f;
-      --line: #2b3039; --line-2: #3d444f;
-      --good: #6cc296; --good-soft: #16281f;
-      --bad: #f0827a; --bad-soft: #2c1a19;
+      --red: #e8474f; --red-dark: #c8262c; --red-soft: #33191b;
+      --bg: #0f1114; --card: #181b20; --sunk: #20242b;
+      --ink: #eff1f5; --ink-2: #a8afbc; --ink-3: #767d8b;
+      --line: #282d35; --line-2: #3a414c;
+      --good: #4fbf92; --good-soft: #15291f; --bad: #f07a72; --bad-soft: #2b1917;
+      --blue: #6ba4e0; --amber: #ddab4e;
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 4px 14px rgba(0,0,0,.3);
     }
   }
   * { box-sizing: border-box; }
@@ -40,160 +45,223 @@
     font-family: Inter, system-ui, -apple-system, sans-serif;
     font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased;
   }
-  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 20px 72px; }
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 0 22px; }
 
-  header.top {
-    display: flex; flex-wrap: wrap; gap: 14px 22px;
-    align-items: baseline; padding: 26px 0 18px;
-    border-bottom: 3px solid var(--ink);
+  /* ---------- masthead ---------- */
+  .masthead { background: var(--red); color: #fff; }
+  .masthead .wrap { display: flex; align-items: center; gap: 18px; padding: 16px 22px; flex-wrap: wrap; }
+  .crest {
+    width: 54px; height: 54px; flex: none; border-radius: 10px; background: #fff;
+    display: grid; place-items: center; font-size: 26px; box-shadow: 0 2px 8px rgba(0,0,0,.18);
   }
-  h1 {
-    margin: 0; font-size: 25px; font-weight: 800; letter-spacing: -0.024em;
+  .mh-text { min-width: 0; }
+  .eyebrow {
+    font-size: 11px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase;
+    opacity: .78; margin-bottom: 1px;
   }
-  h1 .mark { color: var(--red); }
-  .updated { font-size: 12px; color: var(--ink-3); margin-left: auto; font-variant-numeric: tabular-nums; }
+  .masthead h1 { margin: 0; font-size: clamp(19px, 2.7vw, 30px); font-weight: 800; letter-spacing: -0.022em; }
+  .mh-meta { margin-left: auto; text-align: right; font-size: 13px; opacity: .92; }
+  .pill-live {
+    display: inline-block; background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.3);
+    padding: 3px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 700; margin-top: 4px;
+  }
 
-  .controls { display: flex; flex-wrap: wrap; gap: 10px; padding: 16px 0 18px; align-items: center; }
-  select {
-    font: inherit; font-weight: 600; color: var(--ink); background: var(--card);
-    border: 1px solid var(--line-2); border-radius: 6px; padding: 8px 11px; max-width: 100%;
-  }
-  .tabs { display: flex; flex-wrap: wrap; gap: 3px; margin-left: auto; background: var(--sunk); padding: 3px; border-radius: 8px; }
+  /* ---------- nav ---------- */
+  .navbar { background: var(--card); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 20; }
+  .navbar .wrap { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding: 0 22px; }
+  .tabs { display: flex; gap: 2px; overflow-x: auto; }
   .tab {
-    font: inherit; font-weight: 600; font-size: 13px; cursor: pointer;
-    border: 0; background: transparent; color: var(--ink-2);
-    padding: 7px 14px; border-radius: 6px;
+    font: inherit; font-size: 12.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+    background: none; border: 0; border-bottom: 3px solid transparent; cursor: pointer;
+    color: var(--ink-3); padding: 14px 13px 11px; white-space: nowrap;
   }
-  .tab[aria-selected="true"] { background: var(--card); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+  .tab:hover { color: var(--ink-2); }
+  .tab[aria-selected="true"] { color: var(--red); border-bottom-color: var(--red); }
+  select {
+    font: inherit; font-weight: 600; font-size: 13px; color: var(--ink); background: var(--card);
+    border: 1px solid var(--line-2); border-radius: 7px; padding: 7px 10px; margin-left: auto; max-width: 100%;
+  }
   .tab:focus-visible, select:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
 
-  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 18px; }
-  .tile { background: var(--card); border: 1px solid var(--line); border-radius: 9px; padding: 13px 15px; }
-  .tile .k { font-size: 11px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--ink-3); }
-  .tile .v { font-size: 23px; font-weight: 800; letter-spacing: -0.02em; margin-top: 3px; font-variant-numeric: tabular-nums; }
-  .tile .s { font-size: 12px; color: var(--ink-2); margin-top: 1px; }
-
-  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; margin-bottom: 16px; }
-  .panel > h2 {
-    margin: 0; padding: 13px 16px; font-size: 13px; font-weight: 700;
-    letter-spacing: .05em; text-transform: uppercase; color: var(--ink-2);
-    border-bottom: 1px solid var(--line); background: var(--sunk);
-    display: flex; gap: 10px; align-items: baseline;
+  /* ---------- tiles ---------- */
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(178px, 1fr)); gap: 12px; margin: 20px 0; }
+  .tile {
+    background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--line-2);
+    border-radius: 10px; padding: 13px 15px; box-shadow: var(--shadow);
   }
-  .panel > h2 .sub { font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--ink-3); font-size: 12px; }
-  .scroll { overflow-x: auto; }
+  .tile.t-red { border-left-color: var(--red); }
+  .tile.t-good { border-left-color: var(--good); }
+  .tile.t-blue { border-left-color: var(--blue); }
+  .tile.t-amber { border-left-color: var(--amber); }
+  .tile .k { font-size: 10.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+  .tile .v {
+    font-size: 27px; font-weight: 800; letter-spacing: -0.03em; margin-top: 4px;
+    font-variant-numeric: tabular-nums; display: flex; align-items: baseline; gap: 7px;
+  }
+  .tile .v .unit { font-size: 12px; font-weight: 700; color: var(--ink-3); letter-spacing: .06em; }
+  .tile .s { font-size: 12px; color: var(--ink-2); margin-top: 3px; line-height: 1.35; }
 
+  /* ---------- panels ---------- */
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 16px; overflow: hidden; }
+  .panel > header {
+    display: flex; align-items: baseline; gap: 11px; padding: 14px 18px;
+    border-bottom: 1px solid var(--line);
+  }
+  .panel > header .kick {
+    font-size: 10.5px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--red);
+  }
+  .panel > header h2 { margin: 0; font-size: 17px; font-weight: 800; letter-spacing: -0.02em; }
+  .panel > header .sub { margin-left: auto; font-size: 12px; color: var(--ink-3); }
+  .scroll { overflow-x: auto; }
+  .note { font-size: 12.5px; color: var(--ink-2); padding: 11px 18px; border-top: 1px solid var(--line); background: var(--sunk); }
+
+  /* ---------- tables ---------- */
   table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
-  th, td { padding: 8px 12px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--line); }
+  th, td { padding: 9px 13px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--line); }
   th:first-child, td:first-child, th.l, td.l { text-align: left; }
   thead th {
-    position: sticky; top: 0; background: var(--card); z-index: 1;
-    font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
-    color: var(--ink-3); cursor: pointer; user-select: none;
+    font-size: 10.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase;
+    color: var(--ink-3); cursor: pointer; user-select: none; background: var(--sunk);
   }
   thead th:hover { color: var(--ink); }
   thead th[data-dir]::after { content: " ▾"; color: var(--red); }
   thead th[data-dir="asc"]::after { content: " ▴"; }
   tbody tr:last-child td { border-bottom: 0; }
-  tbody tr:hover { background: var(--sunk); }
-  td.name { font-weight: 600; }
-  .can td { background: var(--red-soft); }
-  .can td.name::after { content: "🇨🇦"; margin-left: 6px; font-size: 11px; }
+  tbody tr:hover td { background: var(--sunk); }
+  .team { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; }
+  .team .fl { font-size: 16px; line-height: 1; }
+  tr.can td { background: var(--red-soft); }
+  tr.can:hover td { background: var(--red-soft); }
+  tr.can td:first-child { box-shadow: inset 3px 0 0 var(--red); }
+  .rank { color: var(--ink-3); font-weight: 700; }
+  .pos { color: var(--good); font-weight: 700; }
+  .neg { color: var(--bad); font-weight: 700; }
+  .chip {
+    display: inline-block; min-width: 54px; text-align: center; padding: 2px 8px; border-radius: 999px;
+    font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums;
+  }
+  .chip.p { background: var(--good-soft); color: var(--good); }
+  .chip.n { background: var(--bad-soft); color: var(--bad); }
+  .chip.z { background: var(--sunk); color: var(--ink-2); }
 
-  .pos { color: var(--good); font-weight: 600; }
-  .neg { color: var(--bad); font-weight: 600; }
-  .grp { display: inline-block; min-width: 20px; padding: 1px 6px; border-radius: 4px; background: var(--sunk); font-size: 11px; font-weight: 700; color: var(--ink-2); }
-  .rank { color: var(--ink-3); font-weight: 600; }
+  /* ---------- game cards ---------- */
+  .games { display: grid; gap: 12px; }
+  .game { background: var(--card); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); overflow: hidden; }
+  .game > .gh {
+    display: flex; align-items: center; gap: 10px; padding: 9px 16px;
+    border-bottom: 1px solid var(--line); background: var(--sunk);
+    font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3);
+  }
+  .game > .gh .date { margin-left: auto; letter-spacing: .04em; }
+  .score-row { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 14px; padding: 18px 16px 14px; }
+  .side { display: flex; align-items: center; gap: 11px; min-width: 0; }
+  .side.away { justify-content: flex-end; text-align: right; }
+  .side .fl { font-size: 30px; line-height: 1; }
+  .side .nm { font-size: 19px; font-weight: 800; letter-spacing: -0.02em; }
+  .side .full { font-size: 12px; color: var(--ink-3); }
+  .score { font-size: 30px; font-weight: 800; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; display: flex; gap: 10px; align-items: baseline; }
+  .score .l { color: var(--ink-3); }
+  .score .d { color: var(--line-2); font-weight: 600; }
+  .winner-note { text-align: center; font-size: 11.5px; color: var(--ink-3); margin-top: 2px; font-weight: 600; }
+  .qtr { display: flex; justify-content: center; gap: 6px; padding: 0 16px 12px; flex-wrap: wrap; }
+  .qtr span {
+    font-size: 11.5px; font-weight: 600; color: var(--ink-2); background: var(--sunk);
+    border-radius: 5px; padding: 3px 8px; font-variant-numeric: tabular-nums;
+  }
 
-  /* horizontal bar inside a cell, for net rating */
-  .bar { position: relative; height: 6px; border-radius: 3px; background: var(--sunk); width: 90px; display: inline-block; vertical-align: middle; }
-  .bar i { position: absolute; top: 0; height: 6px; border-radius: 3px; }
-  .bar i.p { background: var(--good); left: 50%; }
-  .bar i.n { background: var(--bad); right: 50%; }
-  .bar::after { content: ""; position: absolute; left: 50%; top: -2px; width: 1px; height: 10px; background: var(--line-2); }
-
-  .note { font-size: 12.5px; color: var(--ink-2); padding: 11px 16px; border-top: 1px solid var(--line); background: var(--sunk); }
-  .empty { padding: 30px 16px; text-align: center; color: var(--ink-3); }
-  footer { margin-top: 26px; padding-top: 14px; border-top: 1px solid var(--line); font-size: 12px; color: var(--ink-3); }
+  .empty { padding: 42px 18px; text-align: center; color: var(--ink-3); }
+  footer { margin: 28px 0 60px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 12px; color: var(--ink-3); }
   footer a { color: var(--red); }
-  [hidden] { display: none !important; }
-  @media (max-width: 700px) {
-    .tabs { margin-left: 0; width: 100%; }
-    .updated { margin-left: 0; width: 100%; }
+  @media (max-width: 720px) {
+    .mh-meta { margin-left: 0; text-align: left; width: 100%; }
+    select { margin-left: 0; width: 100%; }
+    .score-row { grid-template-columns: 1fr; gap: 8px; text-align: center; }
+    .side, .side.away { justify-content: center; text-align: center; }
   }
 </style>
 </head>
 <body>
-<div class="wrap">
 
-  <header class="top">
-    <h1><span class="mark">Canada</span> Basketball Tournaments</h1>
-    <div class="updated" id="updated">loading…</div>
-  </header>
+<div class="masthead">
+  <div class="wrap">
+    <div class="crest">🍁</div>
+    <div class="mh-text">
+      <div class="eyebrow">Canada Basketball</div>
+      <h1 id="compTitle">2026 Tournaments</h1>
+    </div>
+    <div class="mh-meta">
+      <div id="compMeta">—</div>
+      <div class="pill-live" id="updated">loading…</div>
+    </div>
+  </div>
+</div>
 
-  <div class="controls">
-    <select id="comp" aria-label="Tournament"></select>
+<div class="navbar">
+  <div class="wrap">
     <div class="tabs" role="tablist">
       <button class="tab" role="tab" data-view="standings" aria-selected="true">Standings</button>
       <button class="tab" role="tab" data-view="efficiency" aria-selected="false">Team Efficiency</button>
-      <button class="tab" role="tab" data-view="players" aria-selected="false">Player Leaders</button>
-      <button class="tab" role="tab" data-view="games" aria-selected="false">Games</button>
+      <button class="tab" role="tab" data-view="players" aria-selected="false">Leaders</button>
+      <button class="tab" role="tab" data-view="games" aria-selected="false">Results</button>
     </div>
+    <select id="comp" aria-label="Tournament"></select>
   </div>
+</div>
 
+<div class="wrap">
   <div class="tiles" id="tiles"></div>
-  <div id="view"><div class="empty">Loading…</div></div>
-
+  <div id="view"><div class="panel"><div class="empty">Loading…</div></div></div>
   <footer>
     Built by the <a href="https://github.com/jordanngo205/Canada_Basketball_Tournaments_Pipeline">Canada Basketball Tournaments pipeline</a>
-    — FIBA game pages → Postgres → dbt → these tables. Every figure here passed 56 data-quality tests before it was written out.
+    — FIBA game pages → Postgres → dbt → these tables. Every figure passed 56 data-quality tests before it was written out.
   </footer>
 </div>
 
+<script src="assets/flags.js"></script>
 <script>
-const F = ["standings", "player_leaders", "team_efficiency", "games", "manifest"];
+const FILES = ["standings", "player_leaders", "team_efficiency", "games", "period_scores", "manifest"];
 const D = {};
 let comp = null, view = "standings";
 const sortState = {};
 
 const num = (v, d = 1) => (v === null || v === undefined || v === "") ? "—" : Number(v).toFixed(d);
-const int = v => (v === null || v === undefined) ? "—" : Number(v).toLocaleString();
+const signed = (v, d = 1) => (v === null || v === undefined) ? "—" : (v > 0 ? "+" : "") + Number(v).toFixed(d);
 const isCan = t => t === "CAN";
-const signed = v => (v === null || v === undefined) ? "—" : (v > 0 ? "+" : "") + Number(v).toFixed(1);
 const cls = v => v > 0 ? "pos" : v < 0 ? "neg" : "";
-
-function netBar(v, max) {
-  const w = Math.min(Math.abs(v) / max, 1) * 45;
-  const side = v >= 0 ? "p" : "n";
-  return `<span class="bar"><i class="${side}" style="width:${w}%"></i></span>`;
-}
+const chip = v => `<span class="chip ${v > 0 ? "p" : v < 0 ? "n" : "z"}">${signed(v)}</span>`;
+const teamCell = (code, name) => `<span class="team"><span class="fl">${flag(code)}</span>${name || code}</span>`;
+const fmtDate = d => new Date(d + "T00:00:00").toLocaleDateString(undefined, { day: "numeric", month: "short" });
 
 async function boot() {
   try {
-    const loaded = await Promise.all(F.map(n => fetch(`data/${n}.json`).then(r => {
-      if (!r.ok) throw new Error(`${n}.json returned ${r.status}`);
+    const loaded = await Promise.all(FILES.map(n => fetch(`data/${n}.json`).then(r => {
+      if (!r.ok) throw new Error(`${n}.json → ${r.status}`);
       return r.json();
     })));
-    F.forEach((n, i) => D[n] = loaded[i]);
+    FILES.forEach((n, i) => D[n] = loaded[i]);
   } catch (err) {
     document.getElementById("view").innerHTML =
-      `<div class="panel"><div class="empty">Couldn't load the data — ${err.message}.<br><br>
-       If you opened this file directly, browsers block local fetches. Serve the folder instead:<br>
-       <code>python3 -m http.server -d docs</code> then open localhost:8000</div></div>`;
+      `<div class="panel"><div class="empty"><b>Couldn't load the data</b> — ${err.message}.<br><br>
+       Opening this file directly won't work; browsers block local fetches.<br>
+       Run <code>python3 -m http.server -d docs</code> and open localhost:8000.</div></div>`;
     document.getElementById("updated").textContent = "";
     return;
   }
+
+  D.byGame = {};
+  D.period_scores.forEach(p => (D.byGame[p.game_id] ||= []).push(p));
+  D.teamName = {};
+  D.games.forEach(g => { D.teamName[g.home_code] = g.home_team; D.teamName[g.away_code] = g.away_team; });
 
   const when = new Date(D.manifest.generated_at);
   document.getElementById("updated").textContent =
     "Updated " + when.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
 
-  // Tournaments, most games first — the biggest is the most interesting default.
   const counts = {};
   D.games.forEach(g => counts[g.competition] = (counts[g.competition] || 0) + 1);
   const comps = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
   const sel = document.getElementById("comp");
-  sel.innerHTML = comps.map(c => `<option value="${c}">${c} (${counts[c]})</option>`).join("");
+  sel.innerHTML = comps.map(c => `<option value="${c}">${c}</option>`).join("");
   comp = comps[0];
   sel.onchange = e => { comp = e.target.value; render(); };
 
@@ -224,26 +292,16 @@ function table(id, cols, rows, opts = {}) {
   const st = sortState[id] || {};
   const sorted = sortRows(rows, st.key, st.dir, opts.defaultSort);
   const head = cols.map(c =>
-    `<th data-col="${c.k}" ${st.key === c.k ? `data-dir="${st.dir}"` : ""} class="${c.l ? "l" : ""}" title="${c.t || ""}">${c.h}</th>`
-  ).join("");
+    `<th data-col="${c.k}" ${st.key === c.k ? `data-dir="${st.dir}"` : ""} class="${c.l ? "l" : ""}" title="${c.t || ""}">${c.h}</th>`).join("");
   const body = sorted.map(r =>
-    `<tr class="${opts.highlight && opts.highlight(r) ? "can" : ""}">${cols.map(c => `<td class="${c.l ? "l" : ""} ${c.cls ? c.cls(r) : ""}">${c.f(r)}</td>`).join("")}</tr>`
-  ).join("");
-  setTimeout(() => {
-    document.querySelectorAll(`#${id} thead th`).forEach(th => th.onclick = () => {
-      const k = th.dataset.col;
-      const cur = sortState[id] || {};
-      sortState[id] = { key: k, dir: cur.key === k && cur.dir === "desc" ? "asc" : "desc" };
-      render();
-    });
-  }, 0);
+    `<tr class="${opts.highlight && opts.highlight(r) ? "can" : ""}">${cols.map(c =>
+      `<td class="${c.l ? "l" : ""} ${c.cls ? c.cls(r) : ""}">${c.f(r)}</td>`).join("")}</tr>`).join("");
+  setTimeout(() => document.querySelectorAll(`#${id} thead th`).forEach(th => th.onclick = () => {
+    const k = th.dataset.col, cur = sortState[id] || {};
+    sortState[id] = { key: k, dir: cur.key === k && cur.dir === "desc" ? "asc" : "desc" };
+    render();
+  }), 0);
   return `<div class="scroll"><table id="${id}"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
-}
-
-function tiles(items) {
-  document.getElementById("tiles").innerHTML = items.map(t =>
-    `<div class="tile"><div class="k">${t.k}</div><div class="v">${t.v}</div><div class="s">${t.s || ""}</div></div>`
-  ).join("");
 }
 
 function render() {
@@ -252,15 +310,13 @@ function render() {
   const eff = D.team_efficiency.filter(r => r.competition === comp);
   const players = D.player_leaders.filter(r => r.competition === comp);
 
-  const canRow = stand.find(r => isCan(r.team_code));
-  const topScorer = [...players].sort((a, b) => b.ppg - a.ppg)[0];
-  tiles([
-    { k: "Games", v: int(games.length), s: `${new Set(eff.map(e => e.team_code)).size} teams` },
-    { k: "Canada", v: canRow ? `${canRow.overall_wins}-${canRow.overall_losses}` : "—",
-      s: canRow ? `group ${canRow.group_code}, seed ${canRow.standing_rank}` : "not in group play" },
-    { k: "Top scorer", v: topScorer ? num(topScorer.ppg) : "—", s: topScorer ? `${topScorer.player_name} (${topScorer.team_code})` : "" },
-    { k: "Players tracked", v: int(players.length), s: "min. 1 appearance" },
-  ]);
+  document.getElementById("compTitle").textContent = comp;
+  const dates = games.map(g => g.game_date).sort();
+  const venue = games[0] ? [games[0].city, games[0].country].filter(Boolean).join(", ") : "";
+  document.getElementById("compMeta").textContent =
+    (dates.length ? `${fmtDate(dates[0])} – ${fmtDate(dates[dates.length - 1])}` : "") + (venue ? ` · ${venue}` : "");
+
+  renderTiles(games, stand, eff, players);
 
   const out = document.getElementById("view");
   if (view === "standings") out.innerHTML = renderStandings(stand);
@@ -269,77 +325,99 @@ function render() {
   if (view === "games") out.innerHTML = renderGames(games);
 }
 
+function rollUp(eff) {
+  const by = {};
+  eff.forEach(r => {
+    const t = by[r.team_code] ||= { team_code: r.team_code, g: 0, pts: 0, opp: 0, poss: 0, oppPoss: 0, efg: 0, tov: 0, oreb: 0, ft: 0 };
+    t.g++; t.pts += r.pts; t.opp += r.opp_pts; t.poss += r.possessions; t.oppPoss += r.possessions;
+    t.efg += r.efg_pct; t.tov += r.tov_pct; t.oreb += r.oreb_pct; t.ft += r.ft_pct || 0;
+  });
+  return Object.values(by).map(t => ({
+    team_code: t.team_code, games: t.g,
+    ortg: 100 * t.pts / t.poss, drtg: 100 * t.opp / t.oppPoss,
+    net: 100 * t.pts / t.poss - 100 * t.opp / t.oppPoss,
+    pace: t.poss / t.g, efg: t.efg / t.g, tov: t.tov / t.g, oreb: t.oreb / t.g, ft: t.ft / t.g,
+  }));
+}
+
+function renderTiles(games, stand, eff, players) {
+  const agg = rollUp(eff);
+  const best = [...agg].sort((a, b) => b.ortg - a.ortg)[0];
+  const bestD = [...agg].sort((a, b) => a.drtg - b.drtg)[0];
+  const top = [...players].sort((a, b) => b.ppg - a.ppg)[0];
+  const can = stand.find(r => isCan(r.team_code));
+  const pace = agg.length ? agg.reduce((s, a) => s + a.pace, 0) / agg.length : null;
+
+  const t = [
+    { c: "t-red", k: "Canada", v: can ? `${can.overall_wins}–${can.overall_losses}` : "—",
+      s: can ? `Group ${can.group_code} · seed ${can.standing_rank}` : "no group-phase games" },
+    { c: "", k: "Games played", v: games.length, s: `${agg.length} teams · pace ${num(pace, 1)}` },
+    { c: "t-good", k: "Best offence", v: best ? num(best.ortg) : "—", unit: "ORTG",
+      s: best ? `${flag(best.team_code)} ${best.team_code} · points per 100 poss.` : "" },
+    { c: "t-blue", k: "Best defence", v: bestD ? num(bestD.drtg) : "—", unit: "DRTG",
+      s: bestD ? `${flag(bestD.team_code)} ${bestD.team_code} · allowed per 100 poss.` : "" },
+    { c: "t-amber", k: "Top scorer", v: top ? num(top.ppg) : "—", unit: "PPG",
+      s: top ? `${flag(top.team_code)} ${top.player_name}` : "" },
+  ];
+  document.getElementById("tiles").innerHTML = t.map(x =>
+    `<div class="tile ${x.c}"><div class="k">${x.k}</div>
+     <div class="v">${x.v}${x.unit ? `<span class="unit">${x.unit}</span>` : ""}</div>
+     <div class="s">${x.s || ""}</div></div>`).join("");
+}
+
 function renderStandings(rows) {
   if (!rows.length) return `<div class="panel"><div class="empty">No group-phase standings for this tournament.</div></div>`;
   const groups = [...new Set(rows.map(r => r.group_code))].sort();
   return groups.map(g => {
     const sub = rows.filter(r => r.group_code === g);
     return `<div class="panel">
-      <h2>Group ${g} <span class="sub">${sub.length} teams</span></h2>
+      <header><span class="kick">Group Phase</span><h2>Group ${g}</h2><span class="sub">${sub.length} teams</span></header>
       ${table("st" + g, [
         { k: "standing_rank", h: "#", l: true, f: r => `<span class="rank">${r.standing_rank}</span>` },
-        { k: "team_name", h: "Team", l: true, f: r => `<span class="name">${r.team_name}</span>`, cls: () => "name" },
+        { k: "team_name", h: "Team", l: true, f: r => teamCell(r.team_code, r.team_name) },
         { k: "wins", h: "W", f: r => r.wins },
         { k: "losses", h: "L", f: r => r.losses },
-        { k: "point_differential", h: "Diff", f: r => signed(r.point_differential).replace(".0", ""), cls: r => cls(r.point_differential) },
+        { k: "point_differential", h: "Diff", f: r => signed(r.point_differential, 0), cls: r => cls(r.point_differential) },
         { k: "ppg", h: "PPG", f: r => num(r.ppg) },
         { k: "opp_ppg", h: "OPP", f: r => num(r.opp_ppg) },
         { k: "ortg", h: "ORTG", t: "Points scored per 100 possessions", f: r => num(r.ortg) },
         { k: "drtg", h: "DRTG", t: "Points allowed per 100 possessions", f: r => num(r.drtg) },
-        { k: "net_rtg", h: "Net", f: r => `${netBar(r.net_rtg, 30)} <span class="${cls(r.net_rtg)}">${signed(r.net_rtg)}</span>` },
-        { k: "overall_wins", h: "Overall", t: "Including knockout games", f: r => `${r.overall_wins}-${r.overall_losses}` },
-      ], sub, {
-        highlight: r => isCan(r.team_code),
-        defaultSort: s => s.sort((a, b) => a.standing_rank - b.standing_rank),
-      })}
-      <div class="note">Ordered by wins, then point difference. Real FIBA tiebreaks use a head-to-head mini-league between the tied teams only, so treat this as display order.</div>
+        { k: "net_rtg", h: "Net", f: r => chip(r.net_rtg) },
+        { k: "overall_wins", h: "Overall", t: "Including knockout games", f: r => `${r.overall_wins}–${r.overall_losses}` },
+      ], sub, { highlight: r => isCan(r.team_code), defaultSort: s => s.sort((a, b) => a.standing_rank - b.standing_rank) })}
+      <div class="note">Ordered by wins, then point difference. Real FIBA tiebreaks run a head-to-head mini-league between the tied teams only, so treat this as display order.</div>
     </div>`;
   }).join("");
 }
 
-function renderEfficiency(rows) {
-  // Roll the per-game rows up to one line per team.
-  const by = {};
-  rows.forEach(r => {
-    const t = by[r.team_code] ||= { team_code: r.team_code, g: 0, pts: 0, opp: 0, poss: 0, efg: 0, tov: 0, oreb: 0, net: 0 };
-    t.g++; t.pts += r.pts; t.opp += r.opp_pts; t.poss += r.possessions;
-    t.efg += r.efg_pct; t.tov += r.tov_pct; t.oreb += r.oreb_pct;
-  });
-  const agg = Object.values(by).map(t => ({
-    team_code: t.team_code, games: t.g,
-    ortg: 100 * t.pts / t.poss, drtg: 100 * t.opp / t.poss,
-    net: 100 * t.pts / t.poss - 100 * t.opp / t.poss,
-    pace: t.poss / t.g, efg: t.efg / t.g, tov: t.tov / t.g, oreb: t.oreb / t.g,
-  }));
+function renderEfficiency(eff) {
+  const agg = rollUp(eff);
   if (!agg.length) return `<div class="panel"><div class="empty">No games yet.</div></div>`;
-  const maxNet = Math.max(...agg.map(a => Math.abs(a.net)), 1);
   return `<div class="panel">
-    <h2>Team Efficiency <span class="sub">per 100 possessions, all games in this tournament</span></h2>
+    <header><span class="kick">Four Factors</span><h2>Team Efficiency</h2><span class="sub">per 100 possessions</span></header>
     ${table("eff", [
-      { k: "team_code", h: "Team", l: true, f: r => `<span class="name">${r.team_code}</span>`, cls: () => "name" },
+      { k: "team_code", h: "Team", l: true, f: r => teamCell(r.team_code, D.teamName[r.team_code] || r.team_code) },
       { k: "games", h: "G", f: r => r.games },
       { k: "ortg", h: "ORTG", f: r => num(r.ortg) },
       { k: "drtg", h: "DRTG", f: r => num(r.drtg) },
-      { k: "net", h: "Net", f: r => `${netBar(r.net, maxNet)} <span class="${cls(r.net)}">${signed(r.net)}</span>` },
+      { k: "net", h: "Net", f: r => chip(r.net) },
       { k: "pace", h: "Pace", t: "Possessions per game", f: r => num(r.pace, 0) },
-      { k: "efg", h: "eFG%", t: "Counts a three as 1.5 twos", f: r => num(r.efg) },
+      { k: "efg", h: "eFG%", t: "Shooting — counts a three as 1.5 twos", f: r => num(r.efg) },
       { k: "tov", h: "TOV%", t: "Turnovers per 100 possessions", f: r => num(r.tov) },
       { k: "oreb", h: "OREB%", t: "Share of available offensive rebounds", f: r => num(r.oreb) },
-    ], agg, {
-      highlight: r => isCan(r.team_code),
-      defaultSort: s => s.sort((a, b) => b.net - a.net),
-    })}
-    <div class="note">Rates, not totals — FIBA sides vary enough in pace that raw per-game numbers flatter the fast ones.</div>
+      { k: "ft", h: "FT%", f: r => num(r.ft) },
+    ], agg, { highlight: r => isCan(r.team_code), defaultSort: s => s.sort((a, b) => b.net - a.net) })}
+    <div class="note">Shooting, turnovers, rebounding and free throws — the four factors. Rates rather than totals, since FIBA sides vary enough in pace that per-game numbers flatter the fast ones.</div>
   </div>`;
 }
 
 function renderPlayers(rows) {
-  const qualified = rows.filter(r => r.games_played >= 2);
-  if (!qualified.length) return `<div class="panel"><div class="empty">No players with two or more appearances yet.</div></div>`;
+  const q = rows.filter(r => r.games_played >= 2);
+  if (!q.length) return `<div class="panel"><div class="empty">No players with two or more appearances yet.</div></div>`;
   return `<div class="panel">
-    <h2>Player Leaders <span class="sub">two or more appearances · ${qualified.length} players</span></h2>
+    <header><span class="kick">Leaders</span><h2>Player Leaders</h2><span class="sub">${q.length} players · 2+ games</span></header>
     ${table("pl", [
-      { k: "player_name", h: "Player", l: true, f: r => `<span class="name">${r.player_name}</span>`, cls: () => "name" },
+      { k: "player_name", h: "Player", l: true, f: r => `<span class="team"><span class="fl">${flag(r.team_code)}</span>${r.player_name}</span>` },
       { k: "team_code", h: "Team", l: true, f: r => r.team_code },
       { k: "games_played", h: "G", f: r => r.games_played },
       { k: "ppg", h: "PPG", f: r => num(r.ppg) },
@@ -349,39 +427,37 @@ function renderPlayers(rows) {
       { k: "fg3_pct", h: "3P%", f: r => num(r.fg3_pct) },
       { k: "ts_pct", h: "TS%", t: "True shooting — counts free throws", f: r => num(r.ts_pct) },
       { k: "eff_per_game", h: "EFF", f: r => num(r.eff_per_game) },
-      { k: "plus_minus_per_game", h: "+/-", f: r => signed(r.plus_minus_per_game), cls: r => cls(r.plus_minus_per_game) },
-    ], qualified, {
-      highlight: r => isCan(r.team_code),
-      defaultSort: s => s.sort((a, b) => b.ppg - a.ppg),
-    })}
-    <div class="note">Shooting percentages come from summed makes and attempts, not averaged per-game percentages — otherwise a 1-for-1 night counts as much as 10-for-20. No per-minute rates: FIBA leaves minutes null in the box score.</div>
+      { k: "plus_minus_per_game", h: "+/−", f: r => chip(r.plus_minus_per_game) },
+    ], q, { highlight: r => isCan(r.team_code), defaultSort: s => s.sort((a, b) => b.ppg - a.ppg) })}
+    <div class="note">Percentages come from summed makes and attempts, not averaged per-game percentages — otherwise a 1-for-1 night counts as much as 10-for-20.</div>
   </div>`;
 }
 
 function renderGames(rows) {
   if (!rows.length) return `<div class="panel"><div class="empty">No games.</div></div>`;
-  const periods = {};
-  D.period_scores.forEach(p => (periods[p.game_id] ||= []).push(p));
-  return `<div class="panel">
-    <h2>Games <span class="sub">${rows.length} played</span></h2>
-    ${table("gm", [
-      { k: "game_date", h: "Date", l: true, f: r => new Date(r.game_date).toLocaleDateString(undefined, { day: "numeric", month: "short" }) },
-      { k: "round_name", h: "Round", l: true, f: r => r.round_name || "—" },
-      { k: "home_code", h: "Home", l: true, f: r => `<span class="name">${r.home_code}</span>` },
-      { k: "home_score", h: "", f: r => `<b>${r.home_score}</b>` },
-      { k: "away_score", h: "", f: r => `<b>${r.away_score}</b>` },
-      { k: "away_code", h: "Away", l: true, f: r => `<span class="name">${r.away_code}</span>` },
-      {
-        k: "game_id", h: "By period", l: true, f: r => {
-          const p = (periods[r.game_id] || []).sort((a, b) => a.period_number - b.period_number);
-          return p.length ? p.map(x => `${x.home_points}-${x.away_points}`).join("  ") : "—";
-        }
-      },
-    ], rows, {
-      highlight: r => isCan(r.home_code) || isCan(r.away_code),
-      defaultSort: s => s.sort((a, b) => (a.game_date < b.game_date ? 1 : -1)),
-    })}
-  </div>`;
+  const sorted = [...rows].sort((a, b) => a.game_date < b.game_date ? 1 : a.game_date > b.game_date ? -1 : 0);
+  return `<div class="games">` + sorted.map(g => {
+    const p = (D.byGame[g.game_id] || []).sort((a, b) => a.period_number - b.period_number);
+    const homeWin = g.home_score > g.away_score;
+    return `<article class="game">
+      <div class="gh"><span>${g.round_name || "Game"}</span>${g.group_code ? `<span>Group ${g.group_code}</span>` : ""}<span class="date">${fmtDate(g.game_date)}</span></div>
+      <div class="score-row">
+        <div class="side"><span class="fl">${flag(g.home_code)}</span>
+          <span><span class="nm">${g.home_code}</span><br><span class="full">${g.home_team}</span></span></div>
+        <div>
+          <div class="score">
+            <span class="${homeWin ? "" : "l"}">${g.home_score}</span>
+            <span class="d">–</span>
+            <span class="${homeWin ? "l" : ""}">${g.away_score}</span>
+          </div>
+          <div class="winner-note">${homeWin ? g.home_code : g.away_code} wins by ${Math.abs(g.home_score - g.away_score)}</div>
+        </div>
+        <div class="side away"><span><span class="nm">${g.away_code}</span><br><span class="full">${g.away_team}</span></span>
+          <span class="fl">${flag(g.away_code)}</span></div>
+      </div>
+      ${p.length ? `<div class="qtr">${p.map(x => `<span>${x.period} ${x.home_points}–${x.away_points}</span>`).join("")}</div>` : ""}
+    </article>`;
+  }).join("") + `</div>`;
 }
 
 boot();
