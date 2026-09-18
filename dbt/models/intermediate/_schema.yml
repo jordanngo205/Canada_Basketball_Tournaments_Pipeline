@@ -1,0 +1,52 @@
+version: 2
+
+models:
+  - name: int_team_game_opponent
+    description: Each team-game paired with what the opponent did in the same game.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [game_id, team_id]
+    columns:
+      - name: possessions
+        description: >
+          FIBA games run roughly 60-90 possessions. Outside that means the
+          estimator or its inputs are wrong.
+        tests:
+          - not_null
+          - dbt_utils.accepted_range: {min_value: 45, max_value: 115}
+
+  - name: int_player_minutes
+    description: Minutes per player per game, reconstructed from substitutions.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [game_id, person_id]
+    columns:
+      - name: est_minutes_played
+        description: >
+          Nobody can play more than the game is long. 55 allows for double
+          overtime without letting a runaway stint through.
+        tests:
+          - not_null
+          - dbt_utils.accepted_range: {min_value: 0, max_value: 55}
+
+  - name: int_shots
+    description: One row per field goal attempt with its zone.
+    columns:
+      - name: shot_zone
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Rim', 'Paint', 'Mid-range', 'Corner 3', 'Above the break 3']
+      - name: shot_value
+        tests:
+          - accepted_values: {values: [2, 3]}
+      - name: shot_x
+        description: Across the court, 0-280, centre about 140.
+        tests:
+          - not_null
+          - dbt_utils.accepted_range: {min_value: 0, max_value: 285}
+      - name: shot_y
+        description: Distance from the basket, not position along the court.
+        tests:
+          - not_null
+          - dbt_utils.accepted_range: {min_value: 0, max_value: 285}
