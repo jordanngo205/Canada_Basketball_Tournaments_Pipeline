@@ -44,7 +44,12 @@ select
     end                                                   as period_number,
 
     action_seq,
-    (action ->> 'order')::bigint                          as action_order,
+
+    -- Every numeric cast here goes through nullif. FIBA writes '$undefined'
+    -- into any field it doesn't have, including ones you'd never expect to be
+    -- optional — `order` is $undefined on 4 of the 514 actions in game 128116.
+    -- A bare ::bigint blows up the whole model on a single row.
+    (nullif(action ->> 'order', '$undefined'))::bigint     as action_order,
     nullif(action ->> 'act', '$undefined')                as action_type,
     nullif(action ->> 'ac', '$undefined')                 as action_code,
     nullif(action ->> 'txt', '$undefined')                as action_text,
@@ -52,8 +57,8 @@ select
     nullif(action ->> 'oId', '$undefined')                as opponent_id,
     nullif(action ->> 'in', '$undefined')                 as sub_direction,
 
-    (action ->> 'SA')::int                                as score_home,
-    (action ->> 'SB')::int                                as score_away,
+    (nullif(action ->> 'SA', '$undefined'))::int          as score_home,
+    (nullif(action ->> 'SB', '$undefined'))::int          as score_away,
 
     nullif(action ->> 'Time', '$undefined')               as clock,
 
@@ -80,13 +85,13 @@ select
     -- 131, both centred on x~140 — so both teams' shots are mapped onto a
     -- single half court rather than their own end. Units are not metres.
     case when action ->> 'ac' in ('P2', 'P3')
-         then (action ->> 'x')::numeric end               as shot_x,
+         then (nullif(action ->> 'x', '$undefined'))::numeric end    as shot_x,
     case when action ->> 'ac' in ('P2', 'P3')
-         then (action ->> 'y')::numeric end               as shot_y,
+         then (nullif(action ->> 'y', '$undefined'))::numeric end    as shot_y,
     case when action ->> 'ac' in ('P2', 'P3', 'FT')
-         then (action ->> 'made')::boolean end            as shot_made,
+         then (nullif(action ->> 'made', '$undefined'))::boolean end as shot_made,
     case when action ->> 'ac' in ('P2', 'P3', 'FT')
-         then (action ->> 'pts')::int end                 as shot_value
+         then (nullif(action ->> 'pts', '$undefined'))::int end      as shot_value
 
 from flattened
 

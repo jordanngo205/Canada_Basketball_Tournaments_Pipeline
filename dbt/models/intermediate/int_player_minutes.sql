@@ -27,20 +27,45 @@
 -- Close enough to treat as real. They're still called est_ because they are
 -- reconstructed rather than reported, and a future tournament with messier
 -- events could drift — assert_team_minutes_reconcile is what would catch it.
+--
+-- Games with an unusable substitution stream are excluded rather than
+-- guessed at; see usable_games below.
 
-with subs as (
+with
+
+-- Games whose substitution stream is complete enough to reconstruct from.
+--
+-- Game 128116 (JPN v MLI at the U17 World Cup) has 68 substitution INs and
+-- zero OUTs — FIBA logged only half the stream. No amount of cleverness
+-- recovers minutes from that, and guessing produced a team total of 99.9
+-- against the 200 it must be. Emitting nothing for such a game is the honest
+-- answer: a missing number is obviously missing, a wrong one isn't.
+usable_games as (
+
+    select game_id
+    from {{ ref('stg_pbp') }}
+    where action_type = 'subst'
+    group by game_id
+    having count(*) filter (where sub_direction = 'IN')  > 0
+       and count(*) filter (where sub_direction = 'OUT') > 0
+
+),
+
+subs as (
 
     select
         game_id,
         person_id,
         period_number,
         seconds_elapsed,
+        action_seq,
         action_order,
         sub_direction
     from {{ ref('stg_pbp') }}
     where action_type = 'subst'
       and person_id is not null
       and seconds_elapsed is not null
+      and game_id in (select game_id from usable_games)
 
 ),
 
@@ -80,9 +105,21 @@ sequenced as (
         s.*,
         lag(s.sub_direction) over w   as prev_direction,
         lag(s.seconds_elapsed) over w as prev_second,
-        row_number() over w           as event_num
+        row_number() over w           as event_num,
+        -- Flag the player's final event here rather than re-deriving it in a
+        -- correlated subquery below; Postgres has no max() over a row tuple.
+        row_number() over (
+            partition by s.game_id, s.person_id
+            order by s.period_number desc, s.action_seq desc
+        ) = 1                         as is_last_event
     from subs s
-    window w as (partition by s.game_id, s.person_id order by s.action_order)
+    -- Ordered by period then position within it, NOT by action_order. FIBA
+    -- leaves `order` as '$undefined' on the odd action, and a null in the sort
+    -- key silently reshuffles a player's stints.
+    window w as (
+        partition by s.game_id, s.person_id
+        order by s.period_number, s.action_seq
+    )
 
 ),
 
@@ -91,6 +128,7 @@ starters as (
     select game_id, person_id
     from {{ ref('stg_player_box') }}
     where is_starter
+      and game_id in (select game_id from usable_games)
 
 ),
 
@@ -140,10 +178,7 @@ stints as (
     from sequenced sq
     join game_end ge on ge.game_id = sq.game_id
     where sq.sub_direction = 'IN'
-      and sq.action_order = (
-            select max(s2.action_order) from sequenced s2
-            where s2.game_id = sq.game_id and s2.person_id = sq.person_id
-          )
+      and sq.is_last_event
 
     union all
 
