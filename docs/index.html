@@ -39,7 +39,8 @@
     --cold-3: #1c5cab; --cold-2: #3987e5; --cold-1: #86b6ef;
     --mid:    #e6e4e0;
     --hot-1:  #eb8b89; --hot-2:  #e34948; --hot-3:  #a51f1f;
-    --court-line: #c6cad2;
+    --court-line: #aeb4bf;
+    --zone-empty: #f4f4f5;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
@@ -49,14 +50,16 @@
       --line: #282d35; --line-2: #3a414c;
       --good: #4fbf92; --good-soft: #15291f; --bad: #f07a72; --bad-soft: #2b1917;
       --blue: #6ba4e0; --amber: #ddab4e;
-      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 4px 14px rgba(0,0,0,.3);
+      --shadow: 0 1px 1px rgba(0,0,0,.34), 0 2px 6px rgba(0,0,0,.28);
+      --shadow-lift: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.34);
 
       /* Re-stepped for the dark surface, not flipped. Magnitude now runs
          dark -> light, and the step nearest the surface again clears 2:1. */
       --cold-3: #9ec5f4; --cold-2: #3987e5; --cold-1: #184f95;
       --mid:    #383835;
       --hot-1:  #9a2424; --hot-2:  #e34948; --hot-3:  #f3b0ae;
-      --court-line: #3d444f;
+      --court-line: #4c5563;
+      --zone-empty: #1f2228;
     }
   }
   * { box-sizing: border-box; }
@@ -217,9 +220,18 @@
   .court-wrap { padding: 18px 22px 12px; border-right: 1px solid var(--line); display: grid; place-items: center; }
   @media (max-width: 860px) { .court-wrap { border-right: 0; border-bottom: 1px solid var(--line); } }
   .court { width: 100%; height: auto; display: block; }
-  .court .lines * { fill: none; stroke: var(--court-line); stroke-width: 1.5; stroke-linecap: round; }
-  .court .bin { stroke: var(--card); stroke-width: 1.4; cursor: pointer; transition: stroke-width .1s; }
-  .court .bin:hover { stroke: var(--ink); stroke-width: 2.5; }
+  .court .lines * { fill: none; stroke: var(--court-line); stroke-width: 1.6; stroke-linecap: round; pointer-events: none; }
+  .court .zone { stroke: none; shape-rendering: crispEdges; cursor: pointer; transition: opacity .1s; }
+  .court .zone:hover { opacity: .78; }
+  .court .zlab { pointer-events: none; }
+  .court .zpct {
+    font-family: var(--display); font-size: 12px; font-weight: 700; fill: var(--ink);
+    text-anchor: middle; paint-order: stroke; stroke: var(--card); stroke-width: 3.5px; stroke-linejoin: round;
+  }
+  .court .zn {
+    font-family: var(--body); font-size: 8.5px; font-weight: 500; fill: var(--ink-2);
+    text-anchor: middle; paint-order: stroke; stroke: var(--card); stroke-width: 3px; stroke-linejoin: round;
+  }
 
   .legend { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 4px 18px 14px; font-size: 11.5px; color: var(--ink-2); }
   .legend .swatches { display: flex; align-items: center; gap: 3px; }
@@ -299,7 +311,7 @@ const FILES = ["standings", "player_leaders", "team_efficiency", "games", "perio
                "four_factors", "shot_zones", "manifest"];
 // shot_grid is ~800KB and only the Shot Chart tab needs it, so it loads on
 // demand rather than holding up first paint.
-const LAZY = ["shot_grid", "player_shot_zones"];
+const LAZY = ["court_zones", "player_shot_zones"];
 let shotTeam = null;
 const D = {};
 let comp = null, view = "standings";
@@ -354,7 +366,7 @@ async function boot() {
     document.querySelectorAll(".tab").forEach(x => x.setAttribute("aria-selected", x === b));
     view = b.dataset.view;
     render();
-    if (view === "shooting" && !D.shot_grid) loadShotData();
+    if (view === "shooting" && !D.court_zones) loadShotData();
   });
 
   render();
@@ -374,7 +386,7 @@ function loadShotData() {
   )).then(res => {
     LAZY.forEach((n, i) => D[n] = res[i]);
   }).catch(err => {
-    D.shot_grid = [];
+    D.court_zones = [];
     console.error("shot data failed to load:", err);
   }).finally(render);
 }
@@ -617,46 +629,132 @@ function tip(html, evt) {
   tipEl.style.top = y + "px";
 }
 
-function courtSvg(bins, teamCode) {
+// The twelve zones, rasterised from the same rule the SQL classifies with.
+//
+// Two earlier attempts drew these as polygons and then as clipped sectors, and
+// both drifted from the data — sectors radiating from the hoop don't respect
+// the key, leave the strip under the hoop uncovered, and put wing threes in
+// the wrong place. Any hand-drawn geometry is a second implementation of the
+// classification, and second implementations disagree.
+//
+// So: walk a grid over the court, classify every cell with classifyZone below,
+// merge each row's runs into rectangles, and emit one path per zone. The shape
+// on screen is the rule, so it cannot be wrong about where a zone ends.
+const RIM_R = 40;
+const CELL = 1;   // ~5cm, fine enough that the diagonals don't read as stairs
+
+// Mirrors the CASE expression in int_shots.court_zone exactly. Change one,
+// change the other.
+function classifyZone(x, y) {
+  const dist = Math.hypot(x - 140, y);
+  if (dist <= RIM_R) return "At the Rim";
+  if (x >= 94.3 && x <= 185.7 && y <= 78.9) return "Paint (non-RA)";
+  // Below the hoop line the angle is degenerate, so pin it to the baseline and
+  // let the side decide. Real shots are all y >= 0; this is for the drawing.
+  const deg = Math.atan2(Math.max(y, 0.0001), x - 140) * 180 / Math.PI;
+  if (dist < 126) {
+    if (deg < 36) return "Mid-Range Right";
+    if (deg < 72) return "Mid-Range Right Centre";
+    if (deg < 108) return "Mid-Range Centre";
+    if (deg < 144) return "Mid-Range Left Centre";
+    return "Mid-Range Left";
+  }
+  if (y < 26.4) return x > 140 ? "Right Corner 3" : "Left Corner 3";
+  if (deg < 60) return "Right Wing 3";
+  if (deg < 120) return "Top of Key 3";
+  return "Left Wing 3";
+}
+
+// One path per zone, built from horizontal runs of same-zone cells.
+function zonePathsFromGrid() {
   const c = COURT;
-  const arc = `M ${c.cornerX.toFixed(1)} ${c.cornerY.toFixed(1)}
-               A ${c.arcR.toFixed(1)} ${c.arcR.toFixed(1)} 0 0 0 ${(c.w - c.cornerX).toFixed(1)} ${c.cornerY.toFixed(1)}`;
+  const out = {};
+  for (let y = c.baselineY; y < c.topY; y += CELL) {
+    let runZone = null, runStart = null;
+    for (let x = 0; x <= c.w; x += CELL) {
+      const zone = x === c.w ? null : classifyZone(x + CELL / 2, y + CELL / 2);
+      if (zone !== runZone) {
+        if (runZone) {
+          (out[runZone] ||= []).push(
+            `M${runStart.toFixed(1)} ${y.toFixed(1)}h${(x - runStart).toFixed(1)}v${CELL}h${(runStart - x).toFixed(1)}z`);
+        }
+        runZone = zone; runStart = x;
+      }
+    }
+  }
+  const paths = {};
+  for (const k in out) paths[k] = out[k].join("");
+  return paths;
+}
 
-  // Under five attempts a patch is a coin flip, not a tendency.
-  const shown = bins.filter(b => b.attempts >= 5 && b.y <= c.topY);
-  const maxAtt = Math.max(...shown.map(b => b.attempts), 1);
-  // Area scales with volume, so a circle twice the area means twice the shots.
-  const rad = a => 5.5 + 11 * Math.sqrt(a / maxAtt);
+let ZONE_PATH_CACHE = null;
 
-  const marks = shown
-    .sort((a, b) => b.attempts - a.attempts)     // big marks behind small ones
-    .map(b => `<circle class="bin" cx="${b.x.toFixed(1)}" cy="${b.y.toFixed(1)}" r="${rad(b.attempts).toFixed(1)}"
-        fill="${ppaColor(b.ppa_vs_league)}"
-        data-t="${b.attempts} shots · ${b.makes} made (${b.fg_pct}%)|${b.pts_per_attempt} pts per attempt|field averages ${b.league_ppa} here"></circle>`)
-    .join("");
+function courtSvg(rows, teamCode) {
+  const c = COURT, CX = c.basketX, BY = c.baselineY, TOP = c.topY, W = c.w;
+  const f = n => n.toFixed(1);
+  const by = {};
+  rows.forEach(r => by[r.court_zone] = r);
+  ZONE_PATH_CACHE ||= zonePathsFromGrid();
 
-  const h = c.topY - c.baselineY;
-  return `<svg class="court" viewBox="-8 ${(-c.topY - 8).toFixed(1)} ${c.w + 16} ${(h + 16).toFixed(1)}"
-       role="img" aria-label="Shot chart for ${teamCode}: ${shown.length} areas of the floor, coloured by points per attempt against the tournament average">
+  const zones = Object.entries(ZONE_PATH_CACHE).map(([name, d]) => {
+    const r = by[name];
+    return `<path class="zone" d="${d}" fill="${zoneFill(r ? r.fg_pct_vs_league : null)}"
+      data-t="${name}|${r ? `${r.makes}/${r.attempts} · ${r.fg_pct}%` : "no attempts"}|${r ? `field shoots ${r.league_fg_pct}% here` : ""}"></path>`;
+  }).join("");
+
+  return `<svg class="court" viewBox="-6 ${f(-TOP - 6)} ${W + 12} ${f(TOP - BY + 12)}"
+       role="img" aria-label="Shot chart for ${teamCode}, twelve court zones shaded by field goal percentage against the tournament average">
     <g transform="scale(1 -1)">
-      <g class="lines">
-        <line x1="0" y1="${c.baselineY.toFixed(1)}" x2="${c.w}" y2="${c.baselineY.toFixed(1)}"></line>
-        <line x1="0" y1="${c.baselineY.toFixed(1)}" x2="0" y2="${c.topY}"></line>
-        <line x1="${c.w}" y1="${c.baselineY.toFixed(1)}" x2="${c.w}" y2="${c.topY}"></line>
-        <rect x="${c.paintX.toFixed(1)}" y="${c.baselineY.toFixed(1)}"
-              width="${c.paintW.toFixed(1)}" height="${(c.paintTopY - c.baselineY).toFixed(1)}"></rect>
-        <path d="M ${(c.basketX - c.ftR).toFixed(1)} ${c.paintTopY.toFixed(1)}
-                 A ${c.ftR.toFixed(1)} ${c.ftR.toFixed(1)} 0 0 0 ${(c.basketX + c.ftR).toFixed(1)} ${c.paintTopY.toFixed(1)}"></path>
-        <line x1="${(c.basketX - c.backboardW / 2).toFixed(1)}" y1="${c.backboardY.toFixed(1)}"
-              x2="${(c.basketX + c.backboardW / 2).toFixed(1)}" y2="${c.backboardY.toFixed(1)}"></line>
-        <circle cx="${c.basketX}" cy="0" r="${c.rimR.toFixed(1)}"></circle>
-        <line x1="${c.cornerX.toFixed(1)}" y1="${c.baselineY.toFixed(1)}" x2="${c.cornerX.toFixed(1)}" y2="${c.cornerY.toFixed(1)}"></line>
-        <line x1="${(c.w - c.cornerX).toFixed(1)}" y1="${c.baselineY.toFixed(1)}" x2="${(c.w - c.cornerX).toFixed(1)}" y2="${c.cornerY.toFixed(1)}"></line>
-        <path d="${arc}"></path>
-      </g>
-      ${marks}
+      <rect x="0" y="${f(BY)}" width="${W}" height="${f(TOP - BY)}" fill="var(--zone-empty)"></rect>
+      ${zones}
     </g>
+    <g class="lines" transform="scale(1 -1)">
+      <rect x="0" y="${f(BY)}" width="${W}" height="${f(TOP - BY)}"></rect>
+      <rect x="${f(c.paintX)}" y="${f(BY)}" width="${f(c.paintW)}" height="${f(c.paintTopY - BY)}"></rect>
+      <path d="M ${f(CX - c.ftR)} ${f(c.paintTopY)} A ${f(c.ftR)} ${f(c.ftR)} 0 0 0 ${f(CX + c.ftR)} ${f(c.paintTopY)}"></path>
+      <line x1="${f(CX - c.backboardW / 2)}" y1="${f(c.backboardY)}" x2="${f(CX + c.backboardW / 2)}" y2="${f(c.backboardY)}"></line>
+      <circle cx="${CX}" cy="0" r="${f(c.rimR)}"></circle>
+      <line x1="${f(c.cornerX)}" y1="${f(BY)}" x2="${f(c.cornerX)}" y2="${f(c.cornerY)}"></line>
+      <line x1="${f(W - c.cornerX)}" y1="${f(BY)}" x2="${f(W - c.cornerX)}" y2="${f(c.cornerY)}"></line>
+      <path d="M ${f(c.cornerX)} ${f(c.cornerY)} A ${f(c.arcR)} ${f(c.arcR)} 0 0 0 ${f(W - c.cornerX)} ${f(c.cornerY)}"></path>
+    </g>
+    ${Object.entries(ZONE_LABEL).map(([n, [rad, deg]]) => {
+      const r = by[n];
+      if (!r || r.attempts < 3) return "";
+      const a = deg * Math.PI / 180;
+      const x = Math.min(Math.max(CX + rad * Math.cos(a), 20), W - 20);
+      return `<g class="zlab" transform="translate(${f(x)} ${f(-rad * Math.sin(a))})">
+        <text class="zpct" y="-1">${r.fg_pct}%</text>
+        <text class="zn" y="10">${r.makes}/${r.attempts}</text></g>`;
+    }).join("")}
   </svg>`;
+}
+
+// Where each zone's number sits: distance and angle from the hoop.
+const ZONE_LABEL = {
+  "At the Rim":             [21, 90],
+  "Paint (non-RA)":         [62, 90],
+  "Mid-Range Right":        [84, 18],
+  "Mid-Range Right Centre": [96, 54],
+  "Mid-Range Centre":       [104, 90],
+  "Mid-Range Left Centre":  [96, 126],
+  "Mid-Range Left":         [84, 162],
+  "Right Corner 3":         [135, 5],
+  "Left Corner 3":          [135, 175],
+  "Right Wing 3":           [158, 36],
+  "Top of Key 3":           [162, 90],
+  "Left Wing 3":            [158, 144],
+};
+
+function zoneFill(d) {
+  if (d === null || d === undefined) return "var(--zone-empty)";
+  if (d <= -8) return "var(--cold-3)";
+  if (d <= -4) return "var(--cold-2)";
+  if (d <= -1.5) return "var(--cold-1)";
+  if (d <   1.5) return "var(--mid)";
+  if (d <   4) return "var(--hot-1)";
+  if (d <   8) return "var(--hot-2)";
+  return "var(--hot-3)";
 }
 
 function legend() {
@@ -692,17 +790,17 @@ function zoneBars(rows, teamCode) {
 
 function renderShooting(zones, ff) {
   if (!zones.length) return `<div class="panel"><div class="empty">No shot data for this tournament.</div></div>`;
-  if (!D.shot_grid) return `<div class="panel"><div class="empty">Loading shot locations…</div></div>`;
+  if (!D.court_zones) return `<div class="panel"><div class="empty">Loading shot locations…</div></div>`;
 
   const teams = [...new Set(zones.map(z => z.team_code))].sort();
   if (!shotTeam || !teams.includes(shotTeam)) shotTeam = teams.includes("CAN") ? "CAN" : teams[0];
-  const bins = D.shot_grid.filter(b => b.competition === comp && b.team_code === shotTeam);
-  const total = bins.reduce((s, b) => s + b.attempts, 0);
+  const zrows = (D.court_zones || []).filter(b => b.competition === comp && b.team_code === shotTeam);
+  const total = zrows.reduce((s, b) => s + b.attempts, 0);
 
   setTimeout(() => {
     const sel = document.getElementById("shotTeam");
     if (sel) sel.onchange = e => { shotTeam = e.target.value; render(); };
-    document.querySelectorAll(".court .bin").forEach(el => {
+    document.querySelectorAll(".court .zone").forEach(el => {
       el.onmousemove = e => {
         const [a, b, c] = el.dataset.t.split("|");
         tip(`<b>${a}</b><br>${b}<br><span class="muted">${c}</span>`, e);
@@ -721,16 +819,15 @@ function renderShooting(zones, ff) {
       </span>
     </header>
     <div class="chart-row">
-      <div class="court-wrap">${courtSvg(bins, shotTeam)}</div>
+      <div class="court-wrap">${courtSvg(zrows, shotTeam)}</div>
       ${zoneBars(zones, shotTeam)}
     </div>
     ${legend()}
-    <div class="note">${total.toLocaleString()} attempts across ${bins.length} patches of floor, each about 1.5m square.
-      Size is how often they shoot from there; colour is how well they shoot it against what the rest of the
-      tournament manages from the same patch. Patches under five attempts are dropped — a 2-for-4 is a coin
-      flip, not a tendency. The court is drawn from the data: the hoop is the coordinate origin, the floor is
-      280 units across a 15m court, and binning every shot by distance puts the crossover from twos to threes
-      at 129 — exactly FIBA's 6.6m corner and 6.75m arc at that scale.</div>
+    <div class="note">${total.toLocaleString()} attempts. Each zone is shaded by field goal percentage against what the
+      rest of the tournament shoots from the same zone — 34% is poor at the rim and excellent from the corner, so the
+      comparison is the number that means anything. The court is drawn from the data itself: the hoop is the coordinate
+      origin, the floor is 280 units across a 15m court, and binning every shot by distance puts the crossover from twos
+      to threes at 129, exactly FIBA's 6.6m corner and 6.75m arc at that scale.</div>
   </div>
   ${renderZoneTable(zones)}
   ${renderFourFactors(ff)}`;

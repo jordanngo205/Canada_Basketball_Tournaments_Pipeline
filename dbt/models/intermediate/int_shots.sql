@@ -59,6 +59,45 @@ select
         else 'Mid-range'
     end as shot_zone,
 
+    -- The twelve-zone breakdown a scout actually reads: restricted area, the
+    -- rest of the paint, five mid-range sectors and five from three.
+    --
+    -- Geometry is FIBA's at 18.67 units per metre (see the header): key 4.9m
+    -- wide and 5.8m deep from the baseline, arc at 6.75m, corner cut where the
+    -- straight line meets the arc at y = 26.4. Sector boundaries are the angle
+    -- from the hoop, 0 at the right baseline running to 180 at the left.
+    --
+    -- The rim zone is the one place the drawn geometry departs from the rule
+    -- book, and deliberately. FIBA's restricted area is 1.25m, but these
+    -- coordinates put the median layup at 1.9m — the recorded spot sits
+    -- further out than the physical release. At 1.25m the zone caught 17 of
+    -- Canada's attempts while "paint" caught 247, which is plainly the rim
+    -- hiding in the wrong bucket. The data's own break is at 2.1m: shooting
+    -- runs 53.7% inside it and 39.9% just outside. So the rim zone is drawn
+    -- where the rim actually is in this coordinate system.
+    case
+        when sqrt(power(s.shot_x - 140, 2) + power(s.shot_y, 2)) <= 40
+            then 'At the Rim'
+        when s.shot_x between 94.3 and 185.7 and s.shot_y <= 78.9
+            then 'Paint (non-RA)'
+        when sqrt(power(s.shot_x - 140, 2) + power(s.shot_y, 2)) < 126 then
+            case
+                when degrees(atan2(s.shot_y, s.shot_x - 140)) <  36 then 'Mid-Range Right'
+                when degrees(atan2(s.shot_y, s.shot_x - 140)) <  72 then 'Mid-Range Right Centre'
+                when degrees(atan2(s.shot_y, s.shot_x - 140)) < 108 then 'Mid-Range Centre'
+                when degrees(atan2(s.shot_y, s.shot_x - 140)) < 144 then 'Mid-Range Left Centre'
+                else 'Mid-Range Left'
+            end
+        when s.shot_y < 26.4
+            then case when s.shot_x > 140 then 'Right Corner 3' else 'Left Corner 3' end
+        else
+            case
+                when degrees(atan2(s.shot_y, s.shot_x - 140)) <  60 then 'Right Wing 3'
+                when degrees(atan2(s.shot_y, s.shot_x - 140)) < 120 then 'Top of Key 3'
+                else 'Left Wing 3'
+            end
+    end as court_zone,
+
     s.action_text
 
 from shots s
