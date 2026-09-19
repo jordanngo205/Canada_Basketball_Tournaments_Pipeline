@@ -264,6 +264,19 @@ def build(competition: str, conn_str: str | None = None) -> str:
     return out
 
 
+# The published site uses short hand-picked slugs, and the banner images are
+# named after them. Matching those keeps the folder layout, the URLs and the
+# artwork all lined up; anything new falls back to a generated slug and simply
+# renders without a banner.
+PUBLISHED_SLUGS = {
+    "FIBA Women's Basketball World Cup 2026 Qualifying Tournament Türkiye": "wc-qualifying-istanbul-2026",
+    "FIBA U18 Women's AmeriCup": "u18-americup-2026",
+    "FIBA U17 Women's Basketball World Cup": "u17-world-cup-2026",
+    "FIBA Women's Olympic Pre-Qualifying Tournament": "olympic-pre-qualifying-2026",
+    "FIBA Basketball World Cup 2027 Americas Qualifiers": "americas-qualifiers-2027",
+}
+
+
 def slugify(name: str) -> str:
     """Short, stable folder name for a competition, same shape as the
     --publish-slug the original scraper takes.
@@ -271,6 +284,8 @@ def slugify(name: str) -> str:
     Accents are folded to ASCII: "Türkiye" in a path becomes a percent-encoded
     URL that is awkward to type and share.
     """
+    if name in PUBLISHED_SLUGS:
+        return PUBLISHED_SLUGS[name]
     folded = unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode()
     out = []
     for ch in folded.lower():
@@ -301,68 +316,72 @@ def competitions(conn_str: str | None = None) -> list[dict]:
         """)
 
 
-HUB = """<!doctype html>
-<html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Canada Basketball — Tournaments</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
-<style>
-  :root {{ --bg:#f5f6f8; --surface:#fff; --border:#e8eaef; --text:#0f172a;
-           --muted:#6b7280; --accent:#D80621; }}
-  * {{ box-sizing:border-box }}
-  body {{ margin:0; background:var(--bg); color:var(--text);
-          font-family:Inter,system-ui,sans-serif; font-size:13.5px; }}
-  .hub-head {{ background:var(--accent); color:#fff; padding:26px 24px; display:flex;
-               align-items:center; gap:16px; }}
-  .hub-head .crest {{ width:56px; height:56px; background:#fff; border-radius:14px;
-                      display:grid; place-items:center; font-size:27px; flex:none;
-                      box-shadow:0 2px 10px rgba(0,0,0,.24); }}
-  .hub-head h1 {{ margin:0; font-size:28px; font-weight:900; letter-spacing:-.8px; }}
-  .hub-head .sub {{ font-size:12.5px; opacity:.82; margin-top:3px; font-weight:600; }}
-  .wrap {{ max-width:1160px; margin:0 auto; padding:26px 24px 70px; }}
-  .cards {{ display:grid; grid-template-columns:repeat(auto-fill,minmax(310px,1fr)); gap:18px; }}
-  .card {{ background:var(--surface); border:1px solid var(--border); border-radius:14px;
-           overflow:hidden; box-shadow:0 1px 3px rgba(16,24,40,.06); display:flex; flex-direction:column; }}
-  .card .band {{ height:82px; background:linear-gradient(135deg,var(--accent),#8f1420);
-                 display:grid; place-items:center; color:#fff; font-size:34px; position:relative; }}
-  .card .badge {{ position:absolute; top:10px; right:10px; background:rgba(0,0,0,.42);
-                  border-radius:999px; padding:3px 10px; font-size:10px; font-weight:800;
-                  letter-spacing:1.1px; }}
-  .card .body {{ padding:15px 17px 17px; display:flex; flex-direction:column; gap:5px; flex:1; }}
-  .card h2 {{ margin:0; font-size:15px; font-weight:800; letter-spacing:-.2px; line-height:1.3; }}
-  .card .meta {{ font-size:11.5px; color:var(--muted); }}
-  .card a {{ margin-top:auto; padding-top:11px; color:var(--accent); font-weight:700;
-             font-size:12.5px; text-decoration:none; }}
-  .card a:hover {{ text-decoration:underline; }}
-  footer {{ text-align:center; color:var(--muted); font-size:11.5px; padding:0 24px 40px; }}
-  footer a {{ color:var(--accent); }}
-</style></head><body>
-<div class="hub-head"><div class="crest">🍁</div>
-  <div><h1>Canada Basketball Tournaments</h1>
-  <div class="sub">{count} competitions · {games} games · built from the scouting pipeline</div></div></div>
-<div class="wrap"><div class="cards">{cards}</div></div>
-<footer>Scraped from fiba.basketball, stored raw, transformed with dbt and checked by 82 tests before publishing.<br>
-  <a href="https://github.com/jordanngo205/Canada_Basketball_Tournaments_Pipeline">Pipeline source</a></footer>
-</body></html>
-"""
+HUB_TEMPLATE = Path(__file__).parent / "template" / "hub_template.html"
+
+# Display names and dates on the published hub are written by hand and read
+# better than the raw competition strings, so they're kept. Anything not listed
+# falls back to what the warehouse holds.
+HUB_LABELS = {
+    "wc-qualifying-istanbul-2026": (
+        "FIBA Women's Basketball World Cup 2026 Qualifying Tournament — Istanbul",
+        "Istanbul, Türkiye", "11–17 Mar 2026"),
+    "u18-americup-2026": (
+        "FIBA U18 Women's AmeriCup 2026", "Irapuato, Mexico", "9–15 Jun 2026"),
+    "u17-world-cup-2026": (
+        "FIBA U17 Women's Basketball World Cup 2026", "Brno, Czechia", "11–19 Jul 2026"),
+    "olympic-pre-qualifying-2026": (
+        "FIBA Women's Olympic Pre-Qualifying Tournament 2026", "Guadalajara, Mexico", "17–23 Aug 2026"),
+}
+
+
+def _card(comp: dict) -> str:
+    """One card, in the published hub's own markup.
+
+    A tournament without artwork gets a plain red panel with the crest rather
+    than a broken image — the four published events have banners, anything new
+    will not until someone draws one.
+    """
+    slug = slugify(comp["competition"])
+    # Banner presence is decided by the label table, not by looking on disk:
+    # the builder runs in a container where docs/ isn't mounted, so a file
+    # check there silently reported every banner missing.
+    has_banner = slug in HUB_LABELS
+    label, place, when = HUB_LABELS.get(slug, (
+        comp["competition"],
+        ", ".join(x for x in (comp["city"], comp["country"]) if x) or "—",
+        f'{comp["start"][:10]} – {comp["end"][:10]}',
+    ))
+    art = (f'<img src="./assets/banners/{slug}.webp" alt="{label}" loading="lazy">'
+           if has_banner else
+           '<div class="banner-fallback">🍁</div>')
+    return f'''
+      <a class="card" href="./{slug}/">
+        <div class="banner">
+          {art}
+          <span class="badge">Final</span>
+        </div>
+        <div class="body">
+          <p class="full-name">{label}</p>
+          <div class="meta">{place} &nbsp;·&nbsp; {when}</div>
+          <div class="cta">View dashboard &rarr;</div>
+        </div>
+      </a>'''
 
 
 def build_hub(comps: list[dict]) -> str:
-    cards = []
-    for c in comps:
-        where = ", ".join(x for x in (c["city"], c["country"]) if x)
-        when = f'{c["start"][:10]} – {c["end"][:10]}'
-        cards.append(
-            f'<article class="card"><div class="band">🏀'
-            f'<span class="badge">{"CANADA" if c["has_canada"] else "FINAL"}</span></div>'
-            f'<div class="body"><h2>{c["competition"]}</h2>'
-            f'<div class="meta">{where or "—"}</div>'
-            f'<div class="meta">{when} · {c["games"]} games</div>'
-            f'<a href="{slugify(c["competition"])}/">View dashboard →</a></div></article>'
-        )
-    return HUB.format(count=len(comps), games=sum(c["games"] for c in comps),
-                      cards="\n".join(cards))
+    html = HUB_TEMPLATE.read_text(encoding="utf-8")
+    cards = "\n".join(_card(c) for c in comps)
+    # Swap everything between the grid tags for freshly generated cards, so the
+    # hub tracks whatever the warehouse holds instead of being edited by hand.
+    a = html.index('<div class="grid">') + len('<div class="grid">')
+    b = html.index("</div>\n  </main>")
+    out = html[:a] + "\n" + cards + "\n    " + html[b:]
+    # A fallback panel for events without artwork.
+    return out.replace("</style>", '''  .banner-fallback {
+    width: 100%; height: 100%; display: grid; place-items: center;
+    background: linear-gradient(135deg, var(--accent), #8f1420); font-size: 40px;
+  }
+</style>''')
 
 
 def main() -> None:
