@@ -120,10 +120,16 @@ from analytics_intermediate.int_team_game_opponent
 where competition = %s
 """
 
-# fb_pts and putback_pts are emitted as 0. Both need play-by-play sequence
-# logic — a make within N seconds of a defensive rebound, and a make by the
-# player who just grabbed an offensive board — that isn't ported yet. Emitting
-# zero keeps the two awards that use them inert rather than wrong.
+# fb_pts and putback_pts come from int_scoring_types, reconstructed from the
+# play-by-play because FIBA marks neither. Putbacks are observed; fast-break
+# points are a 7-second estimate. They used to ship as literal 0, which left
+# the Speed Demon and Cleanup Crew awards permanently blank.
+#
+# `starter` must be a real boolean, not the string 'TRUE'/'FALSE'. The template
+# reads it as `p.starter ? null : p.PM` and aggregates it with
+# `a.starter || p.starter`, and in JavaScript the string 'FALSE' is truthy —
+# so every player looked like a starter and Spark Plug, the bench award, never
+# had a single candidate to rank.
 PLAYER_SQL = """
 select
     n.game_date::text     as date,
@@ -151,15 +157,15 @@ select
     n.off_net,
     n.def_net,
     n.stl + n.blk         as stocks,
-    case when n.is_starter then 'TRUE' else 'FALSE' end as starter,
+    n.is_starter          as starter,
     case when o.margin >= 0 then '+' || o.margin::text else o.margin::text end as "WL",
     o.margin              as "WL_raw",
     n.corner3_makes       as corner3m,
     n.abovebreak3_makes   as abovebk3m,
     n.rim_makes,
     n.midrange_makes,
-    0                     as fb_pts,
-    0                     as putback_pts
+    n.fb_pts,
+    n.putback_pts
 from analytics_marts.mart_player_net_points n
 join analytics_staging.stg_player_box b
   on b.game_id = n.game_id and b.person_id = n.person_id
@@ -307,10 +313,12 @@ def competitions(conn_str: str | None = None) -> list[dict]:
                    bool_or(home_code = 'CAN' or away_code = 'CAN') as has_canada
             from analytics_staging.stg_games
             group by competition
-            -- A single-game "competition" is a stray fixture rather than a
-            -- tournament; the U17 World Cup game seeded for CI shows up that
-            -- way and shouldn't get a card on the hub.
-            having count(*) > 1
+            -- No `having count(*) > 1` here any more. That used to filter out
+            -- CI's seeded fixture, which arrived as a one-game "competition",
+            -- but it was a guess standing in for provenance and it would have
+            -- hidden a real tournament on its opening day just as effectively.
+            -- Fixture rows are flagged at the raw layer now and dropped by the
+            -- latest_games() macro, so everything reaching stg_games is real.
             order by max(game_date) desc
         """)
 

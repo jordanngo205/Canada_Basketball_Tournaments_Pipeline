@@ -105,7 +105,14 @@ select
     coalesce(z.rim_makes, 0)                                as rim_makes,
     coalesce(z.midrange_makes, 0)                           as midrange_makes,
     coalesce(z.corner3_makes, 0)                            as corner3_makes,
+    -- Both reconstructed from play-by-play; FIBA publishes neither. Putbacks
+    -- are observed, fast-break points are a 7-second estimate — see
+    -- int_scoring_types for why the two are not held to the same standard.
+    coalesce(sc.putback_pts, 0)                             as putback_pts,
+    coalesce(sc.fb_pts, 0)                                  as fb_pts,
     coalesce(z.abovebreak3_makes, 0)                        as abovebreak3_makes
 
 from split s
 left join zone_makes z on z.game_id = s.game_id and z.person_id = s.person_id
+left join {{ ref('int_scoring_types') }} sc
+       on sc.game_id = s.game_id and sc.person_id = s.person_id
