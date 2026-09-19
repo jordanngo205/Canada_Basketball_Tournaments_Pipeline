@@ -4,9 +4,22 @@
 -- rating needs both sides. Doing the self-join once here keeps the marts
 -- readable and stops three of them writing slightly different join conditions.
 --
--- Possessions: FGA - OR + TO + 0.44 * FTA. The 0.44 is the usual fudge for how
--- many free throws actually end a possession — most trips are two shots where
--- only the second ends it, and-ones end nothing, technicals aren't in the flow.
+-- Possessions use Dean Oliver's estimate with the offensive-rebound
+-- adjustment, averaged across both teams:
+--
+--   0.5 * ( FGA + 0.4*FTA - 1.07*(OR/(OR+opp_DR))*(FGA-FGM) + TO
+--         + the same expression from the opponent's side )
+--
+-- Two things matter here. The rebound term only discounts the misses a team
+-- actually rebounded itself, which a flat "minus OR" overstates. And averaging
+-- the two sides gives both teams one shared possession count — they trade
+-- possessions, so a game where the two disagree is an artefact of the
+-- estimator rather than a fact about the game.
+--
+-- This is deliberately the same formula the published Canada Basketball
+-- dashboards use, so the two report identical ratings. An earlier version here
+-- used the simpler FGA - OR + TO + 0.44*FTA and came out 2-3 possessions
+-- adrift, which moved every rating by about two points.
 
 with team_games as (
 
@@ -63,8 +76,26 @@ select
 
     -- Whole numbers. It's an estimate — decimals would imply precision that
     -- isn't there.
-    round(t.fga - t.oreb + t.tov + 0.44 * t.fta)     as possessions,
-    round(o.fga - o.oreb + o.tov + 0.44 * o.fta)     as opp_possessions
+    -- Not rounded. Rounding to whole possessions before dividing moves every
+    -- rating by two or three tenths, which is enough to disagree with the
+    -- published dashboards on numbers that should match exactly.
+    round(0.5 * (
+        (t.fga + 0.4 * t.fta
+           - 1.07 * (t.oreb::numeric / nullif(t.oreb + o.dreb, 0)) * (t.fga - t.fgm)
+           + t.tov)
+      + (o.fga + 0.4 * o.fta
+           - 1.07 * (o.oreb::numeric / nullif(o.oreb + t.dreb, 0)) * (o.fga - o.fgm)
+           + o.tov)
+    ), 2)                                            as possessions,
+    -- Same number by construction: both teams share the averaged estimate.
+    round(0.5 * (
+        (t.fga + 0.4 * t.fta
+           - 1.07 * (t.oreb::numeric / nullif(t.oreb + o.dreb, 0)) * (t.fga - t.fgm)
+           + t.tov)
+      + (o.fga + 0.4 * o.fta
+           - 1.07 * (o.oreb::numeric / nullif(o.oreb + t.dreb, 0)) * (o.fga - o.fgm)
+           + o.tov)
+    ), 2)                                            as opp_possessions
 
 from team_games t
 join team_games o

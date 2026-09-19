@@ -584,8 +584,8 @@
   "player_name": "Lucas Dias",
   "team_code": "BRA",
   "game_id": "127263",
-  "stat_value": 16.7,
-  "stat_label": "16.7"
+  "stat_value": 17.4,
+  "stat_label": "17.4"
  },
  {
   "competition": "FIBA Basketball World Cup 2027 Americas Qualifiers",
@@ -598,8 +598,8 @@
   "player_name": "Aaron Best",
   "team_code": "CAN",
   "game_id": "127250",
-  "stat_value": 31.1,
-  "stat_label": "31.1"
+  "stat_value": 31.6,
+  "stat_label": "31.6"
  },
  {
   "competition": "FIBA Basketball World Cup 2027 Americas Qualifiers",
@@ -612,8 +612,8 @@
   "player_name": "Georginho De Paula",
   "team_code": "BRA",
   "game_id": "127261",
-  "stat_value": 10.0,
-  "stat_label": "10.0"
+  "stat_value": 11.7,
+  "stat_label": "11.7"
  },
  {
   "competition": "FIBA Basketball World Cup 2027 Americas Qualifiers",
@@ -626,8 +626,8 @@
   "player_name": "MarJon Beauchamp",
   "team_code": "USA",
   "game_id": "127234",
-  "stat_value": 27.0,
-  "stat_label": "27.0"
+  "stat_value": 26.7,
+  "stat_label": "26.7"
  },
  {
   "competition": "FIBA Basketball World Cup 2027 Americas Qualifiers",
@@ -640,8 +640,8 @@
   "player_name": "Pako Cruz",
   "team_code": "MEX",
   "game_id": "127235",
-  "stat_value": 23.0,
-  "stat_label": "23.0"
+  "stat_value": 23.9,
+  "stat_label": "23.9"
  },
  {
   "competition": "FIBA Basketball World Cup 2027 Americas Qualifiers",
@@ -654,8 +654,8 @@
   "player_name": "Jaime Echenique",
   "team_code": "COL",
   "game_id": "127259",
-  "stat_value": 12.1,
-  "stat_label": "12.1"
+  "stat_value": 12.8,
+  "stat_label": "12.8"
  },
  {
   "competition": "FIBA Basketball World Cup 2027 Americas Qualifiers",
@@ -668,8 +668,8 @@
   "player_name": "Malcolm Hill",
   "team_code": "USA",
   "game_id": "127240",
-  "stat_value": 24.2,
-  "stat_label": "24.2"
+  "stat_value": 24.4,
+  "stat_label": "24.4"
  },
  {
   "competition": "FIBA Basketball World Cup 2027 Americas Qualifiers",
@@ -682,8 +682,8 @@
   "player_name": "Georginho De Paula",
   "team_code": "BRA",
   "game_id": "127258",
-  "stat_value": 23.4,
-  "stat_label": "23.4"
+  "stat_value": 25.3,
+  "stat_label": "25.3"
  },
  {
   "competition": "FIBA Basketball World Cup 2027 Americas Qualifiers",
@@ -696,8 +696,8 @@
   "player_name": "Francisco Caffaro",
   "team_code": "ARG",
   "game_id": "127274",
-  "stat_value": 21.0,
-  "stat_label": "21.0"
+  "stat_value": 19.7,
+  "stat_label": "19.7"
  },
  {
   "competition": "FIBA Basketball World Cup 2027 Americas Qualifiers",
@@ -710,8 +710,8 @@
   "player_name": "Buddy Hield",
   "team_code": "BAH",
   "game_id": "127242",
-  "stat_value": 25.1,
-  "stat_label": "25.1"
+  "stat_value": 25.5,
+  "stat_label": "25.5"
  },
  {
   "competition": "FIBA Basketball World Cup 2027 Americas Qualifiers",
@@ -724,8 +724,8 @@
   "player_name": "Yago Santos",
   "team_code": "BRA",
   "game_id": "127255",
-  "stat_value": 14.8,
-  "stat_label": "14.8"
+  "stat_value": 14.6,
+  "stat_label": "14.6"
  },
  {
   "competition": "FIBA Basketball World Cup 2027 Americas Qualifiers",
@@ -738,8 +738,8 @@
   "player_name": "Gabriel Deck",
   "team_code": "ARG",
   "game_id": "127265",
-  "stat_value": 30.0,
-  "stat_label": "30.0"
+  "stat_value": 29.6,
+  "stat_label": "29.6"
  },
  {
   "competition": "FIBA Basketball World Cup 2027 Americas Qualifiers",
@@ -752,8 +752,8 @@
   "player_name": "Yago Santos",
   "team_code": "BRA",
   "game_id": "127253",
-  "stat_value": 26.7,
-  "stat_label": "26.7"
+  "stat_value": 27.0,
+  "stat_label": "27.0"
  },
  {
   "competition": "FIBA Basketball World Cup 2027 Americas Qualifiers",
@@ -766,8 +766,8 @@
   "player_name": "Braian Angola",
   "team_code": "COL",
   "game_id": "127264",
-  "stat_value": 13.0,
-  "stat_label": "13.0"
+  "stat_value": 14.8,
+  "stat_label": "14.8"
  },
  {
   "competition": "FIBA Basketball World Cup 2027 Americas Qualifiers",
@@ -780,8 +780,8 @@
   "player_name": "Moises Andriassi",
   "team_code": "MEX",
   "game_id": "127298",
-  "stat_value": 29.3,
-  "stat_label": "29.3"
+  "stat_value": 29.4,
+  "stat_label": "29.4"
  },
  {
   "competition": "FIBA Basketball World Cup 2027 Americas Qualifiers",
@@ -790,12 +790,12 @@
   "emoji": "🔥",
   "blurb": "Most of that swing came at the offensive end",
   "sort_order": 2,
-  "person_id": "237638",
-  "player_name": "Kai Jones",
-  "team_code": "BAH",
-  "game_id": "127294",
-  "stat_value": 23.4,
-  "stat_label": "23.4"
+  "person_id": "201233",
+  "player_name": "Mike James",
+  "team_code": "USA",
+  "game_id": "127299",
+  "stat_value": 22.2,
+  "stat_label": "22.2"
  },
  {
   "competition": "FIBA U17 Women's Basketball World Cup",
@@ -808,8 +808,8 @@
   "player_name": "Micah Ojo",
   "team_code": "USA",
   "game_id": "114390",
-  "stat_value": 18.2,
-  "stat_label": "18.2"
+  "stat_value": 17.8,
+  "stat_label": "17.8"
  },
  {
   "competition": "FIBA U17 Women's Basketball World Cup",
@@ -822,8 +822,8 @@
   "player_name": "Kako Otsuki",
   "team_code": "JPN",
   "game_id": "114398",
-  "stat_value": 15.0,
-  "stat_label": "15.0"
+  "stat_value": 16.0,
+  "stat_label": "16.0"
  },
  {
   "competition": "FIBA U17 Women's Basketball World Cup",
@@ -836,8 +836,8 @@
   "player_name": "Morghan Reckley",
   "team_code": "USA",
   "game_id": "114388",
-  "stat_value": 13.4,
-  "stat_label": "13.4"
+  "stat_value": 13.6,
+  "stat_label": "13.6"
  },
  {
   "competition": "FIBA U17 Women's Basketball World Cup",
@@ -850,8 +850,8 @@
   "player_name": "Morghan Reckley",
   "team_code": "USA",
   "game_id": "132952",
-  "stat_value": 20.7,
-  "stat_label": "20.7"
+  "stat_value": 20.9,
+  "stat_label": "20.9"
  },
  {
   "competition": "FIBA U17 Women's Basketball World Cup",
@@ -860,12 +860,12 @@
   "emoji": "🔥",
   "blurb": "Most of that swing came at the offensive end",
   "sort_order": 2,
-  "person_id": "357693",
-  "player_name": "Keren Bertel",
-  "team_code": "COL",
-  "game_id": "132963",
-  "stat_value": 7.1,
-  "stat_label": "7.1"
+  "person_id": "393523",
+  "player_name": "Arianna Robinson",
+  "team_code": "USA",
+  "game_id": "132964",
+  "stat_value": 6.9,
+  "stat_label": "6.9"
  },
  {
   "competition": "FIBA U17 Women's Basketball World Cup",
@@ -874,12 +874,12 @@
   "emoji": "🔥",
   "blurb": "Most of that swing came at the offensive end",
   "sort_order": 2,
-  "person_id": "394525",
-  "player_name": "Ella Kone",
-  "team_code": "CIV",
-  "game_id": "132969",
-  "stat_value": 8.6,
-  "stat_label": "8.6"
+  "person_id": "393522",
+  "player_name": "Morghan Reckley",
+  "team_code": "USA",
+  "game_id": "132972",
+  "stat_value": 9.5,
+  "stat_label": "9.5"
  },
  {
   "competition": "FIBA U17 Women's Basketball World Cup",
@@ -892,8 +892,8 @@
   "player_name": "Enija Brokane",
   "team_code": "LAT",
   "game_id": "132976",
-  "stat_value": 7.1,
-  "stat_label": "7.1"
+  "stat_value": 7.2,
+  "stat_label": "7.2"
  },
  {
   "competition": "FIBA U18 Women's AmeriCup",
@@ -906,8 +906,8 @@
   "player_name": "Brooke McLeod",
   "team_code": "CAN",
   "game_id": "130903",
-  "stat_value": 16.3,
-  "stat_label": "16.3"
+  "stat_value": 16.5,
+  "stat_label": "16.5"
  },
  {
   "competition": "FIBA U18 Women's AmeriCup",
@@ -920,8 +920,8 @@
   "player_name": "Bella Flemings",
   "team_code": "USA",
   "game_id": "130910",
-  "stat_value": 25.3,
-  "stat_label": "25.3"
+  "stat_value": 26.5,
+  "stat_label": "26.5"
  },
  {
   "competition": "FIBA U18 Women's AmeriCup",
@@ -934,8 +934,8 @@
   "player_name": "Brooke McLeod",
   "team_code": "CAN",
   "game_id": "130906",
-  "stat_value": 17.5,
-  "stat_label": "17.5"
+  "stat_value": 18.2,
+  "stat_label": "18.2"
  },
  {
   "competition": "FIBA U18 Women's AmeriCup",
@@ -948,8 +948,8 @@
   "player_name": "Sofia Lombardero",
   "team_code": "ARG",
   "game_id": "134672",
-  "stat_value": 16.9,
-  "stat_label": "16.9"
+  "stat_value": 17.9,
+  "stat_label": "17.9"
  },
  {
   "competition": "FIBA U18 Women's AmeriCup",
@@ -976,8 +976,8 @@
   "player_name": "Ryan Carter",
   "team_code": "USA",
   "game_id": "134681",
-  "stat_value": 8.9,
-  "stat_label": "8.9"
+  "stat_value": 9.7,
+  "stat_label": "9.7"
  },
  {
   "competition": "FIBA Women's Basketball World Cup",
@@ -990,8 +990,8 @@
   "player_name": "Stephanie Mawuli",
   "team_code": "JPN",
   "game_id": "128116",
-  "stat_value": 9.1,
-  "stat_label": "9.1"
+  "stat_value": 8.5,
+  "stat_label": "8.5"
  },
  {
   "competition": "FIBA Women's Basketball World Cup 2026 Qualifying Tournament Türkiye",
@@ -1004,8 +1004,8 @@
   "player_name": "Stephanie Reid",
   "team_code": "AUS",
   "game_id": "128103",
-  "stat_value": 17.5,
-  "stat_label": "17.5"
+  "stat_value": 18.1,
+  "stat_label": "18.1"
  },
  {
   "competition": "FIBA Women's Basketball World Cup 2026 Qualifying Tournament Türkiye",
@@ -1018,8 +1018,8 @@
   "player_name": "Steph Talbot",
   "team_code": "AUS",
   "game_id": "128105",
-  "stat_value": 16.1,
-  "stat_label": "16.1"
+  "stat_value": 18.6,
+  "stat_label": "18.6"
  },
  {
   "competition": "FIBA Women's Basketball World Cup 2026 Qualifying Tournament Türkiye",
@@ -1032,8 +1032,8 @@
   "player_name": "Ayse Cora Yamaner",
   "team_code": "TUR",
   "game_id": "128109",
-  "stat_value": 14.2,
-  "stat_label": "14.2"
+  "stat_value": 15.1,
+  "stat_label": "15.1"
  },
  {
   "competition": "FIBA Women's Basketball World Cup 2026 Qualifying Tournament Türkiye",
@@ -1046,8 +1046,8 @@
   "player_name": "Virag Takacs-Kiss",
   "team_code": "HUN",
   "game_id": "128110",
-  "stat_value": 15.6,
-  "stat_label": "15.6"
+  "stat_value": 14.9,
+  "stat_label": "14.9"
  },
  {
   "competition": "FIBA Women's Basketball World Cup 2026 Qualifying Tournament Türkiye",
@@ -1060,8 +1060,8 @@
   "player_name": "Dorka Juhasz",
   "team_code": "HUN",
   "game_id": "128113",
-  "stat_value": 24.8,
-  "stat_label": "24.8"
+  "stat_value": 23.9,
+  "stat_label": "23.9"
  },
  {
   "competition": "FIBA Women's Olympic Pre-Qualifying Tournament",
@@ -1074,8 +1074,8 @@
   "player_name": "Mariana Valenzuela",
   "team_code": "MEX",
   "game_id": "135068",
-  "stat_value": 7.1,
-  "stat_label": "7.1"
+  "stat_value": 7.5,
+  "stat_label": "7.5"
  },
  {
   "competition": "FIBA Women's Olympic Pre-Qualifying Tournament",
@@ -1088,8 +1088,8 @@
   "player_name": "Rose Macuei",
   "team_code": "SSD",
   "game_id": "135064",
-  "stat_value": 6.7,
-  "stat_label": "6.7"
+  "stat_value": 6.8,
+  "stat_label": "6.8"
  },
  {
   "competition": "FIBA Women's Olympic Pre-Qualifying Tournament",
@@ -1098,12 +1098,12 @@
   "emoji": "🔥",
   "blurb": "Most of that swing came at the offensive end",
   "sort_order": 2,
-  "person_id": "303627",
-  "player_name": "Lena Timera",
-  "team_code": "SEN",
-  "game_id": "135070",
-  "stat_value": 7.9,
-  "stat_label": "7.9"
+  "person_id": "320676",
+  "player_name": "Syla Swords",
+  "team_code": "CAN",
+  "game_id": "135069",
+  "stat_value": 6.9,
+  "stat_label": "6.9"
  },
  {
   "competition": "FIBA Women's Olympic Pre-Qualifying Tournament",
@@ -1116,8 +1116,8 @@
   "player_name": "Ella Jade Brow",
   "team_code": "NZL",
   "game_id": "135066",
-  "stat_value": 14.4,
-  "stat_label": "14.4"
+  "stat_value": 12.8,
+  "stat_label": "12.8"
  },
  {
   "competition": "FIBA Women's Olympic Pre-Qualifying Tournament",
@@ -1130,8 +1130,8 @@
   "player_name": "Syla Swords",
   "team_code": "CAN",
   "game_id": "135074",
-  "stat_value": 22.0,
-  "stat_label": "22.0"
+  "stat_value": 21.9,
+  "stat_label": "21.9"
  },
  {
   "competition": "FIBA Women's Olympic Pre-Qualifying Tournament",
@@ -1144,8 +1144,8 @@
   "player_name": "Yvonne Ejim",
   "team_code": "CAN",
   "game_id": "135075",
-  "stat_value": 10.7,
-  "stat_label": "10.7"
+  "stat_value": 11.3,
+  "stat_label": "11.3"
  },
  {
   "competition": "FIBA Basketball World Cup 2027 Americas Qualifiers",
@@ -1154,12 +1154,12 @@
   "emoji": "🛡️",
   "blurb": "Most of that swing came at the defensive end",
   "sort_order": 3,
-  "person_id": "222532",
-  "player_name": "Santiago Vescovi",
-  "team_code": "URU",
-  "game_id": "127269",
-  "stat_value": 13.9,
-  "stat_label": "13.9"
+  "person_id": "296193",
+  "player_name": "Gonzalo Corbalan",
+  "team_code": "ARG",
+  "game_id": "127268",
+  "stat_value": 15.9,
+  "stat_label": "15.9"
  },
  {
   "competition": "FIBA Basketball World Cup 2027 Americas Qualifiers",
@@ -1172,8 +1172,8 @@
   "player_name": "Brandon Knight",
   "team_code": "USA",
   "game_id": "127232",
-  "stat_value": 10.7,
-  "stat_label": "10.7"
+  "stat_value": 9.9,
+  "stat_label": "9.9"
  },
  {
   "competition": "FIBA Basketball World Cup 2027 Americas Qualifiers",
@@ -1186,8 +1186,8 @@
   "player_name": "Georginho De Paula",
   "team_code": "BRA",
   "game_id": "127261",
-  "stat_value": 14.0,
-  "stat_label": "14.0"
+  "stat_value": 12.3,
+  "stat_label": "12.3"
  },
  {
   "competition": "FIBA Basketball World Cup 2027 Americas Qualifiers",
@@ -1200,8 +1200,8 @@
   "player_name": "Gonzalo Corbalan",
   "team_code": "ARG",
   "game_id": "127270",
-  "stat_value": 28.7,
-  "stat_label": "28.7"
+  "stat_value": 28.3,
+  "stat_label": "28.3"
  },
  {
   "competition": "FIBA Basketball World Cup 2027 Americas Qualifiers",
@@ -1214,8 +1214,8 @@
   "player_name": "Kyle Wiltjer",
   "team_code": "CAN",
   "game_id": "127248",
-  "stat_value": 7.8,
-  "stat_label": "7.8"
+  "stat_value": 8.5,
+  "stat_label": "8.5"
  },
  {
   "competition": "FIBA Basketball World Cup 2027 Americas Qualifiers",
@@ -1228,8 +1228,8 @@
   "player_name": "Joaquin Rodriguez",
   "team_code": "URU",
   "game_id": "127272",
-  "stat_value": 15.1,
-  "stat_label": "15.1"
+  "stat_value": 15.3,
+  "stat_label": "15.3"
  },
  {
   "competition": "FIBA Basketball World Cup 2027 Americas Qualifiers",
@@ -1242,8 +1242,8 @@
   "player_name": "Jassel Perez",
   "team_code": "DOM",
   "game_id": "127237",
-  "stat_value": 8.7,
-  "stat_label": "8.7"
+  "stat_value": 8.4,
+  "stat_label": "8.4"
  },
  {
   "competition": "FIBA Basketball World Cup 2027 Americas Qualifiers",
@@ -1256,8 +1256,8 @@
   "player_name": "Santiago Vescovi",
   "team_code": "URU",
   "game_id": "127273",
-  "stat_value": 21.1,
-  "stat_label": "21.1"
+  "stat_value": 19.1,
+  "stat_label": "19.1"
  },
  {
   "competition": "FIBA Basketball World Cup 2027 Americas Qualifiers",
@@ -1270,8 +1270,8 @@
   "player_name": "Joaquin Rodriguez",
   "team_code": "URU",
   "game_id": "127274",
-  "stat_value": 8.0,
-  "stat_label": "8.0"
+  "stat_value": 7.5,
+  "stat_label": "7.5"
  },
  {
   "competition": "FIBA Basketball World Cup 2027 Americas Qualifiers",
@@ -1284,8 +1284,8 @@
   "player_name": "Joseph Avila",
   "team_code": "MEX",
   "game_id": "127239",
-  "stat_value": 15.4,
-  "stat_label": "15.4"
+  "stat_value": 13.5,
+  "stat_label": "13.5"
  },
  {
   "competition": "FIBA Basketball World Cup 2027 Americas Qualifiers",
@@ -1298,8 +1298,8 @@
   "player_name": "Brayan Gonzalez",
   "team_code": "VEN",
   "game_id": "127255",
-  "stat_value": 8.8,
-  "stat_label": "8.8"
+  "stat_value": 8.6,
+  "stat_label": "8.6"
  },
  {
   "competition": "FIBA Basketball World Cup 2027 Americas Qualifiers",
@@ -1312,8 +1312,8 @@
   "player_name": "Joaquin Taboada",
   "team_code": "URU",
   "game_id": "127267",
-  "stat_value": 7.3,
-  "stat_label": "7.3"
+  "stat_value": 6.8,
+  "stat_label": "6.8"
  },
  {
   "competition": "FIBA Basketball World Cup 2027 Americas Qualifiers",
@@ -1326,8 +1326,8 @@
   "player_name": "Jean Montero",
   "team_code": "DOM",
   "game_id": "127231",
-  "stat_value": 20.9,
-  "stat_label": "20.9"
+  "stat_value": 20.4,
+  "stat_label": "20.4"
  },
  {
   "competition": "FIBA Basketball World Cup 2027 Americas Qualifiers",
@@ -1336,12 +1336,12 @@
   "emoji": "🛡️",
   "blurb": "Most of that swing came at the defensive end",
   "sort_order": 3,
-  "person_id": "190557",
-  "player_name": "Braian Angola",
-  "team_code": "COL",
+  "person_id": "313739",
+  "player_name": "Enrique Medina",
+  "team_code": "VEN",
   "game_id": "127264",
-  "stat_value": 8.0,
-  "stat_label": "8.0"
+  "stat_value": 6.3,
+  "stat_label": "6.3"
  },
  {
   "competition": "FIBA Basketball World Cup 2027 Americas Qualifiers",
@@ -1354,8 +1354,8 @@
   "player_name": "Thomas Scrubb",
   "team_code": "CAN",
   "game_id": "127291",
-  "stat_value": 13.8,
-  "stat_label": "13.8"
+  "stat_value": 12.4,
+  "stat_label": "12.4"
  },
  {
   "competition": "FIBA Basketball World Cup 2027 Americas Qualifiers",
@@ -1364,10 +1364,10 @@
   "emoji": "🛡️",
   "blurb": "Most of that swing came at the defensive end",
   "sort_order": 3,
-  "person_id": "284000",
-  "player_name": "Richard Bautista",
-  "team_code": "DOM",
-  "game_id": "127300",
+  "person_id": "224223",
+  "player_name": "Luguentz Dort",
+  "team_code": "CAN",
+  "game_id": "127278",
   "stat_value": 10.2,
   "stat_label": "10.2"
  },
@@ -1382,8 +1382,8 @@
   "player_name": "Micah Ojo",
   "team_code": "USA",
   "game_id": "114390",
-  "stat_value": 36.8,
-  "stat_label": "36.8"
+  "stat_value": 37.2,
+  "stat_label": "37.2"
  },
  {
   "competition": "FIBA U17 Women's Basketball World Cup",
@@ -1396,8 +1396,8 @@
   "player_name": "Yunshu Pang",
   "team_code": "CHN",
   "game_id": "114396",
-  "stat_value": 31.7,
-  "stat_label": "31.7"
+  "stat_value": 29.4,
+  "stat_label": "29.4"
  },
  {
   "competition": "FIBA U17 Women's Basketball World Cup",
@@ -1410,8 +1410,8 @@
   "player_name": "Trinity Ezeanatogu",
   "team_code": "ESP",
   "game_id": "114392",
-  "stat_value": 32.1,
-  "stat_label": "32.1"
+  "stat_value": 33.0,
+  "stat_label": "33.0"
  },
  {
   "competition": "FIBA U17 Women's Basketball World Cup",
@@ -1420,12 +1420,12 @@
   "emoji": "🛡️",
   "blurb": "Most of that swing came at the defensive end",
   "sort_order": 3,
-  "person_id": "395391",
-  "player_name": "Isabel Hernandez",
-  "team_code": "ESP",
-  "game_id": "132955",
-  "stat_value": 33.0,
-  "stat_label": "33.0"
+  "person_id": "375151",
+  "player_name": "Isabel Smith",
+  "team_code": "AUS",
+  "game_id": "132953",
+  "stat_value": 34.4,
+  "stat_label": "34.4"
  },
  {
   "competition": "FIBA U17 Women's Basketball World Cup",
@@ -1438,8 +1438,8 @@
   "player_name": "Isabel Hernandez",
   "team_code": "ESP",
   "game_id": "132967",
-  "stat_value": 32.7,
-  "stat_label": "32.7"
+  "stat_value": 33.2,
+  "stat_label": "33.2"
  },
  {
   "competition": "FIBA U17 Women's Basketball World Cup",
@@ -1452,8 +1452,8 @@
   "player_name": "Lara Gierlich",
   "team_code": "GER",
   "game_id": "132969",
-  "stat_value": 28.8,
-  "stat_label": "28.8"
+  "stat_value": 29.6,
+  "stat_label": "29.6"
  },
  {
   "competition": "FIBA U17 Women's Basketball World Cup",
@@ -1466,8 +1466,8 @@
   "player_name": "Isabella Martinez",
   "team_code": "MEX",
   "game_id": "132974",
-  "stat_value": 18.8,
-  "stat_label": "18.8"
+  "stat_value": 20.0,
+  "stat_label": "20.0"
  },
  {
   "competition": "FIBA U18 Women's AmeriCup",
@@ -1480,8 +1480,8 @@
   "player_name": "Brooke McLeod",
   "team_code": "CAN",
   "game_id": "130903",
-  "stat_value": 31.7,
-  "stat_label": "31.7"
+  "stat_value": 31.5,
+  "stat_label": "31.5"
  },
  {
   "competition": "FIBA U18 Women's AmeriCup",
@@ -1494,8 +1494,8 @@
   "player_name": "Matilda Campo",
   "team_code": "ARG",
   "game_id": "130912",
-  "stat_value": 41.0,
-  "stat_label": "41.0"
+  "stat_value": 39.5,
+  "stat_label": "39.5"
  },
  {
   "competition": "FIBA U18 Women's AmeriCup",
@@ -1508,8 +1508,8 @@
   "player_name": "Bella Flemings",
   "team_code": "USA",
   "game_id": "130911",
-  "stat_value": 41.0,
-  "stat_label": "41.0"
+  "stat_value": 41.4,
+  "stat_label": "41.4"
  },
  {
   "competition": "FIBA U18 Women's AmeriCup",
@@ -1522,8 +1522,8 @@
   "player_name": "Sofia Lombardero",
   "team_code": "ARG",
   "game_id": "134672",
-  "stat_value": 27.1,
-  "stat_label": "27.1"
+  "stat_value": 26.1,
+  "stat_label": "26.1"
  },
  {
   "competition": "FIBA U18 Women's AmeriCup",
@@ -1564,8 +1564,8 @@
   "player_name": "Stephanie Mawuli",
   "team_code": "JPN",
   "game_id": "128116",
-  "stat_value": 5.9,
-  "stat_label": "5.9"
+  "stat_value": 6.5,
+  "stat_label": "6.5"
  },
  {
   "competition": "FIBA Women's Basketball World Cup 2026 Qualifying Tournament Türkiye",
@@ -1578,8 +1578,8 @@
   "player_name": "Olcay Cakir",
   "team_code": "TUR",
   "game_id": "128102",
-  "stat_value": 19.0,
-  "stat_label": "19.0"
+  "stat_value": 14.1,
+  "stat_label": "14.1"
  },
  {
   "competition": "FIBA Women's Basketball World Cup 2026 Qualifying Tournament Türkiye",
@@ -1592,8 +1592,8 @@
   "player_name": "Kayla Alexander",
   "team_code": "CAN",
   "game_id": "128104",
-  "stat_value": 20.3,
-  "stat_label": "20.3"
+  "stat_value": 22.7,
+  "stat_label": "22.7"
  },
  {
   "competition": "FIBA Women's Basketball World Cup 2026 Qualifying Tournament Türkiye",
@@ -1606,8 +1606,8 @@
   "player_name": "Aaliyah Edwards",
   "team_code": "CAN",
   "game_id": "128108",
-  "stat_value": 24.7,
-  "stat_label": "24.7"
+  "stat_value": 23.7,
+  "stat_label": "23.7"
  },
  {
   "competition": "FIBA Women's Basketball World Cup 2026 Qualifying Tournament Türkiye",
@@ -1616,12 +1616,12 @@
   "emoji": "🛡️",
   "blurb": "Most of that swing came at the defensive end",
   "sort_order": 3,
-  "person_id": "194496",
-  "player_name": "Alanna Smith",
-  "team_code": "AUS",
-  "game_id": "128111",
-  "stat_value": 10.0,
-  "stat_label": "10.0"
+  "person_id": "221606",
+  "player_name": "Victoria Gauna",
+  "team_code": "ARG",
+  "game_id": "128110",
+  "stat_value": 7.9,
+  "stat_label": "7.9"
  },
  {
   "competition": "FIBA Women's Basketball World Cup 2026 Qualifying Tournament Türkiye",
@@ -1634,8 +1634,8 @@
   "player_name": "Mai Yamamoto",
   "team_code": "JPN",
   "game_id": "128114",
-  "stat_value": 17.2,
-  "stat_label": "17.2"
+  "stat_value": 16.4,
+  "stat_label": "16.4"
  },
  {
   "competition": "FIBA Women's Olympic Pre-Qualifying Tournament",
@@ -1644,10 +1644,10 @@
   "emoji": "🛡️",
   "blurb": "Most of that swing came at the defensive end",
   "sort_order": 3,
-  "person_id": "219363",
-  "player_name": "Charlotte Whittaker",
-  "team_code": "NZL",
-  "game_id": "135062",
+  "person_id": "369879",
+  "player_name": "Agot Makeer",
+  "team_code": "CAN",
+  "game_id": "135067",
   "stat_value": 17.4,
   "stat_label": "17.4"
  },
@@ -1662,8 +1662,8 @@
   "player_name": "Aline Moura",
   "team_code": "BRA",
   "game_id": "135063",
-  "stat_value": 7.4,
-  "stat_label": "7.4"
+  "stat_value": 7.5,
+  "stat_label": "7.5"
  },
  {
   "competition": "FIBA Women's Olympic Pre-Qualifying Tournament",
@@ -1676,8 +1676,8 @@
   "player_name": "Syla Swords",
   "team_code": "CAN",
   "game_id": "135069",
-  "stat_value": 33.0,
-  "stat_label": "33.0"
+  "stat_value": 31.1,
+  "stat_label": "31.1"
  },
  {
   "competition": "FIBA Women's Olympic Pre-Qualifying Tournament",
@@ -1686,12 +1686,12 @@
   "emoji": "🛡️",
   "blurb": "Most of that swing came at the defensive end",
   "sort_order": 3,
-  "person_id": "287408",
-  "player_name": "Ndioma Kane",
-  "team_code": "SEN",
-  "game_id": "135072",
-  "stat_value": 9.9,
-  "stat_label": "9.9"
+  "person_id": "172742",
+  "player_name": "Yvonne Ejim",
+  "team_code": "CAN",
+  "game_id": "135071",
+  "stat_value": 9.6,
+  "stat_label": "9.6"
  },
  {
   "competition": "FIBA Women's Olympic Pre-Qualifying Tournament",
@@ -1704,8 +1704,8 @@
   "player_name": "Morelia Chavez",
   "team_code": "MEX",
   "game_id": "135073",
-  "stat_value": 7.1,
-  "stat_label": "7.1"
+  "stat_value": 6.4,
+  "stat_label": "6.4"
  },
  {
   "competition": "FIBA Women's Olympic Pre-Qualifying Tournament",
@@ -1718,8 +1718,8 @@
   "player_name": "Yvonne Ejim",
   "team_code": "CAN",
   "game_id": "135075",
-  "stat_value": 21.3,
-  "stat_label": "21.3"
+  "stat_value": 20.7,
+  "stat_label": "20.7"
  },
  {
   "competition": "FIBA Basketball World Cup 2027 Americas Qualifiers",
