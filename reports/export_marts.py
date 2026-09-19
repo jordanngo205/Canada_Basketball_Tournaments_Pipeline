@@ -33,6 +33,8 @@ EXPORTS = {
     "analytics_marts.mart_four_factors": "four_factors.json",
     "analytics_marts.mart_shot_zones": "shot_zones.json",
     "analytics_marts.mart_court_zones": "court_zones.json",
+    "analytics_marts.mart_daily_awards": "daily_awards.json",
+    "analytics_marts.mart_net_points_summary": "net_points.json",
     "analytics_marts.mart_player_shot_zones": "player_shot_zones.json",
 }
 

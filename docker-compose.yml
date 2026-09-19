@@ -68,6 +68,15 @@ services:
       &airflow-volumes
       - ./out:/opt/airflow/out
       - airflow_logs:/opt/airflow/logs
+      # dbt and the Python packages are also COPYed into the image so it stays
+      # self-contained and CI needs no mounts. Mounting them over the top here
+      # means a SQL change takes effect on the next dbt run instead of after a
+      # two-minute image rebuild, which matters when iterating on a model.
+      - ./dbt:/opt/airflow/dbt
+      - ./ingest:/opt/airflow/ingest
+      - ./reports:/opt/airflow/reports
+      - ./dags:/opt/airflow/dags
+      - ./config:/opt/airflow/config
     # Migrate the metadata schema, then create the login. Both are safe to
     # re-run, so this can restart without special-casing first boot.
     command: >-
