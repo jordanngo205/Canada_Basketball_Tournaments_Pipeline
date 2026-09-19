@@ -1,16 +1,16 @@
 {
- "generated_at": "2026-09-19T00:39:58+00:00",
+ "generated_at": "2026-09-19T01:42:36+00:00",
  "files": {
-  "standings.json": 68,
-  "player_leaders.json": 820,
-  "team_efficiency.json": 338,
-  "games.json": 169,
-  "period_scores.json": 680,
-  "four_factors.json": 56,
-  "shot_zones.json": 280,
-  "court_zones.json": 662,
-  "daily_awards.json": 652,
-  "net_points.json": 739,
-  "player_shot_zones.json": 2384
+  "standings.json": 40,
+  "player_leaders.json": 477,
+  "team_efficiency.json": 218,
+  "games.json": 109,
+  "period_scores.json": 439,
+  "four_factors.json": 40,
+  "shot_zones.json": 200,
+  "court_zones.json": 470,
+  "daily_awards.json": 398,
+  "net_points.json": 440,
+  "player_shot_zones.json": 1518
  }
 }

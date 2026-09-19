@@ -45,10 +45,9 @@ Python or SQL. Only `out/` is mounted, since the host needs the JSON back.
 
 ## What comes out
 
-168 games across the five tournaments Canada played in:
+108 games across the four tournaments Canada's women played in:
 
 ```
-  60  FIBA Basketball World Cup 2027 Americas Qualifiers
   56  FIBA U17 Women's Basketball World Cup
   22  FIBA U18 Women's AmeriCup
   15  FIBA Women's Basketball World Cup 2026 Qualifying — Türkiye
@@ -57,28 +56,53 @@ Python or SQL. Only `out/` is mounted, since the host needs the JSON back.
 
 | Table | Grain | Rows |
 |---|---|---|
-| `mart_player_leaders` | player per competition | 796 |
-| `mart_team_efficiency` | team per game | 336 |
-| `mart_shot_zones` | team × zone per competition | 270 |
-| `mart_four_factors` | team per competition | 54 |
-| `stg_period_scores` | period per game | 676 |
-| `mart_standings` | team per group | 66 |
-| `int_shots` | one field goal attempt | 22,335 |
-| `int_player_minutes` | player per game | 4,024 |
+| `mart_player_leaders` | player per competition | 477 |
+| `mart_team_efficiency` | team per game | 218 |
+| `mart_shot_zones` | team × zone per competition | 200 |
+| `mart_four_factors` | team per competition | 40 |
+| `stg_period_scores` | period per game | 439 |
+| `mart_standings` | team per group | 40 |
+| `int_shots` | one field goal attempt | 14,262 |
+| `int_player_minutes` | player per game | 2,401 |
 
 Everything's per 100 possessions rather than per game — FIBA sides vary enough
 in pace that raw totals flatter the fast ones:
 
 ```
 grp rk team  record  diff   ortg   drtg   net     overall
-B   1  CAN    3-0     +68   101.3   72.6  +28.7     5-0
-B   2  MEX    2-1     +11    89.5   83.5   +6.0     3-2
-A   1  NZL    2-1     +27    89.7   75.3  +14.4     2-2
+A   1  CAN    3-0    +155   121.7   59.6  +62.1     4-1
+A   2  VEN    2-1      -5    88.7   90.6   -1.9     3-3
+B   1  USA    3-0    +220   127.4   49.8  +77.6     5-0
 ```
 
 The pinned tournaments live in `config/events.yml`; discovery adds anything new
 Canada turns up in. The ingest task is mapped with `.expand()`, so Airflow runs
 one task instance per tournament and a failure in one leaves the rest green.
+
+### Scope: which Canada
+
+`programme: womens` in the config, and it earns its place. Canada fields a men's
+senior team too, so discovery found the men's FIBA Basketball World Cup 2027
+Americas Qualifiers on its own and pulled in 60 games and the senior men's
+roster — the pipeline handled it fine, and the dashboard silently became a
+different product. Scope is a decision, not a side effect of whatever was on
+FIBA's index that day, so it lives in config.
+
+Enforcing it is uglier than it should be. FIBA's index carries `gender`,
+`fibaGender` and `genderFilter` fields and leaves **all three `$undefined` on
+all 139 events**. The only signal is the naming convention — a women's event
+says so in its slug, a men's event says nothing:
+
+```
+fiba-womens-eurobasket-2027-qualifiers                women's
+fiba-eurobasket-2029-pre-qualifiers                   men's
+fiba-u18-womens-eurobasket-2026-division-b            women's
+fiba-basketball-world-cup-2027-americas-qualifiers    men's
+```
+
+Cross-checked against the official name on all 139: zero disagreements. Good
+enough to filter on, but it's a convention rather than a field, so it's isolated
+in one function (`event_programme`) with `programme: all` as the escape hatch.
 
 ## How the ingest works
 
@@ -150,8 +174,8 @@ to get back to the step that broke.
 
 ## Tests
 
-56 of them. The generic `not_null` / `unique` / range ones are in the
-`_schema.yml` files. The interesting ones are in `dbt/tests/` — basketball
+63 in dbt, plus a pure one in `tests/`. The generic `not_null` / `unique` /
+range ones are in the `_schema.yml` files. The interesting ones are in `dbt/tests/` — basketball
 arithmetic that can't be false, so a failure is a bug rather than a threshold
 someone guessed at.
 
@@ -163,6 +187,7 @@ someone guessed at.
 | `assert_shooting_splits_consistent` | Makes ≤ attempts, `FGM = FG2M + FG3M` |
 | `assert_win_loss_balances` | Wins and losses balance across a competition |
 | `assert_both_teams_present` | Exactly two team rows per game |
+| `tests/test_programme.py` | The women's/men's slug convention still holds |
 
 **Rebounds are deliberately not checked for equality**, and working out why took
 a while. A team rebound — ball out off the defence, missed last free throw —
@@ -188,9 +213,12 @@ to assert direction rather than delete the test.
 games, broke on the full tournament: semi-finals and the final carry no group
 code, so every team that qualified got a second row.
 
-**Then standings broke again at five tournaments.** The World Cup 2027 Americas
-Qualifiers runs *two* group phases — Canada is in group B and then group F. Both
-rows are legitimate; the grain is per group, not per competition.
+**Then standings broke again when discovery found a fifth tournament.** The
+World Cup 2027 Americas Qualifiers runs *two* group phases — Canada was in group
+B and then group F, so it got two rows. Both were legitimate: the grain is per
+group, not per competition. That tournament is out of scope now (see *Which
+Canada* above), but the fix stays, because the bug was never about that
+tournament — it was the model assuming one group phase per team.
 
 **Players were splitting in two.** FIBA spells the same person differently
 between games in one tournament: id 202510 is "Pako Saldivar" in two games and

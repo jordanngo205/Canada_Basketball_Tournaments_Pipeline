@@ -273,7 +273,6 @@ PUBLISHED_SLUGS = {
     "FIBA U18 Women's AmeriCup": "u18-americup-2026",
     "FIBA U17 Women's Basketball World Cup": "u17-world-cup-2026",
     "FIBA Women's Olympic Pre-Qualifying Tournament": "olympic-pre-qualifying-2026",
-    "FIBA Basketball World Cup 2027 Americas Qualifiers": "americas-qualifiers-2027",
 }
 
 
