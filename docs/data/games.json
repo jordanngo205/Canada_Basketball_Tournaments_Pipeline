@@ -858,28 +858,6 @@
   "fetched_at": "2026-09-18T02:10:24.569694+00:00"
  },
  {
-  "game_id": "128116",
-  "tipoff_at": "2026-09-04T11:30:00+00:00",
-  "game_date": "2026-09-04",
-  "home_team": "Japan",
-  "home_code": "JPN",
-  "home_team_id": "T_85",
-  "home_score": 102,
-  "away_team": "Mali",
-  "away_code": "MLI",
-  "away_team_id": "T_100",
-  "away_score": 97,
-  "competition": "FIBA Women's Basketball World Cup",
-  "fiba_zone": "World",
-  "round_name": "Group Phase",
-  "city": "Berlin",
-  "country": "Germany",
-  "group_code": "A",
-  "periods_played": 4,
-  "source_url": "https://www.fiba.basketball/en/events/fiba-womens-basketball-world-cup-2026/games/128116-JPN-MLI",
-  "fetched_at": "2026-09-17T18:19:02.925870+00:00"
- },
- {
   "game_id": "130901",
   "tipoff_at": "2026-06-09T12:30:00+00:00",
   "game_date": "2026-06-09",
@@ -2219,7 +2197,7 @@
   "group_code": "B",
   "periods_played": 4,
   "source_url": "https://www.fiba.basketball/en/events/fiba-womens-olympic-pre-qualifying-tournament-2026-guadalajara-mexico/games/135067-CAN-SEN",
-  "fetched_at": "2026-09-17T18:19:02.677974+00:00"
+  "fetched_at": "2026-09-19T01:57:43.566541+00:00"
  },
  {
   "game_id": "135068",

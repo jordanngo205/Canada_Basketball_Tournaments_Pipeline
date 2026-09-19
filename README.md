@@ -174,7 +174,7 @@ to get back to the step that broke.
 
 ## Tests
 
-63 in dbt, plus a pure one in `tests/`. The generic `not_null` / `unique` /
+67 in dbt, plus a pure one in `tests/`. The generic `not_null` / `unique` /
 range ones are in the `_schema.yml` files. The interesting ones are in `dbt/tests/` — basketball
 arithmetic that can't be false, so a failure is a bug rather than a threshold
 someone guessed at.
@@ -188,6 +188,7 @@ someone guessed at.
 | `assert_win_loss_balances` | Wins and losses balance across a competition |
 | `assert_both_teams_present` | Exactly two team rows per game |
 | `tests/test_programme.py` | The women's/men's slug convention still holds |
+| `assert_derived_points_within_total` | Fast-break + putback points ≤ points scored |
 
 **Rebounds are deliberately not checked for equality**, and working out why took
 a while. A team rebound — ball out off the defence, missed last free throw —
@@ -296,6 +297,61 @@ a game.
 
 Mean absolute error against the 200 team-minutes a game must produce is now
 **0.12 minutes** across 336 team-games, worst case 4.9.
+
+## Fast-break and putback points
+
+FIBA marks neither. The play-by-play action carries exactly `ac, act, GT, Id,
+in, made, oId, order, p2Id, pId, pts, SA, SB, Time, txt, x, y` — no fastbreak,
+second-chance or transition qualifier anywhere — so both are reconstructed from
+the sequence, and deliberately not to the same standard.
+
+**Putbacks are observed.** `txt` separates "offensive rebound" from "defensive
+rebound", so "rebounded their own team's miss and scored before anyone else
+touched the ball" is directly readable off the stream.
+
+**Fast-break points are an estimate**, and labelled one. Nothing in the data
+says a defence was unset, so this counts a make within 7 seconds of the team
+winning the ball by steal or defensive rebound, with nothing in between that
+would let the defence set.
+
+The bug worth recording is what "in between" had to include. The first version
+only disqualified clock stoppages, which let this sequence count once as a fast
+break and again as a putback:
+
+```
+defensive rebound -> miss -> offensive rebound -> putback     (inside 7s)
+```
+
+402 shots matched it. A possession that survives a miss is a second-chance
+possession by definition and therefore not also a transition one, so an
+offensive rebound now ends the break. Only two players had visibly impossible
+totals — more derived points than points — which is why
+`assert_derived_points_within_total` exists rather than a spot check.
+
+```
+                       fast break    putback
+U18 AmeriCup              18.8%        6.4%
+U17 World Cup             14.6%        6.1%
+Olympic Pre-Qualifying    13.9%        4.3%
+WC Qualifying Türkiye     11.1%        4.4%
+```
+
+## Test fixtures and the phantom tournament
+
+`tests/seed_fixtures.py` writes into the same `raw.raw_games` the live ingest
+uses, and the rows used to be indistinguishable. One fixture — 128116, JPN v
+MLI — is from the senior Women's World Cup, which this project does not follow,
+so it rolled up as a fifth competition with its own two-team standings table and
+twenty-four "tournament leaders", all from a single game. The dashboard hid it
+behind `having count(*) > 1`, a guess that would equally have hidden a real
+tournament on its opening day.
+
+Rows now carry `is_fixture`, and models read raw through the `latest_games()`
+macro, which drops fixtures and *then* picks the newest remaining fetch per
+game. That order is the whole reason it is a macro: a game can hold both a live
+row and a fixture row, and picking newest-first would sometimes hand back the
+fixture and lose a real game. CI, where the fixtures are the entire dataset,
+passes `--vars '{include_fixtures: true}'`.
 
 ## Backfills
 
