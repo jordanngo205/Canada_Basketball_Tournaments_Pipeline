@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import logging
 import os
+import re
 from pathlib import Path
 
 from ingest.fiba import BASE, fetch, find_nodes, rsc_payloads, undefined_to_none
@@ -18,6 +19,39 @@ EVENTS_URL = f"{BASE}/en/events"
 CONFIG_PATH = Path(os.environ.get("EVENTS_CONFIG", "config/events.yml"))
 SCHEDULE_KEYS = frozenset({"gameId", "teamA", "teamB"})
 EVENT_KEYS = frozenset({"slug", "fibaOfficialName"})
+
+# FIBA's event index carries `gender`, `fibaGender` and `genderFilter` fields
+# and leaves all three as `$undefined` on every one of the 139 events it
+# publishes. They are not optional-but-usually-there; they are never populated.
+# So the programme has to come from the naming convention, which is that a
+# women's event says so and a men's event says nothing:
+#
+#     fiba-womens-eurobasket-2027-qualifiers          women's
+#     fiba-eurobasket-2029-pre-qualifiers             men's
+#     fiba-u18-womens-eurobasket-2026-division-b      women's
+#     fiba-basketball-world-cup-2027-americas-qualifiers   men's
+#
+# Checked against the official name on all 139 events currently indexed: zero
+# disagreements. That's good enough to filter on, but it is a convention rather
+# than a field, so `programme: all` stays available and this is the one place
+# that needs changing if FIBA ever renames.
+WOMENS_SLUG = re.compile(r"(?:^|-)womens?(?:-|$)")
+
+
+def event_programme(slug: str) -> str:
+    """'womens' or 'mens', inferred from the slug. See WOMENS_SLUG above."""
+    return "womens" if WOMENS_SLUG.search(slug or "") else "mens"
+
+
+def wanted_programme(slug: str, programme: str | None) -> bool:
+    """Whether `slug` belongs to the programme being followed.
+
+    `programme` of None or 'all' keeps everything, which is what the men's and
+    women's sides of a national team both being interesting looks like.
+    """
+    if not programme or programme == "all":
+        return True
+    return event_programme(slug) == programme
 
 
 def list_events() -> list[dict]:
@@ -136,6 +170,7 @@ def events_for_team(
     since: str | None = None,
     until: str | None = None,
     disciplines: tuple[str, ...] = ("gdap",),
+    programme: str | None = None,
 ) -> list[dict]:
     """Events the team appears in, within a date window.
 
@@ -145,11 +180,19 @@ def events_for_team(
 
     `disciplines` filters on FIBA's own source tag; 'gdap' is 5x5. Pass an
     empty tuple to include 3x3 and everything else.
+
+    `programme` is 'womens', 'mens' or None for both. It is applied before the
+    per-event fetch, so narrowing it makes discovery cheaper as well as
+    narrower — Canada fields both a men's and a women's senior team, and the
+    men's World Cup qualifiers alone are 60 games.
     """
     team_code = team_code.upper()
     candidates = []
     for event in list_events():
         if disciplines and event["discipline"] not in disciplines:
+            continue
+        # Cheapest filter first: this one is free, event_teams() is a fetch.
+        if not wanted_programme(event["slug"], programme):
             continue
         # An event with no end date hasn't been scheduled properly; skip it
         # rather than fetch a page that won't have a game list.
@@ -203,7 +246,19 @@ def select_events(config: dict | None = None) -> list[str]:
     stay up, so requiring it to be discoverable would quietly drop it.
     """
     cfg = config or load_config()
-    slugs = list(dict.fromkeys(cfg.get("pinned") or []))
+    programme = cfg.get("programme")
+
+    # Pinned entries are filtered on programme as well. A pin says "keep
+    # ingesting this even once FIBA drops it from the index", not "ignore what
+    # this project is about" — so the two settings can't contradict each other.
+    pinned = list(dict.fromkeys(cfg.get("pinned") or []))
+    slugs = [s for s in pinned if wanted_programme(s, programme)]
+    if len(slugs) != len(pinned):
+        dropped = [s for s in pinned if s not in slugs]
+        log.warning(
+            "%d pinned event(s) are not the %s programme, skipping: %s",
+            len(dropped), programme, ", ".join(dropped),
+        )
     log.info("%d pinned event(s)", len(slugs))
 
     discover = cfg.get("discover") or {}
@@ -213,6 +268,7 @@ def select_events(config: dict | None = None) -> list[str]:
             since=discover.get("since"),
             until=discover.get("until"),
             disciplines=tuple(discover.get("disciplines") or ()),
+            programme=programme,
         )
         new = [e["slug"] for e in found if e["slug"] not in slugs]
         log.info("discovery added %d event(s): %s", len(new), ", ".join(new) or "none")

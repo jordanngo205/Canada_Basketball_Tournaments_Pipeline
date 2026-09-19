@@ -11,6 +11,18 @@
 
 team: CAN
 
+# Which programme this project follows. 'womens', 'mens', or 'all'.
+#
+# Canada fields both, and discovery found both: the men's FIBA Basketball World
+# Cup 2027 Americas Qualifiers came in on its own and brought 60 games and the
+# senior men's roster with it. That's real data and the pipeline handled it
+# fine, but the dashboard is the women's programme, so the scope belongs in
+# config rather than in whatever happened to be on FIBA's index that day.
+#
+# FIBA publishes no gender field — see event_programme() in ingest/discover.py
+# for why this is inferred from the slug.
+programme: womens
+
 pinned:
   - fiba-womens-olympic-pre-qualifying-tournament-2026-guadalajara-mexico
   - fiba-u17-womens-basketball-world-cup-2026
