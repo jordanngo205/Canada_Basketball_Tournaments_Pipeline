@@ -10,7 +10,7 @@ with games as (
         game_id,
         payload,
         payload -> 'gameDetails' -> 'c' as teams
-    from {{ source('raw', 'latest_games') }}
+    from {{ latest_games() }}
 
 ),
 

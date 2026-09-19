@@ -19,8 +19,22 @@ CREATE TABLE IF NOT EXISTS raw.raw_games (
     source_url   text        NOT NULL,
     fetched_at   timestamptz NOT NULL DEFAULT now(),
     payload      jsonb       NOT NULL,
+    -- Where the row came from. CI seeds committed fixtures into this same
+    -- table, and without a marker they are indistinguishable from a live
+    -- scrape: one of them (128116, JPN v MLI) belongs to a tournament the
+    -- pipeline does not otherwise follow, so it surfaced downstream as a
+    -- phantom fifth competition with its own standings table and its own
+    -- tournament leaders, built from a single game.
+    --
+    -- Defaulting to false means a live ingest needs no change and any row
+    -- written before this column existed is treated as live, which is correct.
+    is_fixture   boolean     NOT NULL DEFAULT false,
     PRIMARY KEY (game_id, fetched_at)
 );
+
+-- Added after the fact, so existing warehouses pick it up on the next apply.
+ALTER TABLE raw.raw_games
+    ADD COLUMN IF NOT EXISTS is_fixture boolean NOT NULL DEFAULT false;
 
 -- The common read pattern is "latest payload for this game", so index the
 -- descending fetch time alongside the id.
@@ -32,7 +46,7 @@ CREATE INDEX IF NOT EXISTS raw_games_game_id_fetched_idx
 -- downstream instead of duplicating it.
 CREATE OR REPLACE VIEW raw.latest_games AS
 SELECT DISTINCT ON (game_id)
-       game_id, source_url, fetched_at, payload
+       game_id, source_url, fetched_at, payload, is_fixture
 FROM   raw.raw_games
 ORDER  BY game_id, fetched_at DESC;
 

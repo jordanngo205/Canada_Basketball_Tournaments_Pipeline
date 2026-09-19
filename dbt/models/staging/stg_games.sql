@@ -11,7 +11,7 @@ with source as (
         source_url,
         fetched_at,
         payload
-    from {{ source('raw', 'latest_games') }}
+    from {{ latest_games() }}
 
 ),
 

@@ -12,7 +12,7 @@ with source as (
     select
         game_id,
         payload -> 'playByPlay' -> 'items' as periods
-    from {{ source('raw', 'latest_games') }}
+    from {{ latest_games() }}
 
 ),
 

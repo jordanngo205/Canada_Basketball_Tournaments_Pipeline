@@ -8,7 +8,7 @@ with games as (
     select
         game_id,
         payload -> 'gameDetails' -> 'c' as teams
-    from {{ source('raw', 'latest_games') }}
+    from {{ latest_games() }}
 
 ),
 

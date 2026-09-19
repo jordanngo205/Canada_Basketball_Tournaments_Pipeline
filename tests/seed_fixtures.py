@@ -43,9 +43,10 @@ def load() -> int:
                 cur.execute(
                     """
                     INSERT INTO raw.raw_games
-                        (game_id, source_url, fetched_at, payload)
-                    VALUES (%s, %s, %s, %s)
-                    ON CONFLICT (game_id, fetched_at) DO NOTHING
+                        (game_id, source_url, fetched_at, payload, is_fixture)
+                    VALUES (%s, %s, %s, %s, true)
+                    ON CONFLICT (game_id, fetched_at)
+                    DO UPDATE SET is_fixture = true
                     """,
                     (
                         rec["game_id"],

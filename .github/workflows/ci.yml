@@ -73,8 +73,13 @@ jobs:
       - name: dbt build
         # `build` interleaves models and their tests, so a model that fails its
         # test never becomes the input to the model below it.
+        #
+        # include_fixtures: the seeded fixtures are flagged is_fixture at the
+        # raw layer so they can't pollute the real warehouse, and models filter
+        # them out by default. Here they are the entire dataset, so the filter
+        # has to be switched off or dbt builds against nothing.
         working-directory: dbt
-        run: dbt build --profiles-dir .
+        run: "dbt build --profiles-dir . --vars '{include_fixtures: true}'"
 
       - name: Export marts
         run: python -m reports.export_marts

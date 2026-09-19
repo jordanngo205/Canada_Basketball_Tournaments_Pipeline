@@ -11,7 +11,7 @@ with source as (
     select
         game_id,
         payload -> 'gameDetails' -> 'quartersScores' as quarters
-    from {{ source('raw', 'latest_games') }}
+    from {{ latest_games() }}
 
 ),
 

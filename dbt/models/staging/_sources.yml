@@ -6,11 +6,28 @@ sources:
     schema: raw
     description: FIBA payloads exactly as served. Never edited, only appended to.
     tables:
+      - name: raw_games
+        description: >
+          Every fetch ever stored, keyed on (game_id, fetched_at). Models do not
+          read this directly — they go through the latest_games() macro, which
+          drops CI's seeded fixture rows and then picks the newest remaining
+          fetch per game. That order matters: a game can hold both a live row
+          and a fixture row, and picking newest-first would sometimes hand back
+          the fixture.
+        columns:
+          - name: game_id
+            tests: [not_null]
+          - name: payload
+            tests: [not_null]
+          - name: is_fixture
+            description: Row was seeded by tests/seed_fixtures.py, not scraped.
+            tests: [not_null]
+
       - name: latest_games
         description: >
-          One row per game — the most recent fetch. Models read this rather
-          than raw_games so that re-ingesting a game to pick up a correction
-          replaces it downstream instead of duplicating it.
+          One row per game — the most recent fetch, fixtures included. Kept for
+          ad-hoc querying and for anything that genuinely wants "whatever we
+          last stored"; the models use the latest_games() macro instead.
         columns:
           - name: game_id
             tests: [unique, not_null]
