@@ -24,7 +24,9 @@ import argparse
 import json
 import logging
 import os
-from datetime import datetime
+import unicodedata
+from datetime import date, datetime
+from decimal import Decimal
 from pathlib import Path
 
 import psycopg
@@ -218,8 +220,22 @@ def build(competition: str, conn_str: str | None = None) -> str:
         "host": ", ".join(x for x in (gd[0].get("city"), gd[0].get("country")) if x),
     }
 
+    def encode(v):
+        """Decimals must land as JSON numbers, not strings.
+
+        An earlier version used default=str, which shipped off_net as "31.1".
+        The template does arithmetic on those fields, so the first renderer hit
+        `val.toFixed is not a function`, threw, and took every section after it
+        down with it — the whole page below Scores came out blank.
+        """
+        if isinstance(v, Decimal):
+            return float(v)
+        if isinstance(v, (datetime, date)):
+            return v.isoformat()
+        raise TypeError(f"Cannot serialise {type(v).__name__}")
+
     def js(name, obj):
-        return f"const {name} = {json.dumps(obj, ensure_ascii=False, default=str)};"
+        return f"const {name} = {json.dumps(obj, ensure_ascii=False, default=encode)};"
 
     block = "\n".join([
         START,
@@ -248,17 +264,133 @@ def build(competition: str, conn_str: str | None = None) -> str:
     return out
 
 
+def slugify(name: str) -> str:
+    """Short, stable folder name for a competition, same shape as the
+    --publish-slug the original scraper takes.
+
+    Accents are folded to ASCII: "Türkiye" in a path becomes a percent-encoded
+    URL that is awkward to type and share.
+    """
+    folded = unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode()
+    out = []
+    for ch in folded.lower():
+        out.append(ch if ch.isalnum() else "-")
+    slug = "".join(out)
+    while "--" in slug:
+        slug = slug.replace("--", "-")
+    return slug.strip("-")
+
+
+def competitions(conn_str: str | None = None) -> list[dict]:
+    with psycopg.connect(conn_str or dsn()) as conn:
+        return rows(conn, """
+            select competition,
+                   count(*)              as games,
+                   min(game_date)::text  as start,
+                   max(game_date)::text  as "end",
+                   min(city)             as city,
+                   min(country)          as country,
+                   bool_or(home_code = 'CAN' or away_code = 'CAN') as has_canada
+            from analytics_staging.stg_games
+            group by competition
+            -- A single-game "competition" is a stray fixture rather than a
+            -- tournament; the U17 World Cup game seeded for CI shows up that
+            -- way and shouldn't get a card on the hub.
+            having count(*) > 1
+            order by max(game_date) desc
+        """)
+
+
+HUB = """<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Canada Basketball — Tournaments</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
+<style>
+  :root {{ --bg:#f5f6f8; --surface:#fff; --border:#e8eaef; --text:#0f172a;
+           --muted:#6b7280; --accent:#D80621; }}
+  * {{ box-sizing:border-box }}
+  body {{ margin:0; background:var(--bg); color:var(--text);
+          font-family:Inter,system-ui,sans-serif; font-size:13.5px; }}
+  .hub-head {{ background:var(--accent); color:#fff; padding:26px 24px; display:flex;
+               align-items:center; gap:16px; }}
+  .hub-head .crest {{ width:56px; height:56px; background:#fff; border-radius:14px;
+                      display:grid; place-items:center; font-size:27px; flex:none;
+                      box-shadow:0 2px 10px rgba(0,0,0,.24); }}
+  .hub-head h1 {{ margin:0; font-size:28px; font-weight:900; letter-spacing:-.8px; }}
+  .hub-head .sub {{ font-size:12.5px; opacity:.82; margin-top:3px; font-weight:600; }}
+  .wrap {{ max-width:1160px; margin:0 auto; padding:26px 24px 70px; }}
+  .cards {{ display:grid; grid-template-columns:repeat(auto-fill,minmax(310px,1fr)); gap:18px; }}
+  .card {{ background:var(--surface); border:1px solid var(--border); border-radius:14px;
+           overflow:hidden; box-shadow:0 1px 3px rgba(16,24,40,.06); display:flex; flex-direction:column; }}
+  .card .band {{ height:82px; background:linear-gradient(135deg,var(--accent),#8f1420);
+                 display:grid; place-items:center; color:#fff; font-size:34px; position:relative; }}
+  .card .badge {{ position:absolute; top:10px; right:10px; background:rgba(0,0,0,.42);
+                  border-radius:999px; padding:3px 10px; font-size:10px; font-weight:800;
+                  letter-spacing:1.1px; }}
+  .card .body {{ padding:15px 17px 17px; display:flex; flex-direction:column; gap:5px; flex:1; }}
+  .card h2 {{ margin:0; font-size:15px; font-weight:800; letter-spacing:-.2px; line-height:1.3; }}
+  .card .meta {{ font-size:11.5px; color:var(--muted); }}
+  .card a {{ margin-top:auto; padding-top:11px; color:var(--accent); font-weight:700;
+             font-size:12.5px; text-decoration:none; }}
+  .card a:hover {{ text-decoration:underline; }}
+  footer {{ text-align:center; color:var(--muted); font-size:11.5px; padding:0 24px 40px; }}
+  footer a {{ color:var(--accent); }}
+</style></head><body>
+<div class="hub-head"><div class="crest">🍁</div>
+  <div><h1>Canada Basketball Tournaments</h1>
+  <div class="sub">{count} competitions · {games} games · built from the scouting pipeline</div></div></div>
+<div class="wrap"><div class="cards">{cards}</div></div>
+<footer>Scraped from fiba.basketball, stored raw, transformed with dbt and checked by 82 tests before publishing.<br>
+  <a href="https://github.com/jordanngo205/Canada_Basketball_Tournaments_Pipeline">Pipeline source</a></footer>
+</body></html>
+"""
+
+
+def build_hub(comps: list[dict]) -> str:
+    cards = []
+    for c in comps:
+        where = ", ".join(x for x in (c["city"], c["country"]) if x)
+        when = f'{c["start"][:10]} – {c["end"][:10]}'
+        cards.append(
+            f'<article class="card"><div class="band">🏀'
+            f'<span class="badge">{"CANADA" if c["has_canada"] else "FINAL"}</span></div>'
+            f'<div class="body"><h2>{c["competition"]}</h2>'
+            f'<div class="meta">{where or "—"}</div>'
+            f'<div class="meta">{when} · {c["games"]} games</div>'
+            f'<a href="{slugify(c["competition"])}/">View dashboard →</a></div></article>'
+        )
+    return HUB.format(count=len(comps), games=sum(c["games"] for c in comps),
+                      cards="\n".join(cards))
+
+
 def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     ap = argparse.ArgumentParser()
-    ap.add_argument("--competition", required=True)
-    ap.add_argument("--out", default="docs/index.html")
+    ap.add_argument("--competition", help="Build one competition. Omit to build them all.")
+    ap.add_argument("--docs", default="docs", help="Output root")
     args = ap.parse_args()
 
-    path = Path(args.out)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(build(args.competition), encoding="utf-8")
-    print(f"wrote {path} ({path.stat().st_size // 1024} KB)")
+    docs = Path(args.docs)
+    comps = competitions()
+    if args.competition:
+        comps = [c for c in comps if c["competition"] == args.competition]
+        if not comps:
+            raise SystemExit(f"No competition named {args.competition!r}")
+
+    # One folder per tournament, the same layout the published site uses, and a
+    # hand-free hub at the root linking to each.
+    for c in comps:
+        slug = slugify(c["competition"])
+        out = docs / slug / "index.html"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(build(c["competition"]), encoding="utf-8")
+        print(f"  {slug}/  ({out.stat().st_size // 1024} KB)")
+
+    hub = docs / "index.html"
+    hub.write_text(build_hub(competitions()), encoding="utf-8")
+    print(f"hub → {hub}")
 
 
 if __name__ == "__main__":

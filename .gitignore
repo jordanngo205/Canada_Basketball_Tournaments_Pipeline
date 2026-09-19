@@ -10,3 +10,6 @@ package-lock.yml
 
 # docs/data is the published copy and IS tracked - see the export step in the
 # DAG. Only the scratch out/ directory above is ignored.
+
+# Built per-tournament pages are committed (GitHub Pages serves them), but the
+# intermediate build output under out/ is not.

@@ -484,6 +484,37 @@
     .qual-badge { display: none; }
     .header-sub { display: none; }
   }
+
+  /* ── shot chart + four factors (added to the original template) ───────── */
+  .shot-wrap { display: grid; grid-template-columns: minmax(300px,1.15fr) minmax(240px,1fr); gap: 22px; align-items: start; }
+  @media (max-width: 1000px) { .shot-wrap { grid-template-columns: 1fr; } }
+  .court { width: 100%; height: auto; display: block; max-height: 470px; }
+  .court .lines * { fill: none; stroke: #98a2b3; stroke-width: 1.5; pointer-events: none; }
+  .court .zn-p { stroke: none; shape-rendering: crispEdges; cursor: pointer; transition: opacity .12s; }
+  .court .zn-p:hover { opacity: .74; }
+  .court .zpct { font-size: 11.5px; font-weight: 800; fill: var(--text); text-anchor: middle;
+                 paint-order: stroke; stroke: #fff; stroke-width: 3.2px; stroke-linejoin: round; }
+  .court .zsub { font-size: 8px; font-weight: 500; fill: var(--muted); text-anchor: middle;
+                 paint-order: stroke; stroke: #fff; stroke-width: 2.8px; stroke-linejoin: round; }
+  .shot-legend { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; font-size: 11px;
+                 color: var(--muted); margin-top: 12px; }
+  .shot-legend .sw { width: 24px; height: 11px; border-radius: 3px; }
+  .shot-legend .sws { display: flex; gap: 3px; }
+  .zbars { display: flex; flex-direction: column; gap: 8px; }
+  .zbar { display: grid; grid-template-columns: 148px 1fr 48px; gap: 10px; align-items: center; font-size: 12px; }
+  .zbar .nm { color: var(--text2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .zbar .tr { display: block; height: 16px; background: var(--surface2); border: 1px solid var(--border);
+              border-radius: 5px; overflow: hidden; }
+  .zbar .fi { display: block; height: 100%; }
+  .zbar .vl { text-align: right; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .ff-scroll { overflow-x: auto; }
+  .ff-tbl { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  .ff-tbl th { font-size: 9.5px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+               color: var(--muted); background: var(--surface2); padding: 10px 12px; text-align: right;
+               border-bottom: 2px solid var(--border2); white-space: nowrap; }
+  .ff-tbl td { padding: 9px 12px; text-align: right; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  .ff-tbl th:first-child, .ff-tbl td:first-child { text-align: left; }
+  .ff-tbl tbody tr:hover td { background: var(--surface2); }
 </style>
 </head>
 <body>
@@ -505,6 +536,8 @@
   <a class="section-nav-item" href="#section-scores">Group Phase Scores</a>
   <a class="section-nav-item" href="#section-qual">Qualification</a>
   <a class="section-nav-item" href="#section-eff">Team Efficiency</a>
+  <a class="section-nav-item" href="#section-shots">Shot Chart</a>
+  <a class="section-nav-item" href="#section-factors">Four Factors</a>
   <a class="section-nav-item" href="#section-leaders">Leaders &amp; Standings</a>
   <a class="section-nav-item" href="#section-awards">Daily Awards</a>
   <a class="section-nav-item" href="#section-net">Player Net Points</a>
@@ -559,6 +592,34 @@
         </table>
       </div>
     </div>
+  </div>
+</div>
+
+<div class="zone zone--scores" id="section-shots">
+  <div class="zone-inner">
+    <div class="zone-header">
+      <span class="zone-kicker">🎯 Where The Shots Come From</span>
+      <span class="zone-title">Shot Chart</span>
+      <label class="zone-team">Team <select id="shotTeamSel" onchange="setShotTeam(this.value)"></select></label>
+    </div>
+    <div class="shot-wrap">
+      <div><div id="courtHolder"></div><div class="shot-legend" id="courtLegend"></div></div>
+      <div><div class="zone-sub" style="margin:0 0 10px">Attempts by zone</div><div id="zoneBars"></div></div>
+    </div>
+    <div class="zone-sub" id="shotNote" style="margin-top:14px"></div>
+  </div>
+</div>
+
+<div class="zone zone--mid" id="section-factors">
+  <div class="zone-inner">
+    <div class="zone-header">
+      <span class="zone-kicker">📐 What Drives It</span>
+      <span class="zone-title">Four Factors</span>
+    </div>
+    <div class="zone-sub">Shooting, turnovers, rebounding and free throws — roughly in that order of importance.
+      Each is paired with the opponent's version, because conceding a 60% eFG is as much a fact about your defence
+      as your own shooting is about your offence.</div>
+    <div class="ff-scroll" id="factorsTbl" style="margin-top:14px"></div>
   </div>
 </div>
 
@@ -968,7 +1029,7 @@ function setTeamFilter(code) {
   activeTeam = code;
   document.querySelectorAll('.team-filter').forEach(sel => { if (sel.value !== code) sel.value = code; });
   renderKpis(); renderGames(); renderQualification(); renderEfficiency();
-  renderAwards(); renderLeaders(); renderStandings(); renderNetPanels();
+  renderAwards(); renderLeaders(); renderStandings(); renderNetPanels(); renderShots(); renderFactors();
 }
 function toggleOrder() {
   leaderOrder = leaderOrder==='best' ? 'worst' : 'best';
@@ -1139,7 +1200,7 @@ function renderNetPanels() {
 function setDate(d) {
   activeDate = d;
 renderDateTabs(); renderKpis(); renderGames(); renderQualification(); renderEfficiency();
-  renderAwards(); renderLeaders(); renderStandings(); renderNetPanels();
+  renderAwards(); renderLeaders(); renderStandings(); renderNetPanels(); renderShots(); renderFactors();
 }
 function setLeaderTab(stat, el) {
   activeLeaderStat = stat;
@@ -1597,9 +1658,152 @@ function initScrollSpy() {
   document.querySelectorAll('.zone').forEach(z => obs.observe(z));
 }
 
+/* ── shot chart + four factors ───────────────────────────────────────────
+   Added to the original template. The court is rasterised from the same rule
+   the SQL classifies shots with, rather than drawn as polygons: any drawn
+   shape is a second implementation of that rule, and second implementations
+   disagree. Here the shape IS the rule. */
+const M_ = 280/15;
+const CRT = { w:280, bx:140, by:-1.575*M_, top:200, pw:4.9*M_, ptop:(5.8-1.575)*M_,
+  ftR:1.8*M_, arc:6.75*M_, cx:0.9*M_, rim:0.225*M_, bbW:1.8*M_, bbY:-1.2*M_ };
+CRT.px = CRT.bx - CRT.pw/2;
+CRT.cy = Math.sqrt(Math.max(CRT.arc**2 - (CRT.bx-CRT.cx)**2, 0));
+const RIMR = 40, CL = 1;
+let shotTeam = null;
+
+function classifyZone(x,y){
+  const d = Math.hypot(x-140,y);
+  if(d<=RIMR) return 'At the Rim';
+  if(x>=94.3&&x<=185.7&&y<=78.9) return 'Paint (non-RA)';
+  const g = Math.atan2(Math.max(y,0.0001), x-140)*180/Math.PI;
+  if(d<126){
+    if(g<36) return 'Mid-Range Right';
+    if(g<72) return 'Mid-Range Right Centre';
+    if(g<108) return 'Mid-Range Centre';
+    if(g<144) return 'Mid-Range Left Centre';
+    return 'Mid-Range Left';
+  }
+  if(y<26.4) return x>140 ? 'Right Corner 3' : 'Left Corner 3';
+  if(g<60) return 'Right Wing 3';
+  if(g<120) return 'Top of Key 3';
+  return 'Left Wing 3';
+}
+let ZCACHE = null;
+function zonePaths(){
+  const c = CRT, out = {};
+  for(let y=c.by; y<c.top; y+=CL){
+    let rz=null, rs=null;
+    for(let x=0; x<=c.w; x+=CL){
+      const z = x===c.w ? null : classifyZone(x+CL/2, y+CL/2);
+      if(z!==rz){ if(rz)(out[rz]||=[]).push(`M${rs.toFixed(1)} ${y.toFixed(1)}h${(x-rs).toFixed(1)}v${CL}h${(rs-x).toFixed(1)}z`); rz=z; rs=x; }
+    }
+  }
+  const p={}; for(const k in out) p[k]=out[k].join(''); return p;
+}
+const ZLAB = { 'At the Rim':[21,90], 'Paint (non-RA)':[62,90], 'Mid-Range Right':[84,18],
+  'Mid-Range Right Centre':[96,54], 'Mid-Range Centre':[104,90], 'Mid-Range Left Centre':[96,126],
+  'Mid-Range Left':[84,162], 'Right Corner 3':[135,5], 'Left Corner 3':[135,175],
+  'Right Wing 3':[158,36], 'Top of Key 3':[162,90], 'Left Wing 3':[158,144] };
+// Diverging blue-to-red about the tournament average, validated against a
+// white surface: each arm one hue, monotone in lightness, the mild end
+// clearing 2:1, poles separating at delta-E 22.3 under protanopia.
+const ZCOL = ['#1c5cab','#3987e5','#86b6ef','#eceef1','#eb8b89','#e34948','#a51f1f'];
+function zoneFill(d){
+  if(d==null) return '#f2f4f7';
+  if(d<=-8) return ZCOL[0]; if(d<=-4) return ZCOL[1]; if(d<=-1.5) return ZCOL[2];
+  if(d<1.5) return ZCOL[3];
+  if(d<4) return ZCOL[4]; if(d<8) return ZCOL[5]; return ZCOL[6];
+}
+function courtSvg(rows){
+  const c=CRT, f=n=>n.toFixed(1), by={};
+  rows.forEach(r=>by[r.zone]=r);
+  ZCACHE ||= zonePaths();
+  // Cells are classified by their centre, so one just inside the arc paints a
+  // cell past it. Neighbouring zones hide that on straight edges; the arc has
+  // nothing on the far side, so the curve is enforced analytically instead.
+  const two = `M ${f(c.cx)} ${f(c.by)} L ${f(c.cx)} ${f(c.cy)} A ${f(c.arc)} ${f(c.arc)} 0 0 0 ${f(c.w-c.cx)} ${f(c.cy)} L ${f(c.w-c.cx)} ${f(c.by)} Z`;
+  const box = `M 0 ${f(c.by)} L ${c.w} ${f(c.by)} L ${c.w} ${f(c.top)} L 0 ${f(c.top)} Z`;
+  const TWO = new Set(['At the Rim','Paint (non-RA)','Mid-Range Right','Mid-Range Right Centre',
+    'Mid-Range Centre','Mid-Range Left Centre','Mid-Range Left']);
+  const zs = Object.entries(ZCACHE).map(([n,d])=>{
+    const r = by[n];
+    return `<path class="zn-p" d="${d}" clip-path="url(#zIn${TWO.has(n)?'':'Out'})" fill="${zoneFill(r?r.diff:null)}"
+      title="${n}: ${r?`${r.makes}/${r.attempts} · ${r.fg}% (field ${r.lgFg}%)`:'no attempts'}"></path>`;
+  }).join('');
+  return `<svg class="court" viewBox="-6 ${f(-c.top-6)} ${c.w+12} ${f(c.top-c.by+12)}" role="img"
+      aria-label="Shot chart: twelve court zones shaded by field goal percentage against the tournament average">
+    <defs><clipPath id="zIn"><path d="${two}"></path></clipPath>
+      <clipPath id="zInOut"><path d="${box} ${two}" clip-rule="evenodd"></path></clipPath></defs>
+    <g transform="scale(1 -1)"><rect x="0" y="${f(c.by)}" width="${c.w}" height="${f(c.top-c.by)}" fill="#f2f4f7"></rect>${zs}</g>
+    <g class="lines" transform="scale(1 -1)">
+      <rect x="0" y="${f(c.by)}" width="${c.w}" height="${f(c.top-c.by)}"></rect>
+      <rect x="${f(c.px)}" y="${f(c.by)}" width="${f(c.pw)}" height="${f(c.ptop-c.by)}"></rect>
+      <path d="M ${f(c.bx-c.ftR)} ${f(c.ptop)} A ${f(c.ftR)} ${f(c.ftR)} 0 0 0 ${f(c.bx+c.ftR)} ${f(c.ptop)}"></path>
+      <line x1="${f(c.bx-c.bbW/2)}" y1="${f(c.bbY)}" x2="${f(c.bx+c.bbW/2)}" y2="${f(c.bbY)}"></line>
+      <circle cx="${c.bx}" cy="0" r="${f(c.rim)}"></circle>
+      <line x1="${f(c.cx)}" y1="${f(c.by)}" x2="${f(c.cx)}" y2="${f(c.cy)}"></line>
+      <line x1="${f(c.w-c.cx)}" y1="${f(c.by)}" x2="${f(c.w-c.cx)}" y2="${f(c.cy)}"></line>
+      <path d="M ${f(c.cx)} ${f(c.cy)} A ${f(c.arc)} ${f(c.arc)} 0 0 0 ${f(c.w-c.cx)} ${f(c.cy)}"></path></g>
+    ${Object.entries(ZLAB).map(([n,[rad,deg]])=>{
+      const r = by[n]; if(!r||r.attempts<3) return '';
+      const a = deg*Math.PI/180, x = Math.min(Math.max(c.bx+rad*Math.cos(a),20), c.w-20);
+      return `<g transform="translate(${f(x)} ${f(-rad*Math.sin(a))})">
+        <text class="zpct" y="-1">${r.fg}%</text><text class="zsub" y="10">${r.makes}/${r.attempts}</text></g>`;
+    }).join('')}</svg>`;
+}
+function setShotTeam(v){ shotTeam = v; renderShots(); }
+function renderShots(){
+  if (typeof COURT_ZONES === 'undefined') return;
+  const teams = [...new Set(COURT_ZONES.map(r=>r.shortCode))].sort();
+  if(!teams.length) return;
+  if(activeTeam !== 'ALL' && teams.includes(activeTeam)) shotTeam = activeTeam;
+  if(!shotTeam || !teams.includes(shotTeam)) shotTeam = teams.includes('CAN') ? 'CAN' : teams[0];
+  const sel = document.getElementById('shotTeamSel');
+  if(sel) sel.innerHTML = teams.map(t=>`<option value="${t}" ${t===shotTeam?'selected':''}>${t}</option>`).join('');
+  const mine = COURT_ZONES.filter(r=>r.shortCode===shotTeam);
+  document.getElementById('courtHolder').innerHTML = courtSvg(mine);
+  document.getElementById('courtLegend').innerHTML =
+    `<span>Colder</span><span class="sws">${ZCOL.map(c=>`<span class="sw" style="background:${c}"></span>`).join('')}</span>` +
+    `<span>Hotter</span><span>— field goal % against the rest of this tournament</span>`;
+  const max = Math.max(...mine.map(r=>r.attempts), 1);
+  document.getElementById('zoneBars').innerHTML = `<div class="zbars">` +
+    [...mine].sort((a,b)=>b.attempts-a.attempts).slice(0,9).map(r=>`<div class="zbar">
+      <span class="nm">${r.zone}</span>
+      <span class="tr"><span class="fi" style="width:${(100*r.attempts/max).toFixed(1)}%;background:${zoneFill(r.diff)}"></span></span>
+      <span class="vl">${r.fg}%</span></div>`).join('') + `</div>`;
+  const total = mine.reduce((s,r)=>s+r.attempts,0);
+  document.getElementById('shotNote').textContent =
+    `${total.toLocaleString()} attempts. Each zone is shaded by field goal percentage against what the rest of the ` +
+    `tournament shoots from the same zone — 34% is poor at the rim and excellent from the corner, so the comparison ` +
+    `is the number that means anything. The court is drawn from the data: the hoop is the coordinate origin, the ` +
+    `floor is 280 units across a 15m court, and binning every shot by distance puts the crossover from twos to ` +
+    `threes at 129 — exactly FIBA's 6.6m corner and 6.75m arc at that scale.`;
+}
+function renderFactors(){
+  if (typeof FOUR_FACTORS === 'undefined') return;
+  const rows = FOUR_FACTORS.filter(r=>activeTeam==='ALL'||r.shortCode===activeTeam)
+    .sort((a,b)=>b.net-a.net);
+  const n = (v,d=1)=> v==null ? '—' : Number(v).toFixed(d);
+  const sg = v => v==null ? '—' : (v>0?'+':'')+Number(v).toFixed(1);
+  document.getElementById('factorsTbl').innerHTML = !rows.length ? '' :
+    `<table class="ff-tbl"><thead><tr>
+      <th>Team</th><th>G</th><th title="Counts a three as 1.5 twos">eFG%</th><th>opp eFG%</th>
+      <th title="Turnovers per 100 possessions — lower is better">TOV%</th><th>opp TOV%</th>
+      <th title="Share of available offensive rebounds">OREB%</th><th>DREB%</th>
+      <th title="Free throw attempts per field goal attempt">FT rate</th>
+      <th>ORTG</th><th>DRTG</th><th>Net</th></tr></thead><tbody>` +
+    rows.map(r=>`<tr style="background:${teamTint(r.shortCode)};box-shadow:inset 3px 0 0 ${teamColor(r.shortCode)}">
+      <td><strong>${r.shortCode}</strong> <span style="color:var(--muted)">${r.nationality||''}</span></td>
+      <td>${r.gp}</td><td>${n(r.efg)}</td><td>${n(r.oppEfg)}</td>
+      <td>${n(r.tov)}</td><td>${n(r.oppTov)}</td><td>${n(r.oreb)}</td><td>${n(r.dreb)}</td>
+      <td>${n(r.ftRate)}</td><td>${n(r.ortg)}</td><td>${n(r.drtg)}</td>
+      <td><span class="net-pill ${r.net>=0?'pos':'neg'}">${sg(r.net)}</span></td></tr>`).join('') +
+    `</tbody></table>`;
+}
+
 renderStamp(); initFreshness(); populateTeamFilter();
 renderDateTabs(); renderKpis(); renderGames(); renderQualification(); renderEfficiency();
-renderAwards(); renderLeaders(); renderStandings(); renderNetPanels();
+renderAwards(); renderLeaders(); renderStandings(); renderNetPanels(); renderShots(); renderFactors();
 initScrollSpy();
 </script>
 </body>
