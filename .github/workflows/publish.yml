@@ -1,0 +1,89 @@
+name: publish
+
+# The unattended run. Scrapes whatever is new, rebuilds the marts, runs every
+# test, regenerates the site and commits it — which is what makes the page
+# update without anyone's laptop being awake.
+#
+# Airflow does this same sequence locally, with a square per tournament and
+# per-task retries, and it is the better thing to demo. It cannot run here:
+# Airflow needs a scheduler process that stays up, and an Actions runner exists
+# for a few minutes and then disappears. Both call the same functions in
+# ingest/ and reports/, so there is one implementation and two orchestrators.
+
+on:
+  schedule:
+    # Every three hours. Games finish a handful of times a day, so anything
+    # faster mostly re-reads pages that have not changed — and each run costs
+    # ~27 requests to FIBA just to discover events. The original scraper repo
+    # runs every 5 minutes because it checks one tournament; this one sweeps
+    # the whole calendar. Change the cron if a tournament needs tighter.
+    - cron: "0 */3 * * *"
+  workflow_dispatch:
+    inputs:
+      skip_ingest:
+        description: "Rebuild and republish from stored raw, no scraping"
+        type: boolean
+        default: false
+
+# Two runs must never overlap: they would fight over raw_games and could both
+# try to commit docs/. Queue rather than cancel — a half-finished ingest that
+# gets cancelled leaves nothing broken, but a cancelled dbt build can leave the
+# marts mid-rebuild.
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    timeout-minutes: 30
+
+    env:
+      WAREHOUSE_DSN: ${{ secrets.WAREHOUSE_DSN }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Fail early if the warehouse is not configured
+        # Without this the first failure is a psycopg error 200 lines into a
+        # log, which reads like a bug rather than a missing secret.
+        run: |
+          if [ -z "$WAREHOUSE_DSN" ]; then
+            echo "::error::WAREHOUSE_DSN secret is not set."
+            echo "Add it at Settings -> Secrets and variables -> Actions."
+            exit 1
+          fi
+
+      - name: Run the pipeline
+        # Applies the raw schema if the database is new, ingests, runs
+        # dbt build (models and tests interleaved), then writes docs/.
+        run: |
+          python -m scripts.run_pipeline \
+            --docs docs \
+            ${{ inputs.skip_ingest && '--skip-ingest' || '' }}
+
+      - name: Commit the rebuilt site
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A docs
+          if git diff --staged --quiet; then
+            echo "No change to publish."
+            exit 0
+          fi
+          git commit -m "Rebuild dashboard — $(date -u '+%Y-%m-%d %H:%M UTC')"
+          # Another run may have landed while this one was scraping. Rebase
+          # rather than force: docs/ is generated, so the newer build wins and
+          # nothing is lost either way.
+          git pull --rebase --autostash origin main
+          git push origin HEAD:main

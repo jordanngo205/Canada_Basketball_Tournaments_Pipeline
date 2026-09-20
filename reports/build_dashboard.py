@@ -416,32 +416,46 @@ def build_hub(comps: list[dict]) -> str:
 </style>''')
 
 
+def build_all(docs: Path, competition: str | None = None) -> list[str]:
+    """Write every tournament page plus the hub. Returns the slugs written.
+
+    Split out of main() so the scheduled runner can call it directly instead of
+    shelling out to this module — one less subprocess whose failure has to be
+    inferred from an exit code.
+    """
+    comps = competitions()
+    wanted = comps
+    if competition:
+        wanted = [c for c in comps if c["competition"] == competition]
+        if not wanted:
+            raise SystemExit(f"No competition named {competition!r}")
+
+    # One folder per tournament, the same layout the published site uses, and a
+    # hand-free hub at the root linking to each.
+    written = []
+    for c in wanted:
+        slug = slugify(c["competition"])
+        out = docs / slug / "index.html"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(build(c["competition"]), encoding="utf-8")
+        print(f"  {slug}/  ({out.stat().st_size // 1024} KB)")
+        written.append(slug)
+
+    # The hub always lists every competition, not just the one rebuilt, so a
+    # single-competition run cannot silently drop the others off the homepage.
+    hub = docs / "index.html"
+    hub.write_text(build_hub(comps), encoding="utf-8")
+    print(f"hub → {hub}")
+    return written
+
+
 def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     ap = argparse.ArgumentParser()
     ap.add_argument("--competition", help="Build one competition. Omit to build them all.")
     ap.add_argument("--docs", default="docs", help="Output root")
     args = ap.parse_args()
-
-    docs = Path(args.docs)
-    comps = competitions()
-    if args.competition:
-        comps = [c for c in comps if c["competition"] == args.competition]
-        if not comps:
-            raise SystemExit(f"No competition named {args.competition!r}")
-
-    # One folder per tournament, the same layout the published site uses, and a
-    # hand-free hub at the root linking to each.
-    for c in comps:
-        slug = slugify(c["competition"])
-        out = docs / slug / "index.html"
-        out.parent.mkdir(parents=True, exist_ok=True)
-        out.write_text(build(c["competition"]), encoding="utf-8")
-        print(f"  {slug}/  ({out.stat().st_size // 1024} KB)")
-
-    hub = docs / "index.html"
-    hub.write_text(build_hub(competitions()), encoding="utf-8")
-    print(f"hub → {hub}")
+    build_all(Path(args.docs), args.competition)
 
 
 if __name__ == "__main__":
