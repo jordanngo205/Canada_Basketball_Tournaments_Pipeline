@@ -2,7 +2,7 @@ version: 2
 
 sources:
   - name: raw
-    database: warehouse
+    database: "{{ env_var('POSTGRES_DB', 'warehouse') }}"
     schema: raw
     description: FIBA payloads exactly as served. Never edited, only appended to.
     tables:

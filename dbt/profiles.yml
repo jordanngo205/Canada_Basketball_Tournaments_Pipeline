@@ -1,5 +1,10 @@
-# Checked in because it holds no secrets: the DSN comes from the environment,
-# which is what the container and CI both set.
+# Checked in because it holds no secrets: every value comes from the
+# environment, which is what the container, CI and the scheduled run all set.
+#
+# The defaults are the local Docker warehouse, so `dbt build` with no env set
+# does the right thing on a laptop. A hosted Postgres (Neon, Supabase, RDS)
+# only needs POSTGRES_* pointed at it — nothing here is specific to running
+# in Docker.
 fiba_scouting:
   target: dev
   outputs:
@@ -9,6 +14,12 @@ fiba_scouting:
       port: "{{ env_var('POSTGRES_PORT', '5432') | int }}"
       user: "{{ env_var('POSTGRES_USER', 'fiba') }}"
       password: "{{ env_var('POSTGRES_PASSWORD', 'fiba') }}"
-      dbname: warehouse
+      # Hosted Postgres rarely lets you choose the database name — Neon hands
+      # you `neondb` — so this is settable rather than fixed.
+      dbname: "{{ env_var('POSTGRES_DB', 'warehouse') }}"
       schema: analytics
       threads: 4
+      # Local Docker speaks plaintext; every hosted provider requires TLS.
+      # `prefer` negotiates it where offered and falls back where it isn't, so
+      # one value covers both. Set POSTGRES_SSLMODE=require to insist.
+      sslmode: "{{ env_var('POSTGRES_SSLMODE', 'prefer') }}"
