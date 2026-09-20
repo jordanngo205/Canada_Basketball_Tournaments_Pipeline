@@ -248,10 +248,17 @@ def build(competition: str, conn_str: str | None = None) -> str:
         js("GAME_DETAILS", gd),
         js("ADV", adv),
         js("PLAYER_DATA", players),
-        # No qualification model yet, so the Qualification zone renders empty
-        # rather than showing a made-up cut line.
+        # QUALIFIERS is genuinely unused — renderQualification() never reads
+        # it, and the only mention left in the template is a comment. It ships
+        # as [] because the template's destructuring list still names it.
         js("QUALIFIERS", []),
-        js("QUALIFY_SPOTS", 0),
+        # This one matters. The board is built from GROUPS and the standings,
+        # both of which are real; the only thing it needs told is how many
+        # teams advance. Shipping 0 here was not "no cut line" — the template
+        # reads a falsy value as "use the default of 2", so the U17 World Cup
+        # (4 advance) and WC Qualifying Türkiye (3) were both drawing the line
+        # in the wrong place while looking perfectly plausible.
+        js("QUALIFY_SPOTS", QUALIFY_SPOTS.get(slugify(competition), DEFAULT_QUALIFY_SPOTS)),
         js("EVENT_META", meta),
         js("GENERATED_AT", datetime.now().astimezone().strftime("%Y-%m-%d %H:%M %Z")),
         js("FLAG_MAP", FLAG_MAP),
@@ -280,6 +287,24 @@ PUBLISHED_SLUGS = {
     "FIBA U17 Women's Basketball World Cup": "u17-world-cup-2026",
     "FIBA Women's Olympic Pre-Qualifying Tournament": "olympic-pre-qualifying-2026",
 }
+
+
+# How many teams advance from each group — the cut line on the Qualification
+# board. Ported from the --qualify-spots flag on the corresponding workflow in
+# the Canada-Basketball-Tournaments repo, which is the only place these were
+# ever written down. They are a property of the tournament's own format, not
+# anything derivable from the box scores, so they have to be stated somewhere.
+#
+# A tournament that isn't listed falls back to the template's own default of 2,
+# which is the common case but wrong for a four-group World Cup.
+QUALIFY_SPOTS = {
+    "olympic-pre-qualifying-2026": 2,
+    "u17-world-cup-2026": 4,
+    "u18-americup-2026": 2,
+    "wc-qualifying-istanbul-2026": 3,
+}
+
+DEFAULT_QUALIFY_SPOTS = 2
 
 
 def slugify(name: str) -> str:
