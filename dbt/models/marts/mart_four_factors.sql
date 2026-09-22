@@ -49,16 +49,78 @@ totals as (
     from games
     group by competition, team_id, team_code, team_name
 
+),
+
+-- The factors themselves, unrounded. The z-scores below are built on these,
+-- so rounding happens once, at the end.
+rates as (
+
+    select
+        *,
+        100.0 * (fgm + 0.5 * fg3m) / nullif(fga, 0)             as efg,
+        100.0 * oreb / nullif(oreb + opp_dreb, 0)               as orb,
+        100.0 * fta / nullif(fga, 0)                            as ftr,
+        -- Oliver's TOV%: turnovers per play, where a play is a shot, a trip
+        -- to the line or a turnover. Not per estimated possession — that
+        -- denominator nets out possessions extended by offensive rebounds,
+        -- which shrinks it and inflates the rate by three or four points.
+        -- Canada at the Olympic Pre-Qualifier is 16.9% this way, matching the
+        -- coaching staff's sheet; per possession it read 20.7%.
+        100.0 * tov / nullif(fga + 0.44 * fta + tov, 0)         as tovr,
+
+        100.0 * (opp_fgm + 0.5 * opp_fg3m) / nullif(opp_fga, 0) as opp_efg,
+        100.0 * opp_oreb / nullif(opp_oreb + dreb, 0)           as opp_orb,
+        100.0 * opp_fta / nullif(opp_fga, 0)                    as opp_ftr,
+        100.0 * opp_tov / nullif(opp_fga + 0.44 * opp_fta + opp_tov, 0) as opp_tovr
+    from totals
+
+),
+
+-- Each factor as a z-score within its own tournament, signed so that positive
+-- is always good: a low turnover rate scores above zero, and on defence every
+-- factor is the opponent's, so conceding less is what scores. Sample standard
+-- deviation, as a spreadsheet's STDEV does, so the numbers line up with the
+-- coaching staff's sheet.
+--
+-- The four are summed unweighted. Oliver's 40/25/20/15 weights are a claim
+-- about the NBA; with eight teams and a handful of games each, an equal vote
+-- is the more honest default.
+z as (
+
+    select
+        *,
+        (efg  - avg(efg)  over c) / nullif(stddev_samp(efg)  over c, 0) as z_efg,
+        (orb  - avg(orb)  over c) / nullif(stddev_samp(orb)  over c, 0) as z_orb,
+        (ftr  - avg(ftr)  over c) / nullif(stddev_samp(ftr)  over c, 0) as z_ftr,
+        (avg(tovr) over c - tovr) / nullif(stddev_samp(tovr) over c, 0) as z_tov,
+
+        (avg(opp_efg) over c - opp_efg) / nullif(stddev_samp(opp_efg) over c, 0) as z_opp_efg,
+        (avg(opp_orb) over c - opp_orb) / nullif(stddev_samp(opp_orb) over c, 0) as z_opp_orb,
+        (avg(opp_ftr) over c - opp_ftr) / nullif(stddev_samp(opp_ftr) over c, 0) as z_opp_ftr,
+        (opp_tovr - avg(opp_tovr) over c) / nullif(stddev_samp(opp_tovr) over c, 0) as z_opp_tov
+    from rates
+    window c as (partition by competition)
+
+),
+
+scored as (
+
+    select
+        *,
+        z_efg + z_orb + z_ftr + z_tov                     as z_off,
+        z_opp_efg + z_opp_orb + z_opp_ftr + z_opp_tov     as z_def
+    from z
+
 )
 
 select
-    competition,
-    team_id,
-    team_code,
-    team_name,
-    games,
-    wins,
-    losses,
+    s.competition,
+    s.team_id,
+    s.team_code,
+    s.team_name,
+    s.games,
+    s.wins,
+    s.losses,
 
     round(100.0 * pts / nullif(poss, 0), 1)                         as ortg,
     round(100.0 * opp_pts / nullif(opp_poss, 0), 1)                 as drtg,
@@ -67,36 +129,60 @@ select
     round(poss::numeric / nullif(games, 0), 1)                      as pace,
 
     -- 1. Shooting. Weighted about 40% of what decides games.
-    round(100.0 * (fgm + 0.5 * fg3m) / nullif(fga, 0), 1)           as efg_pct,
-    round(100.0 * (opp_fgm + 0.5 * opp_fg3m) / nullif(opp_fga, 0), 1) as opp_efg_pct,
+    round(efg, 1)                                                   as efg_pct,
+    round(opp_efg, 1)                                               as opp_efg_pct,
 
-    -- 2. Turnovers, as a share of possessions rather than a per-game count.
-    round(100.0 * tov / nullif(poss, 0), 1)                         as tov_pct,
-    round(100.0 * opp_tov / nullif(opp_poss, 0), 1)                 as opp_tov_pct,
+    -- 2. Turnovers, as a share of plays rather than a per-game count.
+    round(tovr, 1)                                                  as tov_pct,
+    round(opp_tovr, 1)                                              as opp_tov_pct,
 
     -- 3. Rebounding. Offensive boards as a share of the ones actually
     -- available, which is your misses — a team that misses more has more
     -- chances and a raw count would flatter them.
-    round(100.0 * oreb / nullif(oreb + opp_dreb, 0), 1)             as oreb_pct,
+    round(orb, 1)                                                   as oreb_pct,
     round(100.0 * dreb / nullif(dreb + opp_oreb, 0), 1)             as dreb_pct,
+    round(opp_orb, 1)                                               as opp_oreb_pct,
 
     -- 4. Free throws. FTA per FGA measures how often you get to the line at
     -- all; FTM per FGA folds in whether you convert. Both are reported since
     -- they answer different questions.
-    round(100.0 * fta / nullif(fga, 0), 1)                          as ft_rate,
+    round(ftr, 1)                                                   as ft_rate,
     round(100.0 * ftm / nullif(fga, 0), 1)                          as ft_made_rate,
-    round(100.0 * opp_fta / nullif(opp_fga, 0), 1)                  as opp_ft_rate,
+    round(opp_ftr, 1)                                               as opp_ft_rate,
+
+    -- Extra possessions: offensive boards plus turnovers forced, less the
+    -- same conceded, per game. Per game rather than a total because teams
+    -- here play three to seven games, and a total would rank a deep run.
+    round((oreb + opp_tov - opp_oreb - tov)::numeric / nullif(games, 0), 1)
+                                                                    as extra_poss_pg,
+
+    round(z_efg, 2)      as z_efg,
+    round(z_orb, 2)      as z_oreb,
+    round(z_ftr, 2)      as z_ft_rate,
+    round(z_tov, 2)      as z_tov,
+    round(z_opp_efg, 2)  as z_opp_efg,
+    round(z_opp_orb, 2)  as z_opp_oreb,
+    round(z_opp_ftr, 2)  as z_opp_ft_rate,
+    round(z_opp_tov, 2)  as z_opp_tov,
+    round(z_off, 2)          as z_off,
+    round(z_def, 2)          as z_def,
+    round(z_off + z_def, 2)  as z_total,
+
+    -- The projection: the whole field ordered by combined z-score, against
+    -- where each team actually finished.
+    rank() over (partition by s.competition order by z_off + z_def desc nulls last)
+                                                                    as proj_rank,
+    p.placement,
 
     -- Where a team sits on each factor within its own tournament. Rank is more
     -- readable than the raw rate when comparing across competitions of very
     -- different standard — a 48% eFG means something different at the U17s.
-    rank() over (partition by competition order by
-        (fgm + 0.5 * fg3m) / nullif(fga, 0) desc)                   as efg_rank,
-    rank() over (partition by competition order by
-        tov::numeric / nullif(poss, 0) asc)                         as tov_rank,
-    rank() over (partition by competition order by
-        oreb::numeric / nullif(oreb + opp_dreb, 0) desc)            as oreb_rank,
-    rank() over (partition by competition order by
-        fta::numeric / nullif(fga, 0) desc)                         as ft_rank
+    rank() over (partition by s.competition order by efg desc)     as efg_rank,
+    rank() over (partition by s.competition order by tovr asc)     as tov_rank,
+    rank() over (partition by s.competition order by orb desc)     as oreb_rank,
+    rank() over (partition by s.competition order by ftr desc)     as ft_rank
 
-from totals
+from scored s
+left join {{ ref('mart_final_placement') }} p
+  on  p.competition = s.competition
+ and  p.team_id     = s.team_id
