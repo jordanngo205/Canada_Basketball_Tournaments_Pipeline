@@ -60,6 +60,7 @@ Python or SQL. Only `out/` is mounted, since the host needs the JSON back.
 | `mart_team_efficiency` | team per game | 218 |
 | `mart_shot_zones` | team × zone per competition | 200 |
 | `mart_four_factors` | team per competition | 40 |
+| `mart_final_placement` | team per competition | 40 |
 | `stg_period_scores` | period per game | 439 |
 | `mart_standings` | team per group | 40 |
 | `int_shots` | one field goal attempt | 14,262 |

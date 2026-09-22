@@ -31,6 +31,7 @@ EXPORTS = {
     "analytics_staging.stg_games": "games.json",
     "analytics_staging.stg_period_scores": "period_scores.json",
     "analytics_marts.mart_four_factors": "four_factors.json",
+    "analytics_marts.mart_final_placement": "final_placement.json",
     "analytics_marts.mart_shot_zones": "shot_zones.json",
     "analytics_marts.mart_court_zones": "court_zones.json",
     "analytics_marts.mart_daily_awards": "daily_awards.json",
