@@ -1855,7 +1855,10 @@ function renderFactors(){
   // One end of the floor at a time by default: four factors and the matching
   // z-score sum, with the total and the ranking always alongside.
   const showOff = ffSide!=='def', showDef = ffSide!=='off';
-  const sums = [showOff&&['zOff','Off'], showDef&&['zDef','Def'], ['zTotal','Total']].filter(Boolean);
+  // The sums are z-scores, so they belong to the Z-scores view only; Values
+  // shows the raw factors and the ranking the sums produced.
+  const sums = ffMode!=='z' ? [] :
+    [showOff&&['zOff','Off'], showDef&&['zDef','Def'], ['zTotal','Total']].filter(Boolean);
   const rows = [...FOUR_FACTORS].sort((a,b)=>(a.projRank??99)-(b.projRank??99));
   const n = (v,d=1)=> v==null ? '—' : Number(v).toFixed(d);
   const sg = (v,d=2)=> v==null ? '—' : (v>0?'+':'')+Number(v).toFixed(d);
@@ -1871,7 +1874,7 @@ function renderFactors(){
   document.getElementById('factorsTbl').innerHTML =
     `<table class="ff-tbl"><thead>
       <tr class="grp"><th></th>${showOff?'<th class="gs" colspan="4">Offense</th>':''}${showDef?'<th class="gs" colspan="4">Defense</th>':''}
-        <th class="gs" colspan="${sums.length}">Z-score sums</th><th class="gs" colspan="${hasPlace?3:1}">Ranking</th></tr>
+        ${sums.length?`<th class="gs" colspan="${sums.length}">Z-score sums</th>`:''}<th class="gs" colspan="${hasPlace?3:1}">Ranking</th></tr>
       <tr><th>Team</th>${showOff?FF_COLS.map((c,i)=>th(c,i===0)).join(''):''}${showDef?FF_DEF.map((c,i)=>th(c,i===0)).join(''):''}
         ${sums.map(([,l],i)=>`<th class="${i===0?'gs':''}">${l}</th>`).join('')}
         <th class="gs" title="Order by total z-score">Proj.</th>
