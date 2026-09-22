@@ -198,10 +198,15 @@ where competition = %s
 
 FOUR_FACTORS_SQL = """
 select team_code as "shortCode", team_name as nationality, games as gp,
-       efg_pct as "efg", opp_efg_pct as "oppEfg",
-       tov_pct as "tov", opp_tov_pct as "oppTov",
-       oreb_pct as "oreb", dreb_pct as "dreb",
-       ft_rate as "ftRate", ortg, drtg, net_rtg as net
+       efg_pct as "efg", oreb_pct as "oreb", ft_rate as "ftRate", tov_pct as "tov",
+       opp_efg_pct as "oppEfg", opp_oreb_pct as "oppOreb",
+       opp_ft_rate as "oppFtRate", opp_tov_pct as "oppTov",
+       z_efg, z_oreb, z_ft_rate, z_tov,
+       z_opp_efg, z_opp_oreb, z_opp_ft_rate, z_opp_tov,
+       z_off as "zOff", z_def as "zDef", z_total as "zTotal",
+       proj_rank as "projRank", placement,
+       extra_poss_pg as "extraPoss",
+       ortg, drtg, net_rtg as net
 from analytics_marts.mart_four_factors
 where competition = %s
 """
