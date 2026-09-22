@@ -542,8 +542,9 @@
   .poss-chart .dot { stroke: #fff; stroke-width: 2; }
   .poss-chart .lbl { font-size: 12px; font-weight: 800; fill: var(--text);
                      paint-order: stroke; stroke: #fff; stroke-width: 3.5px; stroke-linejoin: round; }
-  .poss-chart .flag-edge { fill: none; stroke: rgba(15,23,42,.25); stroke-width: 1; }
-  .poss-chart g.pt:hover .dot, .poss-chart g.pt:hover .flag-edge { stroke: var(--text); stroke-width: 1.5; }
+  .poss-chart .flag-mark { display: flex; line-height: 1; }
+  .poss-chart .flag-mark .fi { width: 100% !important; }
+  .poss-chart g.pt:hover .dot { stroke: var(--text); }
 </style>
 </head>
 <body>
@@ -1942,15 +1943,14 @@ function renderPossChart(){
     <text class="alab" transform="translate(16 ${(T+H-B)/2}) rotate(-90)" text-anchor="middle">Effective FG%</text>
     ${pts.map(r=>{
       const me = r.shortCode===activeTeam || (activeTeam==='ALL' && r.shortCode==='CAN');
-      // The team's flag is the mark, centred on its point, from the same
-      // flag-icons package the tables use. A team with no mapped flag falls
-      // back to a dot in its colour.
+      // The team's flag is the mark, centred on its point: the same flag()
+      // the tables use, dropped into the SVG so both draw it one way. A team
+      // with no mapped flag falls back to a dot in its colour.
       const cx = X(r.extraPoss), cy = Y(r.efg), right = cx < W-R-60;
       const fw = me ? 34 : 26, fh = fw*3/4, iso = FLAG_MAP[r.shortCode];
       const mark = iso
-        ? `<image href="https://cdn.jsdelivr.net/npm/flag-icons@7.2.3/flags/4x3/${iso}.svg" x="${cx-fw/2}" y="${cy-fh/2}"
-             width="${fw}" height="${fh}" preserveAspectRatio="none"></image>
-           <rect class="flag-edge" x="${cx-fw/2}" y="${cy-fh/2}" width="${fw}" height="${fh}" rx="2"></rect>`
+        ? `<foreignObject x="${cx-fw/2}" y="${cy-fh/2}" width="${fw}" height="${fh}">
+             <div xmlns="http://www.w3.org/1999/xhtml" class="flag-mark">${flag(r.shortCode, fh+'px')}</div></foreignObject>`
         : `<circle class="dot" cx="${cx}" cy="${cy}" r="${me?10:7}" fill="${teamColor(r.shortCode)}"></circle>`;
       const off = (iso ? fw/2 : (me?10:7)) + 5;
       return `<g class="pt"><title>${r.nationality}: ${r.extraPoss>0?'+':''}${r.extraPoss} possessions/game, ${r.efg}% eFG</title>
