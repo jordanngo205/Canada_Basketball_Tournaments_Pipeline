@@ -542,6 +542,8 @@
   .poss-chart .dot { stroke: #fff; stroke-width: 2; }
   .poss-chart .lbl { font-size: 12px; font-weight: 800; fill: var(--text);
                      paint-order: stroke; stroke: #fff; stroke-width: 3.5px; stroke-linejoin: round; }
+  .poss-chart .flag-mark { display: flex; line-height: 1; }
+  .poss-chart .flag-mark .fi { width: 100% !important; }
   .poss-chart g.pt:hover .dot { stroke: var(--text); }
 </style>
 </head>
@@ -1860,6 +1862,19 @@ function renderFactors(){
   const sums = ffMode!=='z' ? [] :
     [showOff&&['zOff','Off'], showDef&&['zDef','Def'], ['zTotal','Total']].filter(Boolean);
   const rows = [...FOUR_FACTORS].sort((a,b)=>(a.projRank??99)-(b.projRank??99));
+  // Values shows Net in the slot the sums take in Z-scores: each factor at
+  // your end less the other, so it spans both ends and ignores the side toggle.
+  // Shaded by where each net sits in this tournament, same scale as the rest.
+  const NET = ffMode==='z' ? [] : [['netEfg','eFG%','Your eFG% less your opponents\''],
+    ['netOreb','ORB%','Your ORB% less your opponents\''], ['netFtRate','FTR','Your FT rate less your opponents\''],
+    ['netTov','TOV%','Turnovers forced less turnovers committed, per play']];
+  const netZ = {};
+  NET.forEach(([k])=>{
+    const v = rows.map(r=>r[k]).filter(x=>x!=null);
+    const m = v.reduce((a,b)=>a+b,0)/v.length;
+    const sd = Math.sqrt(v.reduce((a,b)=>a+(b-m)**2,0)/Math.max(v.length-1,1)) || 1;
+    netZ[k] = x => x==null ? null : (x-m)/sd;
+  });
   const n = (v,d=1)=> v==null ? '—' : Number(v).toFixed(d);
   const sg = (v,d=2)=> v==null ? '—' : (v>0?'+':'')+Number(v).toFixed(d);
   const cell = (r,[vk,zk],first) => {
@@ -1874,9 +1889,10 @@ function renderFactors(){
   document.getElementById('factorsTbl').innerHTML =
     `<table class="ff-tbl"><thead>
       <tr class="grp"><th></th>${showOff?'<th class="gs" colspan="4">Offense</th>':''}${showDef?'<th class="gs" colspan="4">Defense</th>':''}
-        ${sums.length?`<th class="gs" colspan="${sums.length}">Z-score sums</th>`:''}<th class="gs" colspan="${hasPlace?3:1}">Ranking</th></tr>
+        ${sums.length?`<th class="gs" colspan="${sums.length}">Z-score sums</th>`:''}${NET.length?`<th class="gs" colspan="${NET.length}">Net</th>`:''}<th class="gs" colspan="${hasPlace?3:1}">Ranking</th></tr>
       <tr><th>Team</th>${showOff?FF_COLS.map((c,i)=>th(c,i===0)).join(''):''}${showDef?FF_DEF.map((c,i)=>th(c,i===0)).join(''):''}
         ${sums.map(([,l],i)=>`<th class="${i===0?'gs':''}">${l}</th>`).join('')}
+        ${NET.map(([,l,t],i)=>`<th class="${i===0?'gs':''}" title="${t}">${l}</th>`).join('')}
         <th class="gs" title="Order by total z-score">Proj.</th>
         ${hasPlace?`<th title="Where the team actually finished">Placed</th>
         <th title="Projected rank minus placement: positive finished higher than the numbers said">Diff</th>`:''}</tr>
@@ -1888,6 +1904,8 @@ function renderFactors(){
       <td>${teamWithFlag(r.shortCode)} <span style="color:var(--muted);font-weight:500">${r.nationality||''}</span></td>
       ${showOff?FF_COLS.map((c,i)=>cell(r,c,i===0)).join(''):''}${showDef?FF_DEF.map((c,i)=>cell(r,c,i===0)).join(''):''}
       ${sums.map(([k],i)=>sumCell(r[k],i===0)).join('')}
+      ${NET.map(([k],i)=>{ const z = netZ[k](r[k]);
+        return `<td class="zc${i===0?' gs':''}" style="background:${zFill(z)};color:${zInk(z)}">${sg(r[k],1)}</td>`; }).join('')}
       <td class="gs">${r.projRank??'—'}</td>
       ${hasPlace?`<td>${r.placement??'—'}</td><td>${diff==null?'—':(diff>0?'+':'')+diff}</td>`:''}</tr>`;
     }).join('') + `</tbody></table>`;
@@ -1925,10 +1943,19 @@ function renderPossChart(){
     <text class="alab" transform="translate(16 ${(T+H-B)/2}) rotate(-90)" text-anchor="middle">Effective FG%</text>
     ${pts.map(r=>{
       const me = r.shortCode===activeTeam || (activeTeam==='ALL' && r.shortCode==='CAN');
-      const rad = me ? 10 : 7, right = X(r.extraPoss) < W-R-60;
+      // The team's flag is the mark, centred on its point: the same flag()
+      // the tables use, dropped into the SVG so both draw it one way. A team
+      // with no mapped flag falls back to a dot in its colour.
+      const cx = X(r.extraPoss), cy = Y(r.efg), right = cx < W-R-60;
+      const fw = me ? 34 : 26, fh = fw*3/4, iso = FLAG_MAP[r.shortCode];
+      const mark = iso
+        ? `<foreignObject x="${cx-fw/2}" y="${cy-fh/2}" width="${fw}" height="${fh}">
+             <div xmlns="http://www.w3.org/1999/xhtml" class="flag-mark">${flag(r.shortCode, fh+'px')}</div></foreignObject>`
+        : `<circle class="dot" cx="${cx}" cy="${cy}" r="${me?10:7}" fill="${teamColor(r.shortCode)}"></circle>`;
+      const off = (iso ? fw/2 : (me?10:7)) + 5;
       return `<g class="pt"><title>${r.nationality}: ${r.extraPoss>0?'+':''}${r.extraPoss} possessions/game, ${r.efg}% eFG</title>
-        <circle class="dot" cx="${X(r.extraPoss)}" cy="${Y(r.efg)}" r="${rad}" fill="${teamColor(r.shortCode)}"></circle>
-        <text class="lbl" x="${X(r.extraPoss)+(right?rad+5:-rad-5)}" y="${Y(r.efg)+4}"
+        ${mark}
+        <text class="lbl" x="${cx+(right?off:-off)}" y="${cy+4}"
           text-anchor="${right?'start':'end'}">${r.shortCode}</text></g>`;
     }).join('')}
   </svg>`;
