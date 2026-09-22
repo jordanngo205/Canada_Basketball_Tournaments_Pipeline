@@ -521,6 +521,14 @@
   .ff-tbl td.zc { font-weight: 600; }
   .ff-tbl tr.me td { font-weight: 800; }
   .ff-tbl tbody tr:hover td.zc { filter: brightness(.96); }
+  .ff-toggles { margin-left: auto; display: inline-flex; gap: 10px; flex-wrap: wrap; align-self: center; }
+  .seg { display: inline-flex; border: 1px solid var(--border2); border-radius: 8px; overflow: hidden; background: var(--surface); }
+  .seg button { font: inherit; font-size: 12px; font-weight: 700; padding: 6px 12px; border: 0; background: none;
+                color: var(--muted); cursor: pointer; }
+  .seg button + button { border-left: 1px solid var(--border2); }
+  .seg button:hover { color: var(--accent); }
+  .seg button.on { background: var(--accent); color: #fff; }
+  @media (max-width: 700px) { .zone-header:has(.ff-toggles) { flex-wrap: wrap; } .ff-toggles { margin-left: 0; } }
   .ff-legend { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; font-size: 11px;
                color: var(--muted); margin-top: 12px; }
   .ff-legend .sw { width: 24px; height: 11px; border-radius: 3px; display: inline-block; }
@@ -635,8 +643,17 @@
     <div class="zone-header">
       <span class="zone-kicker">📐 What Drives It</span>
       <span class="zone-title">Four Factors</span>
-      <label class="zone-team">Show <select id="ffModeSel" onchange="setFactorsMode(this.value)">
-        <option value="values">Values</option><option value="z">Z-scores</option></select></label>
+      <div class="ff-toggles">
+        <div class="seg" role="group" aria-label="Which end of the floor" id="ffSideSeg">
+          <button data-v="off" onclick="setFactorsSide('off')">Offensive</button>
+          <button data-v="def" onclick="setFactorsSide('def')">Defensive</button>
+          <button data-v="both" onclick="setFactorsSide('both')">Both</button>
+        </div>
+        <div class="seg" role="group" aria-label="Values or z-scores" id="ffModeSeg">
+          <button data-v="values" onclick="setFactorsMode('values')">Values</button>
+          <button data-v="z" onclick="setFactorsMode('z')">Z-scores</button>
+        </div>
+      </div>
     </div>
     <div class="zone-sub">Shooting, rebounding, getting to the line and taking care of the ball — at both ends.
       Every factor is scored against the rest of this tournament and signed so that positive is good, then the
@@ -1806,8 +1823,9 @@ function renderShots(){
     `floor is 280 units across a 15m court, and binning every shot by distance puts the crossover from twos to ` +
     `threes at 129 — exactly FIBA's 6.6m corner and 6.75m arc at that scale.`;
 }
-let ffMode = 'values';
+let ffMode = 'values', ffSide = 'off';
 function setFactorsMode(v){ ffMode = v; renderFactors(); }
+function setFactorsSide(v){ ffSide = v; renderFactors(); }
 // Shade by z-score whichever view is showing, so a cell reads the same in
 // both: red is good for that team, blue is bad, whatever the raw direction.
 function zFill(z){
@@ -1831,7 +1849,13 @@ const FF_DEF = [
 ];
 function renderFactors(){
   if (typeof FOUR_FACTORS === 'undefined' || !FOUR_FACTORS.length) return;
-  const sel = document.getElementById('ffModeSel'); if(sel) sel.value = ffMode;
+  for (const [id, v] of [['ffSideSeg', ffSide], ['ffModeSeg', ffMode]])
+    document.querySelectorAll(`#${id} button`).forEach(b=>{
+      b.classList.toggle('on', b.dataset.v===v); b.setAttribute('aria-pressed', b.dataset.v===v); });
+  // One end of the floor at a time by default: four factors and the matching
+  // z-score sum, with the total and the ranking always alongside.
+  const showOff = ffSide!=='def', showDef = ffSide!=='off';
+  const sums = [showOff&&['zOff','Off'], showDef&&['zDef','Def'], ['zTotal','Total']].filter(Boolean);
   const rows = [...FOUR_FACTORS].sort((a,b)=>(a.projRank??99)-(b.projRank??99));
   const n = (v,d=1)=> v==null ? '—' : Number(v).toFixed(d);
   const sg = (v,d=2)=> v==null ? '—' : (v>0?'+':'')+Number(v).toFixed(d);
@@ -1846,10 +1870,10 @@ function renderFactors(){
   const th = ([, , l, t], first) => `<th class="${first?'gs':''}" title="${t}">${l}</th>`;
   document.getElementById('factorsTbl').innerHTML =
     `<table class="ff-tbl"><thead>
-      <tr class="grp"><th></th><th class="gs" colspan="4">Offense</th><th class="gs" colspan="4">Defense</th>
-        <th class="gs" colspan="3">Z-score sums</th><th class="gs" colspan="${hasPlace?3:1}">Ranking</th></tr>
-      <tr><th>Team</th>${FF_COLS.map((c,i)=>th(c,i===0)).join('')}${FF_DEF.map((c,i)=>th(c,i===0)).join('')}
-        <th class="gs">Off</th><th>Def</th><th>Total</th>
+      <tr class="grp"><th></th>${showOff?'<th class="gs" colspan="4">Offense</th>':''}${showDef?'<th class="gs" colspan="4">Defense</th>':''}
+        <th class="gs" colspan="${sums.length}">Z-score sums</th><th class="gs" colspan="${hasPlace?3:1}">Ranking</th></tr>
+      <tr><th>Team</th>${showOff?FF_COLS.map((c,i)=>th(c,i===0)).join(''):''}${showDef?FF_DEF.map((c,i)=>th(c,i===0)).join(''):''}
+        ${sums.map(([,l],i)=>`<th class="${i===0?'gs':''}">${l}</th>`).join('')}
         <th class="gs" title="Order by total z-score">Proj.</th>
         ${hasPlace?`<th title="Where the team actually finished">Placed</th>
         <th title="Projected rank minus placement: positive finished higher than the numbers said">Diff</th>`:''}</tr>
@@ -1859,8 +1883,8 @@ function renderFactors(){
       const me = r.shortCode===activeTeam || (activeTeam==='ALL' && r.shortCode==='CAN');
       return `<tr class="${me?'me':''}" style="background:${teamTint(r.shortCode)};box-shadow:inset 3px 0 0 ${teamColor(r.shortCode)}">
       <td>${teamWithFlag(r.shortCode)} <span style="color:var(--muted);font-weight:500">${r.nationality||''}</span></td>
-      ${FF_COLS.map((c,i)=>cell(r,c,i===0)).join('')}${FF_DEF.map((c,i)=>cell(r,c,i===0)).join('')}
-      ${sumCell(r.zOff,true)}${sumCell(r.zDef)}${sumCell(r.zTotal)}
+      ${showOff?FF_COLS.map((c,i)=>cell(r,c,i===0)).join(''):''}${showDef?FF_DEF.map((c,i)=>cell(r,c,i===0)).join(''):''}
+      ${sums.map(([k],i)=>sumCell(r[k],i===0)).join('')}
       <td class="gs">${r.projRank??'—'}</td>
       ${hasPlace?`<td>${r.placement??'—'}</td><td>${diff==null?'—':(diff>0?'+':'')+diff}</td>`:''}</tr>`;
     }).join('') + `</tbody></table>`;
