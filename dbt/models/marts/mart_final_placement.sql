@@ -11,7 +11,8 @@
 --   2. Placement games. 'Final', '3rd Place Game' and any 'Class 5-6' style
 --      round is a straight fight for two adjacent places: the winner takes the
 --      upper one. Brackets like 'Class 9-16' decide nothing on their own.
---   3. A single round-robin group with no knockouts is its own final table.
+--   3. A single round-robin group with no knockouts is its own final table,
+--      with FIBA's head-to-head tiebreak applied.
 --
 -- Anything none of those cover stays null rather than being guessed at.
 
@@ -59,17 +60,66 @@ from_games as (
 
 ),
 
+-- A single round-robin group with no knockouts. FIBA separates teams level on
+-- wins by a mini-league of only the games between them, then the margin in
+-- those games, and only then overall margin. mart_standings orders by overall
+-- margin alone, which is fine for display but wrong for a final placing: at
+-- WC Qualifying Türkiye Canada, Japan and Türkiye all went 2-3, and Canada's
+-- +44 would put them third when their 0-2 against the other two made them
+-- fifth.
+round_robin_comps as (
+
+    select competition
+    from games
+    group by competition
+    having count(distinct group_code) = 1
+       and count(*) filter (where group_code is null) = 0
+
+),
+
+rr_table as (
+
+    select s.competition, s.team_id, s.wins, s.point_differential
+    from {{ ref('mart_standings') }} s
+    join round_robin_comps c using (competition)
+
+),
+
+head_to_head as (
+
+    select
+        g.competition,
+        g.team_id,
+        sum(g.win)    as h2h_wins,
+        sum(g.margin) as h2h_margin
+    from games g
+    join rr_table t
+      on  t.competition = g.competition
+     and  t.team_id     = g.team_id
+    join rr_table o
+      on  o.competition = g.competition
+     and  o.team_id     = g.opp_team_id
+    where t.wins = o.wins
+    group by g.competition, g.team_id
+
+),
+
 round_robin as (
 
-    select s.competition, s.team_id, s.standing_rank as placement
-    from {{ ref('mart_standings') }} s
-    where s.competition in (
-        select competition
-        from games
-        group by competition
-        having count(distinct group_code) = 1
-           and count(*) filter (where group_code is null) = 0
-    )
+    select
+        t.competition,
+        t.team_id,
+        row_number() over (
+            partition by t.competition
+            order by t.wins desc,
+                     coalesce(h.h2h_wins, 0) desc,
+                     coalesce(h.h2h_margin, 0) desc,
+                     t.point_differential desc
+        ) as placement
+    from rr_table t
+    left join head_to_head h
+      on  h.competition = t.competition
+     and  h.team_id     = t.team_id
 
 ),
 
