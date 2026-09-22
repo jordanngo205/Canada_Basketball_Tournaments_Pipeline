@@ -150,6 +150,15 @@ select
     round(100.0 * ftm / nullif(fga, 0), 1)                          as ft_made_rate,
     round(opp_ftr, 1)                                               as opp_ft_rate,
 
+    -- Net: each factor at your end less the same factor at the other, so
+    -- positive is good throughout. For turnovers that means forced minus
+    -- committed. Taken from the unrounded rates, so it can differ by 0.1 from
+    -- subtracting the two rounded columns.
+    round(efg - opp_efg, 1)                                         as net_efg_pct,
+    round(orb - opp_orb, 1)                                         as net_oreb_pct,
+    round(ftr - opp_ftr, 1)                                         as net_ft_rate,
+    round(opp_tovr - tovr, 1)                                       as net_tov_pct,
+
     -- Extra possessions: offensive boards plus turnovers forced, less the
     -- same conceded, per game. Per game rather than a total because teams
     -- here play three to seven games, and a total would rank a deep run.
