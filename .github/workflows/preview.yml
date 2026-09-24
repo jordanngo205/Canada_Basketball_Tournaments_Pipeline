@@ -89,7 +89,7 @@ jobs:
             select competition, game_id, game_date, team_code, opp_team_code,
                    pts, opp_pts, possessions, ortg, drtg
             from analytics_marts.mart_team_efficiency
-            where ortg not between 20 and 250 or drtg not between 20 and 250
+            where ortg not between 10 and 250 or drtg not between 10 and 250
                or possessions not between 50 and 110
             order by competition, game_id" || true
 

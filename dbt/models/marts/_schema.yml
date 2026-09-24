@@ -10,16 +10,17 @@ models:
       - name: ortg
         description: >
           Points scored per 100 possessions. The range is wide on purpose:
-          USA beat Cote d'Ivoire 117-24 at the U17s, which is a real ORTG of
-          27. This is here to catch a broken possessions estimate, not to
-          flag a blowout, and the possessions range below does the tighter job.
+          at the 2025 U16 AmeriCup Panama lost 131-12 to the USA and 107-15 to
+          Canada, real ORTGs of 16 and 19 on ordinary possession counts. This
+          is here to catch a broken possessions estimate, not to flag a
+          blowout, and the possessions range below does the tighter job.
         tests:
           - not_null
-          - dbt_utils.accepted_range: {min_value: 20, max_value: 250}
+          - dbt_utils.accepted_range: {min_value: 10, max_value: 250}
       - name: drtg
         tests:
           - not_null
-          - dbt_utils.accepted_range: {min_value: 20, max_value: 250}
+          - dbt_utils.accepted_range: {min_value: 10, max_value: 250}
       - name: efg_pct
         tests:
           - dbt_utils.accepted_range: {min_value: 0, max_value: 100}
