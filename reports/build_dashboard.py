@@ -293,6 +293,9 @@ PUBLISHED_SLUGS = {
     "FIBA U18 Women's AmeriCup": "u18-americup-2026",
     "FIBA U17 Women's Basketball World Cup": "u17-world-cup-2026",
     "FIBA Women's Olympic Pre-Qualifying Tournament": "olympic-pre-qualifying-2026",
+    "FIBA Women's AmeriCup": "americup-2025",
+    "FIBA U16 Women's AmeriCup": "u16-americup-2025",
+    "FIBA U19 Women's Basketball World Cup": "u19-world-cup-2025",
 }
 
 
@@ -309,6 +312,12 @@ QUALIFY_SPOTS = {
     "u17-world-cup-2026": 4,
     "u18-americup-2026": 2,
     "wc-qualifying-istanbul-2026": 3,
+    # 2025. Women's AmeriCup: two groups of five, top four to the quarters.
+    # The U16 AmeriCup and U19 World Cup send every team through (to the
+    # quarters and the round of 16), so the line sits under fourth.
+    "americup-2025": 4,
+    "u16-americup-2025": 4,
+    "u19-world-cup-2025": 4,
 }
 
 DEFAULT_QUALIFY_SPOTS = 2
