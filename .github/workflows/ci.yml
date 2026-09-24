@@ -55,6 +55,11 @@ jobs:
         # FIBA publishes no gender field, so there is nothing else to check.
         run: python tests/test_programme.py
 
+      - name: Schedule reading
+        # Also pure. Guards the line between a game to scrape, a forfeit to
+        # store as a result, and a fixture to leave alone.
+        run: python tests/test_schedule.py
+
       - name: Create the raw schema
         # Only the schema file — the database itself already exists, created
         # by the service container above.
