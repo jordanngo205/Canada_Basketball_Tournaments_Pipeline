@@ -33,3 +33,13 @@ sources:
             tests: [unique, not_null]
           - name: payload
             tests: [not_null]
+
+      - name: result_only_games
+        description: >
+          Games with a final result but no box score, i.e. forfeits. Written by
+          ingest.load.store_results. Only the placement model reads them: a
+          forfeit has no stats, but a forfeited placement game still decides
+          who finished where.
+        columns:
+          - name: game_id
+            tests: [unique, not_null]

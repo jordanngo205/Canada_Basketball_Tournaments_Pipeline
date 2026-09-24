@@ -99,10 +99,11 @@ def fiba_backfill():
         which is the point of an append-only raw layer — a bad re-scrape is
         recoverable.
         """
-        from ingest.discover import game_urls
-        from ingest.load import load_games
+        from ingest.discover import event_fixtures
+        from ingest.load import load_games, store_results
 
-        urls = game_urls(slug, played_only=True)
+        urls, results = event_fixtures(slug)
+        store_results(slug, results)
         if not urls:
             raise AirflowSkipException(f"No completed games for {slug}")
         result = load_games(urls)

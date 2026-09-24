@@ -8,7 +8,7 @@
 --      alone don't settle it: the Olympic Pre-Qualifier played no 3rd-place or
 --      classification games, so its two beaten semi-finalists and its four
 --      group-phase exits have no game between them to decide the order.
---   2. Placement games. 'Final', '3rd Place Game' and any 'Class 5-6' style
+--   2. Placement games, forfeits included. 'Final', '3rd Place Game' and any 'Class 5-6' style
 --      round is a straight fight for two adjacent places: the winner takes the
 --      upper one. Brackets like 'Class 9-16' decide nothing on their own.
 --   3. A single round-robin group with no knockouts is its own final table,
@@ -29,6 +29,35 @@ teams as (
 
 ),
 
+-- Every result that can decide a placement: the games with a box score, plus
+-- forfeits, which FIBA scores but publishes no box score for. Without the
+-- second half a forfeited 5th-place game would leave both teams to be placed
+-- by the leftover rule below, possibly the wrong way round.
+results as (
+
+    select competition, team_id, round_name, win
+    from games
+
+    union all
+
+    select f.competition, t.team_id, f.round_name,
+           case when f.home_score > f.away_score then 1 else 0 end
+    from {{ ref('stg_result_only_games') }} f
+    join teams t
+      on  t.competition = f.competition
+     and  t.team_code   = f.home_code
+
+    union all
+
+    select f.competition, t.team_id, f.round_name,
+           case when f.away_score > f.home_score then 1 else 0 end
+    from {{ ref('stg_result_only_games') }} f
+    join teams t
+      on  t.competition = f.competition
+     and  t.team_code   = f.away_code
+
+),
+
 placement_games as (
 
     select
@@ -45,7 +74,7 @@ placement_games as (
             when round_name = '3rd Place Game' then 4
             else substring(round_name from '^Class(?:ification)? \d+-(\d+)$')::int
         end as lower_place
-    from games
+    from results
 
 ),
 
@@ -166,7 +195,7 @@ placed as (
 finished as (
 
     select distinct competition
-    from games
+    from results
     where round_name = 'Final'
 
 ),
