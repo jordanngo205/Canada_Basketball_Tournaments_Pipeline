@@ -146,6 +146,16 @@ def event_games(slug: str, played_only: bool = True) -> list[dict]:
 
     rows = sorted(games.values(), key=lambda r: (r["date"], r["game_id"]))
     if played_only:
+        # Say what's being left out and why. A skipped future fixture is
+        # routine; a skipped game from a finished event is a hole in the data,
+        # and without this it vanishes silently.
+        for r in rows:
+            if not r["played"]:
+                log.info(
+                    "event %s: skipping %s %s %s-%s (status=%s live=%s)",
+                    slug, r["game_id"], r["date"], r["home"], r["away"],
+                    r["status"], r["is_live"],
+                )
         rows = [r for r in rows if r["played"]]
     log.info("event %s: %d game(s) ready to ingest", slug, len(rows))
     return rows
