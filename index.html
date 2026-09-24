@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Canada Basketball Tournaments</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f6f8;
+    --surface: #ffffff;
+    --border: #e8eaef;
+    --border2: #d3d8e0;
+    --text: #0f172a;
+    --muted: #6b7280;
+    --muted2: #9ca3af;
+    --accent: #D80621;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    line-height: 1.5;
+  }
+  .header {
+    background: var(--accent);
+    padding: 28px 24px;
+    color: #fff;
+  }
+  .header-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    text-align: center;
+  }
+  .header-inner img {
+    height: 72px;
+    width: auto;
+    flex-shrink: 0;
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,.2));
+  }
+  .header h1 {
+    margin: 0 0 6px;
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+  .header p {
+    margin: 0;
+    font-size: 14px;
+    opacity: 0.9;
+  }
+  main {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 28px 20px 60px;
+  }
+  /* One row per year: Canada plays about four tournaments a year, so four
+     across keeps a year on a single line. */
+  .year + .year { margin-top: 30px; }
+  .year-label {
+    margin: 0 0 12px;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: .12em;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .year-label::after { content: ""; flex: 1; height: 1px; background: var(--border2); }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+  }
+  @media (max-width: 1000px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 560px)  { .grid { grid-template-columns: 1fr; } }
+  .banner-fallback {
+    width: 100%; height: 100%; display: grid; place-items: center;
+    background: linear-gradient(135deg, var(--accent), #8f1420); font-size: 40px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    box-shadow: 0 1px 3px rgba(0,0,0,.05);
+    transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 22px rgba(0,0,0,.1);
+    border-color: var(--border2);
+  }
+  .banner {
+    position: relative;
+    aspect-ratio: 1230 / 630;
+    overflow: hidden;
+    background: #0f172a;
+  }
+  .banner img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: rgba(0,0,0,.35);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,.35);
+    backdrop-filter: blur(2px);
+  }
+  .body {
+    padding: 14px 16px 16px;
+  }
+  .full-name {
+    margin: 0 0 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .meta {
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .cta {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+</style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-inner">
+      <img src="./assets/canada-basketball-logo.webp" alt="Canada Basketball">
+      <div>
+        <h1>Canada Basketball Tournaments</h1>
+      </div>
+    </div>
+  </div>
+  <main>
+    <section class="year">
+      <h2 class="year-label">2025</h2>
+      <div class="grid">
+
+      <a class="card" href="./u16-americup-2025/">
+        <div class="banner">
+          <img src="./assets/banners/u16-americup-2025.webp" alt="FIBA U16 Women's AmeriCup 2025" loading="lazy">
+          <span class="badge">Final</span>
+        </div>
+        <div class="body">
+          <p class="full-name">FIBA U16 Women's AmeriCup 2025</p>
+          <div class="meta">Irapuato, Mexico &nbsp;·&nbsp; 16–22 Jun 2025</div>
+          <div class="cta">View dashboard &rarr;</div>
+        </div>
+      </a>
+
+      <a class="card" href="./americup-2025/">
+        <div class="banner">
+          <img src="./assets/banners/americup-2025.webp" alt="FIBA Women's AmeriCup 2025" loading="lazy">
+          <span class="badge">Final</span>
+        </div>
+        <div class="body">
+          <p class="full-name">FIBA Women's AmeriCup 2025</p>
+          <div class="meta">Santiago, Chile &nbsp;·&nbsp; 28 Jun – 6 Jul 2025</div>
+          <div class="cta">View dashboard &rarr;</div>
+        </div>
+      </a>
+
+      <a class="card" href="./u19-world-cup-2025/">
+        <div class="banner">
+          <img src="./assets/banners/u19-world-cup-2025.webp" alt="FIBA U19 Women's Basketball World Cup 2025" loading="lazy">
+          <span class="badge">Final</span>
+        </div>
+        <div class="body">
+          <p class="full-name">FIBA U19 Women's Basketball World Cup 2025</p>
+          <div class="meta">Brno, Czechia &nbsp;·&nbsp; 12–20 Jul 2025</div>
+          <div class="cta">View dashboard &rarr;</div>
+        </div>
+      </a>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
