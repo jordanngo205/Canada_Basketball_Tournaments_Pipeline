@@ -50,4 +50,20 @@ SELECT DISTINCT ON (game_id)
 FROM   raw.raw_games
 ORDER  BY game_id, fetched_at DESC;
 
+-- Games FIBA has a final result for but no box score: forfeits, recorded as
+-- 20-0 with nothing to scrape. They can't feed any stat, but a forfeited
+-- placement game still decides who finished where. One row per game; a later
+-- ingest overwrites it, since this holds a result, not a payload to keep.
+CREATE TABLE IF NOT EXISTS raw.result_only_games (
+    game_id      text        PRIMARY KEY,
+    event_slug   text        NOT NULL,
+    round_name   text,
+    game_date    date,
+    home_code    text        NOT NULL,
+    away_code    text        NOT NULL,
+    home_score   integer     NOT NULL,
+    away_score   integer     NOT NULL,
+    fetched_at   timestamptz NOT NULL DEFAULT now()
+);
+
 CREATE SCHEMA IF NOT EXISTS analytics;

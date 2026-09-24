@@ -82,8 +82,8 @@ def ingest(dsn: str) -> dict:
     cheap to re-run and the next scheduled run is an hour away.
     """
     os.environ["WAREHOUSE_DSN"] = dsn
-    from ingest.discover import game_urls, select_events
-    from ingest.load import load_games
+    from ingest.discover import event_fixtures, select_events
+    from ingest.load import load_games, store_results
 
     slugs = select_events()
     if not slugs:
@@ -93,11 +93,13 @@ def ingest(dsn: str) -> dict:
     totals = {"events": 0, "games": 0, "inserted": 0, "failed": 0, "errors": []}
     for slug in slugs:
         try:
-            urls = game_urls(slug, played_only=True)
+            urls, results = event_fixtures(slug)
         except Exception as exc:  # noqa: BLE001 — one bad event must not stop the sweep
             log.warning("%s — could not list games: %s", slug, exc)
             totals["errors"].append(slug)
             continue
+
+        store_results(slug, results)
 
         if not urls:
             log.info("%s — no completed games yet", slug)

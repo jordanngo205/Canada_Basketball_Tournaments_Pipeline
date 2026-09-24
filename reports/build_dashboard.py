@@ -50,6 +50,8 @@ FLAG_MAP = {
     "PHI": "ph", "POL": "pl", "PUR": "pr", "SEN": "sn", "SLO": "si", "SRB": "rs",
     "SSD": "ss", "SVK": "sk", "SWE": "se", "TUR": "tr", "URU": "uy", "USA": "us",
     "VEN": "ve", "ANG": "ao", "FIN": "fi", "ISR": "il", "POR": "pt", "UKR": "ua",
+    # FIBA writes Nigeria as NGR, not the IOC-style NGA above; both are kept.
+    "NGR": "ng", "ESA": "sv",
 }
 
 TEAM_COLORS = {
@@ -65,7 +67,7 @@ TEAM_COLORS = {
     "PHI": "#0038A8", "POL": "#DC143C", "PUR": "#ED0000", "SEN": "#00853F",
     "SLO": "#005DA4", "SRB": "#C6363C", "SSD": "#0F47AF", "SVK": "#0B4EA2",
     "SWE": "#006AA7", "TUR": "#E30A17", "URU": "#7BAFD4", "USA": "#0A3161",
-    "VEN": "#FCD116", "ANG": "#CE1126",
+    "VEN": "#FCD116", "ANG": "#CE1126", "NGR": "#008751", "ESA": "#0F47AF",
 }
 
 
@@ -293,6 +295,9 @@ PUBLISHED_SLUGS = {
     "FIBA U18 Women's AmeriCup": "u18-americup-2026",
     "FIBA U17 Women's Basketball World Cup": "u17-world-cup-2026",
     "FIBA Women's Olympic Pre-Qualifying Tournament": "olympic-pre-qualifying-2026",
+    "FIBA Women's AmeriCup": "americup-2025",
+    "FIBA U16 Women's AmeriCup": "u16-americup-2025",
+    "FIBA U19 Women's Basketball World Cup": "u19-world-cup-2025",
 }
 
 
@@ -309,6 +314,12 @@ QUALIFY_SPOTS = {
     "u17-world-cup-2026": 4,
     "u18-americup-2026": 2,
     "wc-qualifying-istanbul-2026": 3,
+    # 2025. Women's AmeriCup: two groups of five, top four to the quarters.
+    # The U16 AmeriCup and U19 World Cup send every team through (to the
+    # quarters and the round of 16), so the line sits under fourth.
+    "americup-2025": 4,
+    "u16-americup-2025": 4,
+    "u19-world-cup-2025": 4,
 }
 
 DEFAULT_QUALIFY_SPOTS = 2
@@ -370,6 +381,21 @@ HUB_LABELS = {
         "FIBA U17 Women's Basketball World Cup 2026", "Brno, Czechia", "11–19 Jul 2026"),
     "olympic-pre-qualifying-2026": (
         "FIBA Women's Olympic Pre-Qualifying Tournament 2026", "Guadalajara, Mexico", "17–23 Aug 2026"),
+    "u16-americup-2025": (
+        "FIBA U16 Women's AmeriCup 2025", "Irapuato, Mexico", "16–22 Jun 2025"),
+    "americup-2025": (
+        "FIBA Women's AmeriCup 2025", "Santiago, Chile", "28 Jun – 6 Jul 2025"),
+    "u19-world-cup-2025": (
+        "FIBA U19 Women's Basketball World Cup 2025", "Brno, Czechia", "12–20 Jul 2025"),
+}
+
+# Which tournaments have artwork in docs/assets/banners. Listed rather than
+# looked up: the builder runs in a container where docs/ isn't mounted, so a
+# file check there silently reported every banner missing.
+BANNERS = {
+    "wc-qualifying-istanbul-2026", "u18-americup-2026", "u17-world-cup-2026",
+    "olympic-pre-qualifying-2026", "americup-2025", "u16-americup-2025",
+    "u19-world-cup-2025",
 }
 
 
@@ -381,10 +407,7 @@ def _card(comp: dict) -> str:
     will not until someone draws one.
     """
     slug = slugify(comp["competition"])
-    # Banner presence is decided by the label table, not by looking on disk:
-    # the builder runs in a container where docs/ isn't mounted, so a file
-    # check there silently reported every banner missing.
-    has_banner = slug in HUB_LABELS
+    has_banner = slug in BANNERS
     label, place, when = HUB_LABELS.get(slug, (
         comp["competition"],
         ", ".join(x for x in (comp["city"], comp["country"]) if x) or "—",
@@ -408,19 +431,28 @@ def _card(comp: dict) -> str:
 
 
 def build_hub(comps: list[dict]) -> str:
+    """The landing page: one row per year, newest first, each year's
+    tournaments in the order they were played. Canada plays about four a year,
+    so a year reads as a single line across."""
     html = HUB_TEMPLATE.read_text(encoding="utf-8")
-    cards = "\n".join(_card(c) for c in comps)
-    # Swap everything between the grid tags for freshly generated cards, so the
-    # hub tracks whatever the warehouse holds instead of being edited by hand.
-    a = html.index('<div class="grid">') + len('<div class="grid">')
-    b = html.index("</div>\n  </main>")
-    out = html[:a] + "\n" + cards + "\n    " + html[b:]
-    # A fallback panel for events without artwork.
-    return out.replace("</style>", '''  .banner-fallback {
-    width: 100%; height: 100%; display: grid; place-items: center;
-    background: linear-gradient(135deg, var(--accent), #8f1420); font-size: 40px;
-  }
-</style>''')
+    by_year: dict[str, list[dict]] = {}
+    for c in comps:
+        by_year.setdefault(str(c["start"])[:4], []).append(c)
+    rows = []
+    for year in sorted(by_year, reverse=True):
+        cards = "\n".join(_card(c) for c in sorted(by_year[year], key=lambda c: str(c["start"])))
+        rows.append(f'''
+    <section class="year">
+      <h2 class="year-label">{year}</h2>
+      <div class="grid">
+{cards}
+      </div>
+    </section>''')
+    # Everything inside <main> is generated, so the hub tracks whatever the
+    # warehouse holds instead of being edited by hand.
+    a = html.index("<main>") + len("<main>")
+    b = html.index("</main>")
+    return html[:a] + "".join(rows) + "\n  " + html[b:]
 
 
 def build_all(docs: Path, competition: str | None = None) -> list[str]:
