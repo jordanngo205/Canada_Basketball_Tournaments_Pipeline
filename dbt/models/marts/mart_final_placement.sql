@@ -128,25 +128,92 @@ stated as (
     select competition, team_code, placement
     from {{ ref('final_placements') }}
 
+),
+
+placed as (
+
+    select
+        t.competition,
+        t.team_id,
+        t.team_code,
+        coalesce(s.placement, g.placement, r.placement) as placement,
+        case
+            when s.placement is not null then 'stated'
+            when g.placement is not null then 'placement_game'
+            when r.placement is not null then 'round_robin'
+        end as placement_source
+    from teams t
+    left join stated s
+      on  s.competition = t.competition
+     and  s.team_code   = t.team_code
+    left join from_games g
+      on  g.competition = t.competition
+     and  g.team_id     = t.team_id
+    left join round_robin r
+      on  r.competition = t.competition
+     and  r.team_id     = t.team_id
+
+),
+
+-- Teams no game placed: the ones knocked out in the group phase with no
+-- classification round (9th and 10th at the 2025 Women's AmeriCup), or left
+-- without an opponent (Argentina at the 2025 U19 World Cup, where only 15
+-- teams played and the 15th-16th game never happened). They take the places
+-- nobody else holds, in order of group finish, then wins, then margin.
+--
+-- Only once the Final is in. Before that, an unplaced team is usually just a
+-- team whose placement game hasn't been played yet.
+finished as (
+
+    select distinct competition
+    from games
+    where round_name = 'Final'
+
+),
+
+open_places as (
+
+    select c.competition, p.place,
+           row_number() over (partition by c.competition order by p.place) as k
+    from (select competition, count(*) as n from placed group by competition) c
+    join finished using (competition)
+    cross join lateral generate_series(1, c.n) as p(place)
+    where not exists (
+        select 1 from placed x
+        where x.competition = c.competition and x.placement = p.place
+    )
+
+),
+
+leftover as (
+
+    select
+        p.competition,
+        p.team_id,
+        row_number() over (
+            partition by p.competition
+            order by s.standing_rank, s.wins desc, s.point_differential desc
+        ) as k
+    from placed p
+    join finished using (competition)
+    left join {{ ref('mart_standings') }} s
+      on  s.competition = p.competition
+     and  s.team_id     = p.team_id
+    where p.placement is null
+
 )
 
 select
-    t.competition,
-    t.team_id,
-    t.team_code,
-    coalesce(s.placement, g.placement, r.placement) as placement,
-    case
-        when s.placement is not null then 'stated'
-        when g.placement is not null then 'placement_game'
-        when r.placement is not null then 'round_robin'
-    end as placement_source
-from teams t
-left join stated s
-  on  s.competition = t.competition
- and  s.team_code   = t.team_code
-left join from_games g
-  on  g.competition = t.competition
- and  g.team_id     = t.team_id
-left join round_robin r
-  on  r.competition = t.competition
- and  r.team_id     = t.team_id
+    p.competition,
+    p.team_id,
+    p.team_code,
+    coalesce(p.placement, o.place) as placement,
+    coalesce(p.placement_source, case when o.place is not null then 'remaining' end)
+        as placement_source
+from placed p
+left join leftover l
+  on  l.competition = p.competition
+ and  l.team_id     = p.team_id
+left join open_places o
+  on  o.competition = l.competition
+ and  o.k           = l.k
