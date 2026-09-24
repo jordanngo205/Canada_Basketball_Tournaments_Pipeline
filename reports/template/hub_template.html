@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>2026 Tournaments</title>
+<title>Canada Basketball Tournaments</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -59,14 +59,34 @@
     opacity: 0.9;
   }
   main {
-    max-width: 960px;
+    max-width: 1240px;
     margin: 0 auto;
     padding: 28px 20px 60px;
   }
+  /* One row per year: Canada plays about four tournaments a year, so four
+     across keeps a year on a single line. */
+  .year + .year { margin-top: 30px; }
+  .year-label {
+    margin: 0 0 12px;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: .12em;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .year-label::after { content: ""; flex: 1; height: 1px; background: var(--border2); }
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 18px;
+  }
+  @media (max-width: 1000px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 560px)  { .grid { grid-template-columns: 1fr; } }
+  .banner-fallback {
+    width: 100%; height: 100%; display: grid; place-items: center;
+    background: linear-gradient(135deg, var(--accent), #8f1420); font-size: 40px;
   }
   .card {
     background: var(--surface);
@@ -138,7 +158,7 @@
     <div class="header-inner">
       <img src="./assets/canada-basketball-logo.webp" alt="Canada Basketball">
       <div>
-        <h1>Canada Basketball 2026 Tournaments</h1>
+        <h1>Canada Basketball Tournaments</h1>
       </div>
     </div>
   </div>
