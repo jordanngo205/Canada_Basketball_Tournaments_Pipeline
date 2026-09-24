@@ -1,0 +1,105 @@
+name: preview
+
+# Builds the site a pull request would publish, so it can be looked at before
+# it goes live. Everything happens in a throwaway warehouse: the hosted one and
+# main are never touched. The built site is pushed to preview/pr-<number>.
+#
+# Only the tournaments the PR pins that main doesn't are scraped, so adding a
+# tournament costs a scrape of that tournament and nothing else. A PR that pins
+# nothing new previews every pinned tournament instead.
+
+on:
+  pull_request:
+    paths:
+      - "config/**"
+      - "ingest/**"
+      - "dbt/**"
+      - "reports/**"
+      - "scripts/**"
+      - ".github/workflows/preview.yml"
+
+concurrency:
+  group: preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    timeout-minutes: 30
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: fiba
+          POSTGRES_PASSWORD: fiba
+          POSTGRES_DB: warehouse
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      WAREHOUSE_DSN: postgresql://fiba:fiba@localhost:5432/warehouse
+      EVENTS_CONFIG: preview-events.yml
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Pick the tournaments to preview
+        run: |
+          git show origin/${{ github.base_ref }}:config/events.yml > base-events.yml
+          python - <<'EOF'
+          import yaml
+          head = yaml.safe_load(open("config/events.yml"))
+          base = yaml.safe_load(open("base-events.yml"))
+          added = [s for s in head.get("pinned") or [] if s not in (base.get("pinned") or [])]
+          head["pinned"] = added or head.get("pinned") or []
+          head["discover"] = {"enabled": False}
+          yaml.safe_dump(head, open("preview-events.yml", "w"))
+          print("previewing:", *head["pinned"], sep="\n  ")
+          EOF
+
+      - name: Build the site
+        run: |
+          cp -r docs preview-site
+          python -m scripts.run_pipeline --docs preview-site
+
+      - name: Show the team-games a failed test is about
+        # The warehouse dies with the job, so this is the only chance to see
+        # the rows behind a failure.
+        if: failure()
+        run: |
+          psql "$WAREHOUSE_DSN" -c "
+            select competition, game_id, game_date, team_code, opp_team_code,
+                   pts, opp_pts, possessions, ortg, drtg
+            from analytics_marts.mart_team_efficiency
+            where ortg not between 10 and 250 or drtg not between 10 and 250
+               or possessions not between 50 and 110
+            order by competition, game_id" || true
+
+      - name: Push to preview/pr-${{ github.event.pull_request.number }}
+        run: |
+          cd preview-site
+          git init -q -b preview
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Preview of #${{ github.event.pull_request.number }} at ${{ github.event.pull_request.head.sha }}"
+          git push -f -q "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" \
+            HEAD:refs/heads/preview/pr-${{ github.event.pull_request.number }}

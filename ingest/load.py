@@ -111,3 +111,38 @@ if __name__ == "__main__":  # pragma: no cover - manual run
 
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     print(load_games(sys.argv[1:]))
+
+
+def store_results(slug: str, results: list[dict], conn_str: str | None = None) -> int:
+    """Store games that have a final result but no box score (forfeits).
+
+    Upserted rather than appended: there is no payload to keep a history of,
+    only a score, and a corrected score should simply replace the old one.
+    """
+    if not results:
+        return 0
+    with psycopg.connect(conn_str or dsn()) as conn:
+        with conn.cursor() as cur:
+            for r in results:
+                cur.execute(
+                    """
+                    INSERT INTO raw.result_only_games
+                        (game_id, event_slug, round_name, game_date,
+                         home_code, away_code, home_score, away_score)
+                    VALUES (%s, %s, %s, nullif(%s, '')::date, %s, %s, %s, %s)
+                    ON CONFLICT (game_id) DO UPDATE SET
+                        event_slug = excluded.event_slug,
+                        round_name = excluded.round_name,
+                        game_date  = excluded.game_date,
+                        home_code  = excluded.home_code,
+                        away_code  = excluded.away_code,
+                        home_score = excluded.home_score,
+                        away_score = excluded.away_score,
+                        fetched_at = now()
+                    """,
+                    (r["game_id"], slug, r["round"], r["date"], r["home"], r["away"],
+                     r["home_score"], r["away_score"]),
+                )
+        conn.commit()
+    log.info("%s: stored %d result-only game(s)", slug, len(results))
+    return len(results)

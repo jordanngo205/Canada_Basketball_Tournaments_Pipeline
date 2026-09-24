@@ -99,6 +99,62 @@ def list_events() -> list[dict]:
     raise RuntimeError("Couldn't read the event index — page structure may have changed.")
 
 
+def schedule_row(node: dict, slug: str) -> dict | None:
+    """One fixture from an event's schedule, or None if it has no game id.
+
+    Two status codes matter and they are not the same thing. The statistics
+    status says the box score is final, which is what makes a game worth
+    scraping. The result status says the score is final. A forfeit has the
+    second without the first: FIBA records who won (20-0) but there is no box
+    score to fetch. Those are kept as `result_only` so a forfeited placement
+    game still decides a placement, instead of vanishing with the stats.
+    """
+    game_id = undefined_to_none(node.get("gameId"))
+    if game_id is None:
+        return None
+    team_a = undefined_to_none(node.get("teamA")) or {}
+    team_b = undefined_to_none(node.get("teamB")) or {}
+    home = undefined_to_none(team_a.get("code"))
+    away = undefined_to_none(team_b.get("code"))
+    status = undefined_to_none(node.get("gameStatisticStatusCode"))
+    result_status = undefined_to_none(node.get("gameResultStatusCode"))
+    is_live = bool(undefined_to_none(node.get("isLive")))
+
+    def score(key: str, team: dict):
+        value = undefined_to_none(node.get(key))
+        if value is None:
+            value = undefined_to_none(team.get("score"))
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            return None
+
+    home_score, away_score = score("teamAScore", team_a), score("teamBScore", team_b)
+    # No team code = the bracket hasn't resolved yet, not missing data.
+    played = bool(home and away and status == "VALID" and not is_live)
+
+    return {
+        "game_id": str(game_id),
+        "home": home,
+        "away": away,
+        "date": (undefined_to_none(node.get("gameDateTime")) or "")[:10],
+        "round": (undefined_to_none(node.get("round")) or {}).get("roundName", ""),
+        "status": status,
+        "result_status": result_status,
+        "is_live": is_live,
+        "home_score": home_score,
+        "away_score": away_score,
+        "played": played,
+        "result_only": bool(
+            home and away and not played and not is_live
+            and result_status == "VALID"
+            and home_score is not None and away_score is not None
+            and home_score != away_score
+        ),
+        "url": f"{BASE}/en/events/{slug}/games/{game_id}-{home}-{away}",
+    }
+
+
 def event_games(slug: str, played_only: bool = True) -> list[dict]:
     """Every fixture in an event, with the URL for each game page.
 
@@ -121,38 +177,37 @@ def event_games(slug: str, played_only: bool = True) -> list[dict]:
 
     games: dict[str, dict] = {}
     for node in nodes:
-        game_id = undefined_to_none(node.get("gameId"))
-        if game_id is None or str(game_id) in games:
-            continue
-        team_a = undefined_to_none(node.get("teamA")) or {}
-        team_b = undefined_to_none(node.get("teamB")) or {}
-        home = undefined_to_none(team_a.get("code"))
-        away = undefined_to_none(team_b.get("code"))
-        status = undefined_to_none(node.get("gameStatisticStatusCode"))
-        is_live = bool(undefined_to_none(node.get("isLive")))
-
-        games[str(game_id)] = {
-            "game_id": str(game_id),
-            "home": home,
-            "away": away,
-            "date": (undefined_to_none(node.get("gameDateTime")) or "")[:10],
-            "round": (undefined_to_none(node.get("round")) or {}).get("roundName", ""),
-            "status": status,
-            "is_live": is_live,
-            # No team code = the bracket hasn't resolved yet, not missing data.
-            "played": bool(home and away and status == "VALID" and not is_live),
-            "url": f"{BASE}/en/events/{slug}/games/{game_id}-{home}-{away}",
-        }
+        row = schedule_row(node, slug)
+        if row and row["game_id"] not in games:
+            games[row["game_id"]] = row
 
     rows = sorted(games.values(), key=lambda r: (r["date"], r["game_id"]))
+    # Say what can't be scraped and why. A future fixture is routine; an
+    # unscraped game from a finished event is a hole in the data, and without
+    # this it vanishes silently.
+    for r in rows:
+        if not r["played"]:
+            log.info(
+                "event %s: no box score for %s %s %s-%s (status=%s result=%s live=%s)%s",
+                slug, r["game_id"], r["date"], r["home"], r["away"],
+                r["status"], r["result_status"], r["is_live"],
+                " — result only, e.g. a forfeit" if r["result_only"] else "",
+            )
     if played_only:
         rows = [r for r in rows if r["played"]]
     log.info("event %s: %d game(s) ready to ingest", slug, len(rows))
     return rows
 
 
-def game_urls(slug: str, played_only: bool = True) -> list[str]:
-    return [g["url"] for g in event_games(slug, played_only)]
+def event_fixtures(slug: str) -> tuple[list[str], list[dict]]:
+    """One read of the schedule, split two ways: URLs of games with a final
+    box score to scrape, and games with only a final result (forfeits) to
+    store as a result."""
+    games = event_games(slug, played_only=False)
+    urls = [g["url"] for g in games if g["played"]]
+    results = [g for g in games if g["result_only"]]
+    log.info("event %s: %d to scrape, %d result-only", slug, len(urls), len(results))
+    return urls, results
 
 
 def event_teams(slug: str) -> set[str]:

@@ -65,10 +65,11 @@ def fiba_scouting_report():
 
         Runs once per event via .expand(). Airflow shows each as its own square.
         """
-        from ingest.discover import game_urls
-        from ingest.load import load_games
+        from ingest.discover import event_fixtures
+        from ingest.load import load_games, store_results
 
-        urls = game_urls(slug, played_only=True)
+        urls, results = event_fixtures(slug)
+        store_results(slug, results)
         if not urls:
             # Normal mid-tournament, or for one that hasn't tipped off. Skipping
             # marks the square pink rather than red, which is the honest signal.

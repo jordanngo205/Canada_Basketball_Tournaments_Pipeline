@@ -5,8 +5,8 @@
 # a new qualifier is announced.
 #
 # Pinning is not redundant with discovery: FIBA's event index only lists current
-# and upcoming events, so a tournament drops off it once it finishes. All three
-# of the 2026 events below are already gone from the index but their pages still
+# and upcoming events, so a tournament drops off it once it finishes. All of the
+# events below are already gone from the index but their pages still
 # work, and without pinning we would silently stop rebuilding them.
 
 team: CAN
@@ -24,6 +24,11 @@ team: CAN
 programme: womens
 
 pinned:
+  # 2025: every women's 5x5 event Canada played. All are long gone from the
+  # index and before the discovery window below, so they only come in pinned.
+  - fiba-u16-womens-americup-2025
+  - fiba-womens-americup-2025
+  - fiba-u19-womens-basketball-world-cup-2025
   - fiba-womens-olympic-pre-qualifying-tournament-2026-guadalajara-mexico
   - fiba-u17-womens-basketball-world-cup-2026
   - fiba-u18-womens-americup-2026
