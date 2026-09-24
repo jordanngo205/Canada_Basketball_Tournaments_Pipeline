@@ -395,6 +395,7 @@ HUB_LABELS = {
 BANNERS = {
     "wc-qualifying-istanbul-2026", "u18-americup-2026", "u17-world-cup-2026",
     "olympic-pre-qualifying-2026", "americup-2025", "u16-americup-2025",
+    "u19-world-cup-2025",
 }
 
 
