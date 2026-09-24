@@ -50,6 +50,8 @@ FLAG_MAP = {
     "PHI": "ph", "POL": "pl", "PUR": "pr", "SEN": "sn", "SLO": "si", "SRB": "rs",
     "SSD": "ss", "SVK": "sk", "SWE": "se", "TUR": "tr", "URU": "uy", "USA": "us",
     "VEN": "ve", "ANG": "ao", "FIN": "fi", "ISR": "il", "POR": "pt", "UKR": "ua",
+    # FIBA writes Nigeria as NGR, not the IOC-style NGA above; both are kept.
+    "NGR": "ng", "ESA": "sv",
 }
 
 TEAM_COLORS = {
@@ -65,7 +67,7 @@ TEAM_COLORS = {
     "PHI": "#0038A8", "POL": "#DC143C", "PUR": "#ED0000", "SEN": "#00853F",
     "SLO": "#005DA4", "SRB": "#C6363C", "SSD": "#0F47AF", "SVK": "#0B4EA2",
     "SWE": "#006AA7", "TUR": "#E30A17", "URU": "#7BAFD4", "USA": "#0A3161",
-    "VEN": "#FCD116", "ANG": "#CE1126",
+    "VEN": "#FCD116", "ANG": "#CE1126", "NGR": "#008751", "ESA": "#0F47AF",
 }
 
 
