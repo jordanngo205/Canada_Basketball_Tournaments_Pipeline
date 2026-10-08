@@ -18,6 +18,14 @@ on:
     # runs every 5 minutes because it checks one tournament; this one sweeps
     # the whole calendar. Change the cron if a tournament needs tighter.
     - cron: "0 */3 * * *"
+  # A change to how the page is built should not wait for the next timer.
+  # Push-triggered runs skip the scrape (see below), so they take minutes.
+  # docs/ is not in this list, so this workflow's own commit never re-runs it.
+  push:
+    branches: [main]
+    paths:
+      - "reports/**"
+      - "dbt/**"
   workflow_dispatch:
     inputs:
       skip_ingest:
@@ -70,7 +78,7 @@ jobs:
         run: |
           python -m scripts.run_pipeline \
             --docs docs \
-            ${{ inputs.skip_ingest && '--skip-ingest' || '' }}
+            ${{ (inputs.skip_ingest || github.event_name == 'push') && '--skip-ingest' || '' }}
 
       - name: Commit the rebuilt site
         run: |
