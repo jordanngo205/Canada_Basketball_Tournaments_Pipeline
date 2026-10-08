@@ -115,15 +115,6 @@
   .sidebar-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
   @media (max-width: 700px) { .sidebar-row { grid-template-columns: 1fr; } }
   .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
-  .leader-tabs { display: flex; margin: 10px 0 12px; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
-  .leader-tab { flex: 1; padding: 6px; text-align: center; font-size: 11px; font-weight: 600; cursor: pointer; color: var(--muted); background: transparent; border: none; transition: all .15s; }
-  .leader-tab.active { background: var(--accent); color: #fff; }
-  .leader-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--border); }
-  .leader-row:last-child { border-bottom: none; }
-  .leader-rank { font-size: 11px; color: var(--muted2); min-width: 16px; font-weight: 700; }
-  .leader-name { flex: 1; font-size: 12px; font-weight: 600; color: var(--text); }
-  .leader-team-tag { font-size: 10px; color: var(--muted); }
-  .leader-val { font-size: 13px; font-weight: 800; color: var(--accent); min-width: 28px; text-align: right; }
   .standings-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
   .standings-table th { color: var(--muted); font-weight: 600; padding: 4px 6px; text-align: center; font-size: 10px; }
   .standings-table th:first-child { text-align: left; }
@@ -183,51 +174,6 @@
   .award-icecold      { --c-fill:#dcf3fe; --c-mid:#7dd3fc; --c-text:#035f8b; }
   .award-lvp          { --c-fill:#dde1e6; --c-mid:#374151; --c-text:#141e2f; }
 
-  /* ── NET POINTS PANELS ───────────────────────── */
-  .net-note { font-size: 11px; color: var(--muted); margin-bottom: 14px; padding: 9px 13px; background: var(--accent-light); border-radius: 8px; border-left: 3px solid var(--accent); }
-  .net-panels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-  @media (max-width: 1100px) { .net-panels { grid-template-columns: 1fr 1fr; } }
-  @media (max-width: 680px)  { .net-panels { grid-template-columns: 1fr; } }
-  /* Each panel answers a different question, so each carries its own colour:
-     a tinted header fading into the card, and a matching rule beneath it. */
-  .net-panel { background: linear-gradient(180deg, var(--p-fill) 0%, var(--surface) 340px);
-               border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
-               box-shadow: 0 1px 3px rgba(16,24,40,.04); }
-  .net-panel-title { font-size: 12.5px; font-weight: 800; text-align: center; padding: 11px 14px;
-                     background: linear-gradient(135deg, var(--p-mid) 0%, var(--p-deep) 100%);
-                     border-bottom: 1px solid var(--border); letter-spacing: .2px; color: #fff;
-                     text-shadow: 0 1px 2px rgba(0,0,0,.18); }
-  /* Panel palettes — one hue per question, kept clear of the status colours
-     used for good/bad values inside the tables. */
-  .np-overall { --p-fill:#eef2ff; --p-mid:#4f46e5; --p-deep:#3730a3; }
-  .np-off     { --p-fill:#fff7ed; --p-mid:#ea580c; --p-deep:#9a3412; }
-  .np-def     { --p-fill:#f5f3ff; --p-mid:#7c3aed; --p-deep:#5b21b6; }
-  .np-zone    { --p-fill:#ecfeff; --p-mid:#0891b2; --p-deep:#155e75; }
-  .np-three   { --p-fill:#eff6ff; --p-mid:#0284c7; --p-deep:#075985; }
-  .np-glass   { --p-fill:#fdf2f8; --p-mid:#db2777; --p-deep:#9d174d; }
-
-  /* These panels are long stacks of dense tables. Without banding they read
-     as one white sheet, so tint every other row and key the section labels to
-     the panel's own hue — the good/bad status colours stay reserved for the
-     "worst" and "other" labels. */
-  .net-panel .player-table tbody tr:nth-child(even) { background: var(--p-fill); }
-  .net-panel .player-table tbody tr:hover { background: var(--p-fill); filter: brightness(.96); }
-  .net-panel .sub-label { color: var(--p-deep); background: var(--p-fill);
-                          border-top-color: var(--p-mid); border-bottom-color: var(--p-mid); }
-  .net-panel .sub-label.worst { color: var(--red); background: var(--red-bg);
-                                border-top-color: var(--red-border); border-bottom-color: var(--red-border); }
-  .net-panel .sub-label.other { color: var(--amber); background: var(--amber-bg);
-                                border-top-color: #fde68a; border-bottom-color: #fde68a; }
-  .sub-label { font-size: 10px; font-weight: 700; text-align: center; padding: 6px 10px; color: var(--accent); background: var(--accent-light); border-bottom: 1px solid var(--border); border-top: 1px solid var(--border); text-transform: uppercase; letter-spacing: .8px; }
-  .sub-label.worst { color: var(--red); background: var(--red-bg); border-color: var(--red-border); }
-  .sub-label.other { color: var(--amber); background: var(--amber-bg); border-color: #fde68a; }
-  .player-table { width: 100%; border-collapse: collapse; }
-  .player-table th { font-size: 9px; font-weight: 700; color: var(--muted); padding: 5px 10px; text-align: right; border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: .5px; }
-  .player-table th:first-child { text-align: left; }
-  .player-table td { padding: 5px 10px; border-bottom: 1px solid var(--border); font-size: 11px; text-align: right; color: var(--text2); }
-  .player-table td:first-child { text-align: left; }
-  .player-table tr:last-child td { border-bottom: none; }
-  .player-table tbody tr:hover { background: var(--surface2); }
   .pname { font-weight: 600; color: var(--text); font-size: 12px; }
   .ptag { font-size: 9px; color: var(--muted); margin-left: 3px; font-weight: 500; }
   .wl-pos { color: var(--green); font-weight: 700; }
@@ -244,7 +190,6 @@
   .game-card { box-shadow: 0 1px 3px var(--shadow); }
   .net-pos-mid { background: var(--green-bg); color: var(--green); border-color: var(--green-border); }
   .net-neg-mid { background: var(--red-bg); color: var(--red); border-color: var(--red-border); }
-  .sub-label.other { border-color: var(--amber-bg); }
 
   .header-logo { height: 62px; width: auto; background: #fff; border-radius: 12px;
                  padding: 7px 11px; flex-shrink: 0; box-shadow: 0 2px 10px rgba(0,0,0,.24); }
@@ -269,13 +214,6 @@
                      padding: 4px 8px; border: 1px solid var(--border2); border-radius: 7px;
                      background: var(--surface); color: var(--text); cursor: pointer; }
   .nav-team select:hover { border-color: var(--accent); color: var(--accent); }
-  /* Name the two numbers, otherwise "15.3  46 tot" is a guess. */
-  .leader-colhead { display: grid; grid-template-columns: 1fr auto auto; gap: 10px;
-                    font-size: 9px; font-weight: 700; letter-spacing: .8px;
-                    text-transform: uppercase; color: var(--muted);
-                    padding: 6px 10px 5px; border-bottom: 1px solid var(--border); }
-  .leader-colhead span:nth-child(2) { width: 52px; text-align: right; }
-  .leader-colhead span:nth-child(3) { width: 46px; text-align: right; }
   /* Repeat the team control in each section: the nav-bar one is easy to miss
      once you have scrolled into a section. All copies stay in sync. */
   .zone-team { margin-left: auto; display: inline-flex; align-items: center; gap: 7px;
@@ -293,7 +231,6 @@
         padding: 4px 8px; border: 1px solid var(--border2); border-radius: 7px;
         background: var(--surface); color: var(--text); cursor: pointer; }
   .order-btn:hover, .leader-controls select:hover { border-color: var(--accent); color: var(--accent); }
-  .leader-total { font-size: 9.5px; font-weight: 600; color: var(--muted); margin-left: 5px; }
   .leader-note { font-size: 10.5px; color: var(--muted); margin-top: 8px; }
   /* ── NAV ─────────────────────────────────── */
   html { scroll-behavior: smooth; }
@@ -391,9 +328,6 @@
   .quad-legend { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
   .only-narrow { display: none; }
   @media (max-width: 760px) { .only-narrow { display: block; } }
-  .quad-legend h4 { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .8px;
-                    color: var(--text); margin-bottom: 8px; }
-  .quad-legend p { font-size: 11px; color: var(--muted); line-height: 1.6; margin-bottom: 10px; }
   .quad-tbl { width: 100%; border-collapse: collapse; font-size: 11px; }
   .quad-tbl th { font-size: 9px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted);
                  text-align: right; padding: 4px 5px; border-bottom: 1px solid var(--border); }
@@ -424,12 +358,9 @@
   .games-col { gap: 12px; }
 
   /* Tables: roomier rows, lighter rules, numerals that line up. */
-  .player-table td, .standings-table td, .quad-tbl td { font-variant-numeric: tabular-nums; }
-  .player-table td { padding: 7px 12px; }
-  .player-table th { padding: 7px 12px; }
+  .standings-table td, .quad-tbl td { font-variant-numeric: tabular-nums; }
   .adv-table td { padding: 8px 6px; }
   .adv-table th { letter-spacing: .4px; }
-  .player-table tbody tr { transition: background .12s ease; }
 
   .section-nav { border-bottom: 1px solid var(--border); box-shadow: 0 1px 3px rgba(16,24,40,.04); }
   .date-nav { border-bottom: 1px solid var(--border); }
@@ -461,12 +392,6 @@
              line-height: 1.35; }
   .kpi { display: flex; flex-direction: column; }
   .kpi-sub:last-child { margin-top: auto; padding-top: 5px; }
-
-  /* Magnitude bar behind a leaderboard value — the table reads as a chart
-     without spending any extra vertical space. */
-  .leader-row { position: relative; }
-  .leader-bar { position: absolute; left: 0; bottom: 0; height: 2px;
-                background: var(--accent); opacity: .3; border-radius: 2px; transition: width .3s ease; }
 
   /* ── MOTION ──────────────────────────────── */
   .zone { animation: rise .45s ease both; }
@@ -545,6 +470,69 @@
   .poss-chart .flag-mark { display: flex; line-height: 1; }
   .poss-chart .flag-mark .fi { width: 100% !important; }
   .poss-chart g.pt:hover .dot { stroke: var(--text); }
+
+  /* ── LAYOUT ADDITIONS ────────────────────── */
+  /* Four factors: the table on the left, the possessions chart beside it. */
+  .ff-layout { display: grid; grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr); gap: 24px;
+               align-items: start; margin-top: 16px; }
+  @media (max-width: 1200px) { .ff-layout { grid-template-columns: 1fr; } }
+  .ff-layout .ff-tbl th, .ff-layout .ff-tbl td { padding-left: 7px; padding-right: 7px; }
+  .ff-chart-title { font-size: 11px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: var(--text2); }
+  .ff-right .poss-chart { margin-top: 10px; }
+  /* Team efficiency: the reading guide sits under the title, before the chart. */
+  .how-to-read { background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+                 border-radius: 10px; padding: 12px 16px; margin: -4px 0 18px; }
+  .how-to-read h4 { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 4px; }
+  .how-to-read p { font-size: 12px; color: var(--text2); line-height: 1.6; margin: 0; }
+  .zone-controls { margin-left: auto; display: inline-flex; gap: 14px; flex-wrap: wrap; align-self: center; }
+  .zone-controls .zone-team { margin-left: 0; }
+  .zone-controls select { max-width: 230px; }
+  @media (max-width: 700px) { .zone-header:has(.zone-controls) { flex-wrap: wrap; } .zone-controls { margin-left: 0; } }
+  /* Player stats: one table, every category a chip and a sortable column. */
+  .stats-row { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 18px; align-items: start; }
+  @media (max-width: 1000px) { .stats-row { grid-template-columns: 1fr; } }
+  .stat-cats { display: flex; flex-wrap: wrap; gap: 5px; margin: 4px 0 8px; }
+  .stat-cat { font: inherit; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px;
+              border: 1px solid var(--border2); background: var(--surface); color: var(--muted); cursor: pointer; }
+  .stat-cat:hover { color: var(--accent); border-color: var(--accent); }
+  .stat-cat.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .stat-desc { font-size: 11.5px; color: var(--muted); margin-bottom: 10px; }
+  .stats-scroll { overflow-x: auto; }
+  .stats-tbl { width: 100%; border-collapse: collapse; font-size: 12px; font-variant-numeric: tabular-nums; }
+  .stats-tbl th { font-size: 9.5px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; color: var(--muted);
+                  padding: 7px 8px; text-align: right; border-bottom: 2px solid var(--border2); white-space: nowrap;
+                  cursor: pointer; background: var(--surface2); }
+  .stats-tbl th:hover { color: var(--accent); }
+  .stats-tbl td { padding: 7px 8px; text-align: right; border-bottom: 1px solid var(--border); color: var(--text2); white-space: nowrap; }
+  .stats-tbl .rk { text-align: center; color: var(--muted2); font-weight: 700; width: 28px; cursor: default; }
+  .stats-tbl .pl { text-align: left; position: relative; min-width: 190px; cursor: default; }
+  .stats-tbl .pl .ptag { display: inline-flex; align-items: center; gap: 3px; margin-left: 6px; }
+  .stats-tbl th.on { color: #fff; background: var(--accent); }
+  .stats-tbl td.on { background: var(--accent-light); color: var(--text); font-weight: 800; }
+  .stats-tbl tbody tr:hover td { background: var(--surface2); }
+  .stats-tbl tbody tr:hover td.on { background: var(--accent-light); filter: brightness(.97); }
+  .stat-bar { position: absolute; left: 0; bottom: 0; height: 2px; background: var(--accent); opacity: .35; border-radius: 2px; }
+  .link-btn { font: inherit; font-size: 11px; font-weight: 700; color: var(--accent); background: none; border: 0;
+              cursor: pointer; padding: 0 0 0 6px; }
+  .link-btn:hover { text-decoration: underline; }
+  /* Momentum under each game. */
+  .mom { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); }
+  .mom-legend { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; font-size: 12px; color: var(--text2); margin-bottom: 4px; }
+  .mom-legend i { display: inline-block; width: 18px; height: 4px; border-radius: 2px; margin-right: 6px; vertical-align: middle; }
+  .mom-read { margin-left: auto; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
+  .mom-svg { width: 100%; height: auto; display: block; touch-action: pan-y; }
+  .mom-mark { opacity: .13; filter: grayscale(1); pointer-events: none; }
+  .mom-q { stroke: var(--border2); stroke-dasharray: 4 5; }
+  .mom-zero { stroke: var(--muted2); stroke-width: 1; }
+  .mom-cursor { stroke: var(--text); stroke-width: 1; opacity: .5; pointer-events: none; }
+  .mom-hit { fill: transparent; cursor: crosshair; }
+  .mom-half { font-size: 11px; font-weight: 800; letter-spacing: 2px; fill: var(--muted); text-anchor: middle; }
+  .mom-ql { font-size: 11px; fill: var(--muted); text-anchor: middle; }
+  .mom-side { font-size: 10px; font-weight: 800; letter-spacing: 1px; fill: var(--muted); }
+  .mom-bal { font-size: 10px; font-weight: 700; fill: var(--muted2); }
+  /* On a phone the chart keeps a readable size and scrolls sideways in its card. */
+  .mom-scroll { overflow-x: auto; }
+  @media (max-width: 620px) { .mom-svg { min-width: 680px; } }
 </style>
 </head>
 <body>
@@ -563,82 +551,19 @@
 <div class="date-nav" id="dateNav"></div>
 
 <div class="section-nav">
-  <a class="section-nav-item" href="#section-scores">Group Phase Scores</a>
-  <a class="section-nav-item" href="#section-qual">Qualification</a>
+  <a class="section-nav-item" href="#section-factors">Four Factors</a>
   <a class="section-nav-item" href="#section-eff">Team Efficiency</a>
   <a class="section-nav-item" href="#section-shots">Shot Chart</a>
-  <a class="section-nav-item" href="#section-factors">Four Factors</a>
-  <a class="section-nav-item" href="#section-leaders">Leaders &amp; Standings</a>
-  <a class="section-nav-item" href="#section-awards">Daily Awards</a>
-  <a class="section-nav-item" href="#section-net">Player Net Points</a>
+  <a class="section-nav-item" href="#section-awards">Awards</a>
+  <a class="section-nav-item" href="#section-stats">Player Stats</a>
+  <a class="section-nav-item" href="#section-qual">Qualification</a>
+  <a class="section-nav-item" href="#section-scores">Scores &amp; Momentum</a>
   <label class="nav-team">Team
     <select class="team-filter" onchange="setTeamFilter(this.value)"></select>
   </label>
 </div>
 
 <div class="kpi-row" id="kpiRow"></div>
-
-<div class="zone zone--scores" id="section-scores">
-  <div class="zone-inner">
-    <div class="zone-header">
-      <span class="zone-kicker">Day Recap</span>
-      <span class="zone-title" id="scoresTitle">Group Phase Scores</span>
-    </div>
-    <div class="games-col" id="gamesCol"></div>
-  </div>
-</div>
-
-<div class="zone zone--mid" id="section-qual">
-  <div class="zone-inner">
-    <div class="zone-header">
-      <span class="zone-kicker">🎟️ The Race</span>
-      <span class="zone-title">Qualification</span>
-    </div>
-    <div class="zone-sub" id="qualSub"></div>
-    <div class="qual-grid" id="qualGrid" style="margin-top:14px"></div>
-  </div>
-</div>
-
-<div class="zone zone--scores" id="section-eff">
-  <div class="zone-inner">
-    <div class="zone-header">
-      <span class="zone-kicker">Both Ends</span>
-      <span class="zone-title" id="effTitle">Team Efficiency</span>
-    </div>
-    <div class="chart-wrap">
-      <div class="quad">
-        <div class="quad-plot" id="quadPlot"></div>
-        <!-- Spell out the direction in words: an arrow glyph flips meaning
-             once the label is rotated onto the vertical axis. -->
-        <div class="quad-axis x">Offensive Rating (higher is better)</div>
-        <div class="quad-axis y">Defensive Rating (lower is better)</div>
-      </div>
-      <div class="quad-legend">
-        <h4>How to read it</h4>
-        <div id="quadHelp"></div>
-        <table class="quad-tbl" id="quadTbl">
-          <thead><tr><th>Team</th><th>ORTG</th><th>DRTG</th><th>NET</th></tr></thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="zone zone--scores" id="section-shots">
-  <div class="zone-inner">
-    <div class="zone-header">
-      <span class="zone-kicker">🎯 Where The Shots Come From</span>
-      <span class="zone-title">Shot Chart</span>
-      <label class="zone-team">Team <select id="shotTeamSel" onchange="setShotTeam(this.value)"></select></label>
-    </div>
-    <div class="shot-wrap">
-      <div><div id="courtHolder"></div><div class="shot-legend" id="courtLegend"></div></div>
-      <div><div class="zone-sub" style="margin:0 0 10px">Attempts by zone</div><div id="zoneBars"></div></div>
-    </div>
-    <div class="zone-sub" id="shotNote" style="margin-top:14px"></div>
-  </div>
-</div>
 
 <div class="zone zone--mid" id="section-factors">
   <div class="zone-inner">
@@ -660,50 +585,62 @@
     <div class="zone-sub">Shooting, rebounding, getting to the line and taking care of the ball — at both ends.
       Every factor is scored against the rest of this tournament and signed so that positive is good, then the
       eight are added up. That total is the projection; the last columns check it against where each team finished.</div>
-    <div class="ff-scroll" id="factorsTbl" style="margin-top:14px"></div>
-    <div class="ff-legend" id="factorsLegend"></div>
-    <div class="zone-sub" style="margin-top:28px">Extra possessions against shooting. Across: offensive rebounds plus
-      turnovers forced, less the same given up, per game — how many more shots a team gets than its opponent. Up:
-      how well it makes them. The dashed lines are the tournament average.</div>
-    <div id="possChart"></div>
+    <div class="ff-layout">
+      <div class="ff-left">
+        <div class="ff-scroll" id="factorsTbl"></div>
+        <div class="ff-legend" id="factorsLegend"></div>
+      </div>
+      <div class="ff-right">
+        <div class="ff-chart-title">Extra possessions vs. shooting</div>
+        <div class="zone-sub">Across: offensive rebounds plus turnovers forced, less the same given up, per game —
+          how many more shots a team gets than its opponent. Up: how well it makes them. The dashed lines are the
+          tournament average.</div>
+        <div id="possChart"></div>
+      </div>
+    </div>
   </div>
 </div>
 
-<div class="zone zone--mid" id="section-leaders">
+<div class="zone zone--scores" id="section-eff">
   <div class="zone-inner">
     <div class="zone-header">
-      <span class="zone-kicker">Tournament Wide</span>
-      <span class="zone-title">Leaders &amp; Standings</span>
+      <span class="zone-kicker">Both Ends</span>
+      <span class="zone-title" id="effTitle">Team Efficiency</span>
     </div>
-    <div class="sidebar-row">
-      <div class="card">
-        <div class="leader-head">
-          <span class="section-label" style="margin:0">Tournament Leaders</span>
-          <div class="leader-controls">
-            <select class="team-filter" onchange="setTeamFilter(this.value)"></select>
-            <button id="orderToggle" class="order-btn" onclick="toggleOrder()"
-                    title="Flip between the best and the worst performers">↓ Highest first</button>
-          </div>
-        </div>
-        <div class="leader-tabs">
-          <button class="leader-tab active" onclick="setLeaderTab('PTS',this)">Pts</button>
-          <button class="leader-tab" onclick="setLeaderTab('REB',this)">Reb</button>
-          <button class="leader-tab" onclick="setLeaderTab('AS',this)">Ast</button>
-          <button class="leader-tab" onclick="setLeaderTab('stocks',this)">Stk</button>
-          <button class="leader-tab" onclick="setLeaderTab('EFF',this)">EFF</button>
-          <button class="leader-tab" onclick="setLeaderTab('PM',this)">+/-</button>
-        </div>
-        <div class="leader-colhead"><span>Player</span><span>Per game</span><span>Total</span></div>
-        <div id="leaderList"></div>
+    <div class="how-to-read"><h4>How to read it</h4><div id="quadHelp"></div></div>
+    <div class="chart-wrap">
+      <div class="quad">
+        <div class="quad-plot" id="quadPlot"></div>
+        <!-- Spell out the direction in words: an arrow glyph flips meaning
+             once the label is rotated onto the vertical axis. -->
+        <div class="quad-axis x">Offensive Rating (higher is better)</div>
+        <div class="quad-axis y">Defensive Rating (lower is better)</div>
       </div>
-      <div class="card">
-        <div class="section-label">Standings</div>
-        <table class="standings-table">
-          <thead><tr><th>Team</th><th>W</th><th>L</th><th>Diff</th></tr></thead>
-          <tbody id="standingsBody"></tbody>
+      <div class="quad-legend">
+        <table class="quad-tbl" id="quadTbl">
+          <thead><tr><th>Team</th><th>ORTG</th><th>DRTG</th><th>NET</th></tr></thead>
+          <tbody></tbody>
         </table>
       </div>
     </div>
+  </div>
+</div>
+
+<div class="zone zone--scores" id="section-shots">
+  <div class="zone-inner">
+    <div class="zone-header">
+      <span class="zone-kicker">🎯 Where The Shots Come From</span>
+      <span class="zone-title" id="shotTitle">Shot Chart</span>
+      <div class="zone-controls">
+        <label class="zone-team">Team <select id="shotTeamSel" onchange="setShotTeam(this.value)"></select></label>
+        <label class="zone-team">Player <select id="shotPlayerSel" onchange="setShotPlayer(this.value)"></select></label>
+      </div>
+    </div>
+    <div class="shot-wrap">
+      <div><div id="courtHolder"></div><div class="shot-legend" id="courtLegend"></div></div>
+      <div><div class="zone-sub" style="margin:0 0 10px">Attempts by zone</div><div id="zoneBars"></div></div>
+    </div>
+    <div class="zone-sub" id="shotNote" style="margin-top:14px"></div>
   </div>
 </div>
 
@@ -720,17 +657,62 @@
   </div>
 </div>
 
-<div class="zone zone--net" id="section-net">
+<div class="zone zone--mid" id="section-stats">
   <div class="zone-inner">
     <div class="zone-header">
-      <span class="zone-kicker">Deep Dive</span>
-      <span class="zone-title" id="netTitle">Player Net Points</span>
+      <span class="zone-kicker">Tournament Wide</span>
+      <span class="zone-title" id="statsTitle">Player Stats</span>
       <label class="zone-team">Team
         <select class="team-filter" onchange="setTeamFilter(this.value)"></select>
       </label>
     </div>
-    <div class="net-note"><strong>Net Points (Plus/Minus):</strong> On-court point differential while each player was on the floor. Offensive/defensive split estimated from team ORTG vs DRTG balance. PBP-derived stats: corner 3s, rim finishes, mid-range makes, fast-break pts, putback pts.</div>
-    <div class="net-panels" id="netPanels"></div>
+    <div class="stats-row">
+      <div class="card">
+        <div class="leader-head">
+          <span class="section-label" style="margin:0">Pick a category — or click any column</span>
+          <div class="leader-controls">
+            <button id="orderToggle" class="order-btn" onclick="toggleOrder()"
+                    title="Flip between the best and the worst performers">↓ Highest first</button>
+          </div>
+        </div>
+        <div class="stat-cats" id="statCats"></div>
+        <div class="stat-desc" id="statDesc"></div>
+        <div class="stats-scroll" id="statsTbl"></div>
+        <div class="leader-note" id="statsNote"></div>
+      </div>
+      <div class="card">
+        <div class="section-label">Standings</div>
+        <table class="standings-table">
+          <thead><tr><th>Team</th><th>W</th><th>L</th><th>Diff</th></tr></thead>
+          <tbody id="standingsBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="zone zone--mid" id="section-qual">
+  <div class="zone-inner">
+    <div class="zone-header">
+      <span class="zone-kicker">🎟️ The Race</span>
+      <span class="zone-title">Qualification</span>
+    </div>
+    <div class="zone-sub" id="qualSub"></div>
+    <div class="qual-grid" id="qualGrid" style="margin-top:14px"></div>
+  </div>
+</div>
+
+<div class="zone zone--scores" id="section-scores">
+  <div class="zone-inner">
+    <div class="zone-header">
+      <span class="zone-kicker">Game By Game</span>
+      <span class="zone-title" id="scoresTitle">Group Phase Scores</span>
+    </div>
+    <div class="zone-sub" style="margin:-8px 0 16px">Under each game, its momentum: every play-by-play action scored
+      with Hollinger's Game Score (a made two is +1.7, a missed shot −0.7, a turnover −1, and so on), each team's
+      recent actions added up with older ones fading out over a minute or so, then one side's total less the other's.
+      The higher the line, the harder that team was pushing at that point in the game.</div>
+    <div class="games-col" id="gamesCol"></div>
   </div>
 </div>
 
@@ -808,8 +790,8 @@ function teamWithFlag(code, size='1em') {
 // STATE
 // ─────────────────────────────────────────────────────────────────────────────
 const dates = [...new Set(GAME_DETAILS.map(g => g.date))].sort();
-let activeDate = dates[0];
-let activeLeaderStat = 'PTS';
+// Open on the whole tournament; the day tabs narrow it down.
+let activeDate = 'ALL';
 let activeTeam = 'ALL';
 let leaderOrder = 'best';
 
@@ -827,15 +809,6 @@ function netBadge(ortg, drtg) {
   return `<span class="net-badge ${cls}">${sign}${net.toFixed(1)}</span>`;
 }
 function fmt(v, dec=1) { return parseFloat(v).toFixed(dec); }
-function fmtNet(v) {
-  const n = parseFloat(v);
-  const sign = n >= 0 ? '+' : '';
-  const cls = n > 0 ? 'npos' : n < 0 ? 'nneg' : 'nmid';
-  return `<span class="${cls}">${sign}${n.toFixed(1)}</span>`;
-}
-function fmtWL(s) {
-  return `<span class="${s.startsWith('+')?'wl-pos':'wl-neg'}">${s}</span>`;
-}
 function dateLabel(d) {
   const [,m,day] = d.split('-');
   return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(m)-1] + ' ' + parseInt(day);
@@ -882,7 +855,7 @@ function renderGames() {
   const col = document.getElementById('gamesCol');
   const games = gamesFor(activeDate);
   document.getElementById('scoresTitle').textContent =
-    (activeDate === 'ALL' ? 'All Group Phase Scores' : 'Group Phase Scores') + teamSuffix();
+    (activeDate === 'ALL' ? 'All Scores' : 'Scores') + teamSuffix();
   const advMap = {};
   ADV.forEach(a => { if (!advMap[a.gameId]) advMap[a.gameId]=[]; advMap[a.gameId].push(a); });
 
@@ -928,9 +901,150 @@ function renderGames() {
           </div>
         </div>
         ${advRows}
+        ${momentumSvg(g)}
       </div>
     </div>`;
   }).join('');
+  initMomentumHover(col);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MOMENTUM — one chart per game, from MOMENTUM: [seconds, 0 home | 1 away,
+// Game Score, points] per action. Each team's actions are summed with an
+// exponential fade, so a run builds the line up and a quiet spell lets it
+// fall back; the chart is one side's total less the other's.
+// ─────────────────────────────────────────────────────────────────────────────
+const MOM_TAU = 60;    // seconds for an action's weight to fade to 37%
+const MOM_STEP = 5;    // sample every 5 game seconds
+const MOM_L = 70, MOM_R = 14;   // left gutter holds the "Balanced" label
+// Canada Basketball's own mark is on the page already; everyone else gets
+// their flag, which every team has.
+function teamMark(code) {
+  if (code === 'CAN') {
+    const logo = document.querySelector('.header-logo');
+    if (logo) return { href: logo.src, ratio: logo.naturalWidth && logo.naturalHeight
+                       ? logo.naturalWidth / logo.naturalHeight : 500 / 671 };
+  }
+  const iso = FLAG_MAP[code];
+  return iso ? { href: `https://cdn.jsdelivr.net/npm/flag-icons@7.2.3/flags/4x3/${iso}.svg`, ratio: 4 / 3 } : null;
+}
+function hexRgb(hex) {
+  const n = parseInt(String(hex).replace('#', ''), 16);
+  return isNaN(n) ? null : [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+// Two teams in near-identical colours (Canada and Türkiye are both red) would
+// make the chart unreadable, so the bottom team steps down to slate.
+function momentumColors(top, bottom) {
+  const a = hexRgb(TEAM_COLORS[top] || '#64748b'), b = hexRgb(TEAM_COLORS[bottom] || '#64748b');
+  const close = Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]) < 90;
+  return [TEAM_COLORS[top] || '#64748b', close ? '#64748b' : (TEAM_COLORS[bottom] || '#64748b')];
+}
+function gameClock(t) {
+  const per = t < 2400 ? Math.floor(t / 600) : 4 + Math.floor((t - 2400) / 300);
+  const len = per < 4 ? 600 : 300, start = per < 4 ? per * 600 : 2400 + (per - 4) * 300;
+  const left = Math.max(0, Math.round(len - (t - start)));
+  return `${per < 4 ? 'Q' + (per + 1) : 'OT' + (per - 3)} ${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`;
+}
+const MOM = {};
+function momentumSeries(g) {
+  const acts = (typeof MOMENTUM !== 'undefined' && MOMENTUM[g.gameId]) || [];
+  if (acts.length < 10) return null;
+  // Canada sits on top whenever it plays; otherwise the home team does.
+  const topSide = g.away_short === 'CAN' && g.home_short !== 'CAN' ? 1 : 0;
+  const last = Math.max(...acts.map(a => a[0]));
+  const ots = last > 2400 ? Math.ceil((last - 2400) / 300) : 0;
+  const end = 2400 + ots * 300;
+  const pts = [], score = [0, 0];
+  const lvl = [0, 0];
+  let i = 0, prev = 0;
+  for (let t = 0; t <= end; t += MOM_STEP) {
+    const k = Math.exp(-(t - prev) / MOM_TAU);
+    lvl[0] *= k; lvl[1] *= k;
+    while (i < acts.length && acts[i][0] <= t) {
+      const [ta, side, w, p] = acts[i];
+      lvl[side] += w * Math.exp(-(t - ta) / MOM_TAU);
+      score[side] += p;
+      i++;
+    }
+    prev = t;
+    pts.push({ t, d: lvl[topSide] - lvl[1 - topSide], s: [score[0], score[1]] });
+  }
+  return { pts, end, ots, topSide };
+}
+function momentumSvg(g) {
+  const m = momentumSeries(g);
+  if (!m) return '';
+  MOM[g.gameId] = m;
+  const top = m.topSide === 0 ? g.home_short : g.away_short;
+  const bot = m.topSide === 0 ? g.away_short : g.home_short;
+  const topName = m.topSide === 0 ? g.home_team : g.away_team;
+  const botName = m.topSide === 0 ? g.away_team : g.home_team;
+  const [cTop, cBot] = momentumColors(top, bot);
+  const W = 1000, H = 340, L = MOM_L, R = MOM_R, T = 50, B = 50, mid = T + (H - T - B) / 2;
+  const peak = Math.max(...m.pts.map(p => Math.abs(p.d)), 1) * 1.08;
+  const X = t => L + t / m.end * (W - L - R);
+  const Y = d => mid - d / peak * (H - T - B) / 2;
+  const area = sign => {
+    const line = m.pts.map(p => `${X(p.t).toFixed(1)},${Y(sign > 0 ? Math.max(p.d, 0) : Math.min(p.d, 0)).toFixed(1)}`);
+    return { fill: `M${X(0)},${mid} L${line.join(' L')} L${X(m.end)},${mid} Z`, line: `M${line.join(' L')}` };
+  };
+  const up = area(1), dn = area(-1);
+  const bounds = [0, 600, 1200, 1800, 2400, ...Array.from({ length: m.ots }, (_, k) => 2700 + k * 300)];
+  const labels = ['Q1', 'Q2', 'Q3', 'Q4', ...Array.from({ length: m.ots }, (_, k) => 'OT' + (k + 1))];
+  const mark = (code, y0, y1) => {
+    const mk = teamMark(code); if (!mk) return '';
+    const h = (y1 - y0) * 0.8, w = h * mk.ratio;
+    return `<image class="mom-mark" href="${mk.href}" x="${(W - w) / 2}" y="${y0 + (y1 - y0 - h) / 2}" width="${w}" height="${h}"
+      preserveAspectRatio="xMidYMid meet"></image>`;
+  };
+  return `<div class="mom">
+    <div class="mom-legend">
+      <span><i style="background:${cTop}"></i>${topName} momentum</span>
+      <span><i style="background:${cBot}"></i>${botName} momentum</span>
+      <span class="mom-read" id="momRead-${g.gameId}"></span>
+    </div>
+    <div class="mom-scroll"><svg class="mom-svg" viewBox="0 0 ${W} ${H}" role="img" data-game="${g.gameId}"
+         aria-label="Momentum through the game: above the line ${topName} more active, below it ${botName}">
+      ${mark(top, T, mid)}${mark(bot, mid, H - B)}
+      ${bounds.slice(1).filter(t => t < m.end)
+        .map(t => `<line class="mom-q" x1="${X(t)}" x2="${X(t)}" y1="${T}" y2="${H - B}"></line>`).join('')}
+      <text class="mom-half" x="${X(600)}" y="16">FIRST HALF</text>
+      <text class="mom-half" x="${X(1800)}" y="16">SECOND HALF</text>
+      ${labels.map((l, k) => `<text class="mom-ql" x="${X((bounds[k] + (bounds[k + 1] ?? m.end)) / 2)}" y="${H - B + 18}">${l}</text>`).join('')}
+      <path d="${up.fill}" fill="${cTop}" opacity=".82"></path>
+      <path d="${dn.fill}" fill="${cBot}" opacity=".82"></path>
+      <path d="${up.line}" fill="none" stroke="${cTop}" stroke-width="2"></path>
+      <path d="${dn.line}" fill="none" stroke="${cBot}" stroke-width="2"></path>
+      <line class="mom-zero" x1="${L}" x2="${W - R}" y1="${mid}" y2="${mid}"></line>
+      <text class="mom-side" x="${L}" y="${T - 12}">${topName.toUpperCase()} MORE ACTIVE</text>
+      <text class="mom-side" x="${L}" y="${H - 6}">${botName.toUpperCase()} MORE ACTIVE</text>
+      <text class="mom-bal" x="${L - 6}" y="${mid + 4}" text-anchor="end">Balanced</text>
+      <line class="mom-cursor" x1="0" x2="0" y1="${T}" y2="${H - B}" style="display:none"></line>
+      <rect class="mom-hit" x="${L}" y="${T}" width="${W - L - R}" height="${H - T - B}"></rect>
+    </svg></div>
+  </div>`;
+}
+// Hover reads the clock and the score at that moment.
+function initMomentumHover(root) {
+  root.querySelectorAll('.mom-svg').forEach(svg => {
+    const id = svg.dataset.game, m = MOM[id], g = GAME_DETAILS.find(x => x.gameId === id);
+    const cur = svg.querySelector('.mom-cursor'), out = document.getElementById('momRead-' + id);
+    if (!m || !g) return;
+    const vb = svg.viewBox.baseVal, L = MOM_L, R = MOM_R;
+    const show = ev => {
+      const box = svg.getBoundingClientRect();
+      const x = (ev.clientX - box.left) / box.width * vb.width;
+      const t = Math.min(Math.max((x - L) / (vb.width - L - R) * m.end, 0), m.end);
+      const p = m.pts[Math.min(m.pts.length - 1, Math.round(t / MOM_STEP))];
+      cur.setAttribute('x1', x); cur.setAttribute('x2', x); cur.style.display = '';
+      const lead = p.d > 0.5 ? (m.topSide === 0 ? g.home_short : g.away_short)
+                 : p.d < -0.5 ? (m.topSide === 0 ? g.away_short : g.home_short) : null;
+      out.textContent = `${gameClock(p.t)} · ${g.home_short} ${p.s[0]}–${p.s[1]} ${g.away_short}` +
+        (lead ? ` · ${lead} pushing` : ' · even');
+    };
+    svg.addEventListener('pointermove', show);
+    svg.addEventListener('pointerleave', () => { cur.style.display = 'none'; out.textContent = ''; });
+  });
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1032,56 +1146,109 @@ function renderAwards() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// LEADERS (cumulative through active date)
+// PLAYER STATS — the old leaderboard and the six net-point panels, as one
+// table. Every category the panels ranked by is a chip here and a sortable
+// column, so a player's whole line is in one row instead of six lists.
 // ─────────────────────────────────────────────────────────────────────────────
-function renderLeaders() {
-  const validGames = new Set(GAME_DETAILS.filter(g=>activeDate==='ALL'||g.date<=activeDate).map(g=>g.gameId));
-  const agg = {};
-  playersFor('ALL').filter(p=>validGames.has(p.gameId)).forEach(p=>{
-    if(!agg[p.name]) agg[p.name]={name:p.name,team:p.team,val:0,gp:0};
-    const v = (activeLeaderStat==='PM'||activeLeaderStat==='EFF')
-      ? Number(p[activeLeaderStat]||0) : Number(p[activeLeaderStat]||0);
-    agg[p.name].val += v;
-    agg[p.name].gp++;
-  });
-  // Plus/minus is cumulative impact, so it totals. Everything else is ranked
-  // per game — otherwise the leaderboard just sorts by who played most.
-  const isTotal = activeLeaderStat === 'PM';
-  Object.values(agg).forEach(p => {
-    p.total = p.val;
-    p.shown = isTotal ? p.val : (p.gp ? p.val / p.gp : 0);
-  });
-  // With a team selected, show the whole squad — the point is to see where a
-  // player sits among team-mates, which a top-7 cut would hide.
-  const all = Object.values(agg).sort((a,b)=> leaderOrder==='best' ? b.shown-a.shown : a.shown-b.shown);
-  const sorted = activeTeam==='ALL' ? all.slice(0,7) : all;
-  // Scale bars against the largest absolute value so +/- leaders read too.
-  const peak = Math.max(...sorted.map(p=>Math.abs(p.val)), 1);
-  document.getElementById('leaderList').innerHTML = sorted.map((p,i)=>`
-    <div class="leader-row">
-      <div class="leader-bar" style="width:${Math.max(2, Math.abs(p.val)/peak*100)}%"></div>
-      <div class="leader-rank">${i+1}</div>
-      <div><div class="leader-name">${p.name}</div><div class="leader-team-tag" style="display:inline-flex;align-items:center;gap:4px">${flag(p.team,'0.85em')}${p.team} · ${p.gp} GP</div></div>
-      <div class="leader-val">${isTotal ? (p.shown>=0?'+':'')+p.shown
-                                         : (Math.round(p.shown*10)/10).toFixed(1)}${
-        isTotal ? '' : `<span class="leader-total">${Math.round(p.total*10)/10} tot</span>`}</div>
-    </div>`).join('') +
-    (activeTeam==='ALL' ? '' :
-      `<div class="leader-note">${activeTeam} squad — all ${all.length} players who logged minutes,
-       ranked by ${isTotal ? 'total +/-' : activeLeaderStat + ' per game'}, ${leaderOrder==='best'?'best':'worst'} first.</div>`);
+// `total: true` ranks by the tournament sum (net points are cumulative impact);
+// everything else ranks per game, or the board just sorts by who played most.
+const STAT_CATS = [
+  { k:'PM',             label:'Net',      total:true,  signed:true, desc:'Net points: on-court point differential while she was on the floor' },
+  { k:'off_net',        label:'Off Net',  total:true,  signed:true, desc:'Offensive share of net points, from team ORTG vs DRTG balance' },
+  { k:'def_net',        label:'Def Net',  total:true,  signed:true, desc:'Defensive share of net points' },
+  { k:'PTS',            label:'Pts',      desc:'Points per game' },
+  { k:'REB',            label:'Reb',      desc:'Rebounds per game' },
+  { k:'AS',             label:'Ast',      desc:'Assists per game' },
+  { k:'stocks',         label:'Stk',      desc:'Steals plus blocks per game' },
+  { k:'EFF',            label:'EFF',      desc:'FIBA efficiency per game' },
+  { k:'fgPct',          label:'FG%',      pct:true, desc:'Field goal percentage, minimum 4 attempts a game on average' },
+  { k:'rim_makes',      label:'Rim',      desc:'Makes at the rim per game' },
+  { k:'midrange_makes', label:'Mid',      desc:'Mid-range makes per game' },
+  { k:'corner3m',       label:'C3',       desc:'Corner threes made per game' },
+  { k:'abovebk3m',      label:'AB3',      desc:'Above-the-break threes made per game' },
+  { k:'fb_pts',         label:'FB',       desc:'Fast-break points per game (a 7-second estimate from the play-by-play)' },
+  { k:'putback_pts',    label:'PB',       desc:'Putback points per game' },
+  { k:'ST',             label:'Stl',      desc:'Steals per game' },
+  { k:'BS',             label:'Blk',      desc:'Blocks per game' },
+  { k:'FD',             label:'FD',       desc:'Fouls drawn per game' },
+  { k:'PF',             label:'PF',       desc:'Fouls committed per game' },
+  { k:'TO',             label:'TO',       desc:'Turnovers per game' },
+];
+let activeStat = 'PM';
+let statsShowAll = false;
+
+function statValue(p, c) {
+  if (c.k === 'fgPct') return p.FGA >= 4 * p.gp ? 100 * p.FGM / p.FGA : null;
+  const v = Number(p[c.k]) || 0;
+  return c.total ? v : v / p.gp;
+}
+function statText(v, c) {
+  if (v == null) return '—';
+  if (c.pct) return v.toFixed(1);
+  if (c.signed) return (v > 0 ? '+' : '') + (Math.round(v * 10) / 10).toFixed(1);
+  return (Math.round(v * 10) / 10).toFixed(1);
+}
+function setStat(k) { activeStat = k; renderStats(); }
+function toggleStatsAll() { statsShowAll = !statsShowAll; renderStats(); }
+
+function renderStats() {
+  const cat = STAT_CATS.find(c => c.k === activeStat) || STAT_CATS[0];
+  // A single day shows that day, like the awards; Total Results the whole run.
+  const players = aggregatePlayers(playersFor(activeDate));
+  document.getElementById('statsTitle').textContent =
+    (activeDate === 'ALL' ? 'Player Stats' : `Player Stats — ${dateLabel(activeDate)}`) + teamSuffix();
+  document.getElementById('statCats').innerHTML = STAT_CATS.map(c =>
+    `<button class="stat-cat${c.k === cat.k ? ' on' : ''}" onclick="setStat('${c.k}')" title="${c.desc}">${c.label}</button>`
+  ).join('');
+  document.getElementById('statDesc').textContent =
+    cat.desc + (cat.total ? ' — tournament total.' : '.');
+
+  const ranked = players
+    .map(p => ({ p, v: statValue(p, cat) }))
+    .filter(x => x.v != null)
+    .sort((a, b) => leaderOrder === 'best' ? b.v - a.v : a.v - b.v);
+  // With a team picked, show the whole squad: the point is where a player sits
+  // among team-mates, which a top-15 cut would hide.
+  const cut = activeTeam === 'ALL' && !statsShowAll ? 15 : ranked.length;
+  const shown = ranked.slice(0, cut);
+  const peak = Math.max(...shown.map(x => Math.abs(x.v)), 1);
+
+  const head = STAT_CATS.map(c =>
+    `<th class="${c.k === cat.k ? 'on' : ''}" onclick="setStat('${c.k}')" title="${c.desc}">${c.label}</th>`).join('');
+  const body = shown.map(({ p, v }, i) => `<tr>
+      <td class="rk">${i + 1}</td>
+      <td class="pl"><span class="pname">${p.name}</span><span class="ptag">${flag(p.team, '0.85em')}${p.team}</span>
+        <span class="stat-bar" style="width:${Math.max(2, Math.abs(v) / peak * 100)}%"></span></td>
+      <td>${p.gp}</td>
+      ${STAT_CATS.map(c => {
+        const cv = statValue(p, c);
+        const cls = [c.k === cat.k ? 'on' : '', c.signed && cv != null ? (cv > 0 ? 'npos' : cv < 0 ? 'nneg' : '') : '']
+          .filter(Boolean).join(' ');
+        return `<td class="${cls}">${statText(cv, c)}</td>`;
+      }).join('')}
+    </tr>`).join('');
+  document.getElementById('statsTbl').innerHTML = ranked.length
+    ? `<table class="stats-tbl"><thead><tr><th class="rk">#</th><th class="pl">Player</th><th>GP</th>${head}</tr></thead>
+        <tbody>${body}</tbody></table>`
+    : '<div style="color:var(--muted);padding:12px">No players for this selection.</div>';
+
+  const more = activeTeam === 'ALL' && ranked.length > 15
+    ? ` <button class="link-btn" onclick="toggleStatsAll()">${statsShowAll ? 'Show top 15' : `Show all ${ranked.length}`}</button>` : '';
+  document.getElementById('statsNote').innerHTML =
+    `Net, Off Net and Def Net are totals; everything else is per game.${more}`;
 }
 
 function setTeamFilter(code) {
   activeTeam = code;
   document.querySelectorAll('.team-filter').forEach(sel => { if (sel.value !== code) sel.value = code; });
   renderKpis(); renderGames(); renderQualification(); renderEfficiency();
-  renderAwards(); renderLeaders(); renderStandings(); renderNetPanels(); renderShots(); renderFactors();
+  renderAwards(); renderStats(); renderStandings(); renderShots(); renderFactors();
 }
 function toggleOrder() {
   leaderOrder = leaderOrder==='best' ? 'worst' : 'best';
   document.getElementById('orderToggle').textContent =
     leaderOrder==='best' ? '↓ Highest first' : '↑ Lowest first';
-  renderLeaders();
+  renderStats();
 }
 function populateTeamFilter() {
   const teams = [...new Set(PLAYER_DATA.map(p=>p.team))].sort();
@@ -1118,141 +1285,12 @@ function renderStandings() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// NET POINTS PANELS
-// ─────────────────────────────────────────────────────────────────────────────
-function pRow(p, valHtml, extra='') {
-  return `<tr>
-    <td><span class="pname">${p.name}</span><span class="ptag" style="display:inline-flex;align-items:center;gap:3px">${flag(p.team,'0.8em')}${p.team}</span></td>
-    <td>${valHtml}</td>
-    ${extra}
-    <td>${fmtWL(p.WL)}</td>
-  </tr>`;
-}
-
-function makeTable(rows, headers) {
-  // Callers pass an array of <tr> strings. Interpolating an array directly
-  // stringifies it with commas, and the browser then foster-parents those
-  // stray text nodes out above the table — join explicitly instead.
-  const body = Array.isArray(rows) ? rows.join('') : rows;
-  return `<table class="player-table">
-    <thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
-    <tbody>${body}</tbody>
-  </table>`;
-}
-
-function renderNetPanels() {
-  let day = playersFor(activeDate);
-  if (activeDate === 'ALL') day = aggregatePlayers(day);
-  document.getElementById('netTitle').textContent =
-    (activeDate === 'ALL' ? 'Tournament Net Points' : 'Player Net Points') + teamSuffix();
-  if (!day.length) { document.getElementById('netPanels').innerHTML=''; return; }
-
-  const byPM      = [...day].sort((a,b)=>b.PM-a.PM);
-  const byOff     = [...day].sort((a,b)=>b.off_net-a.off_net);
-  const byDef     = [...day].sort((a,b)=>b.def_net-a.def_net);
-  const byFB      = [...day].sort((a,b)=>b.fb_pts-a.fb_pts);
-  const byRim     = [...day].sort((a,b)=>b.rim_makes-a.rim_makes);
-  const byMid     = [...day].sort((a,b)=>b.midrange_makes-a.midrange_makes);
-  const byC3      = [...day].sort((a,b)=>b.corner3m-a.corner3m);
-  const byAB3     = [...day].sort((a,b)=>b.abovebk3m-a.abovebk3m);
-  const byReb     = [...day].sort((a,b)=>b.REB-a.REB);
-  const byST      = [...day].sort((a,b)=>b.ST-a.ST);
-  const byPB      = [...day].sort((a,b)=>b.putback_pts-a.putback_pts);
-  const byFD      = [...day].sort((a,b)=>b.FD-a.FD);
-  const byPF      = [...day].sort((a,b)=>b.PF-a.PF);
-  const byFGpct   = [...day].filter(p=>p.FGA>=4).sort((a,b)=>(a.FGM/a.FGA)-(b.FGM/b.FGA));
-  const bench     = [...day].filter(p=>!p.starter).sort((a,b)=>b.PM-a.PM);
-
-  const hOvr=['Player','Net Pts','Pts','W/L'];
-  const hOff=['Player','Off Net','Pts','W/L'];
-  const hDef=['Player','Def Net','Stk','W/L'];
-  const hStat=['Player','Val','W/L'];
-  const hStatPts=['Player','Pts','W/L'];
-
-  // Panel 1 – Overall Net Pts
-  const top6=new Set(byPM.slice(0,6).map(p=>p.name));
-  const bot6=new Set([...byPM].reverse().slice(0,6).map(p=>p.name));
-  const highScorers=[...day].filter(p=>p.PTS>=10&&!top6.has(p.name)&&!bot6.has(p.name)).sort((a,b)=>b.PTS-a.PTS).slice(0,5);
-
-  const panel1=`
-    <div class="sub-label">Best Overall</div>
-    ${makeTable(byPM.slice(0,6).map(p=>pRow(p,fmtNet(p.PM),`<td>${p.PTS}</td>`)),hOvr)}
-    <div class="sub-label worst">Worst Overall</div>
-    ${makeTable([...byPM].reverse().slice(0,6).map(p=>pRow(p,fmtNet(p.PM),`<td>${p.PTS}</td>`)),hOvr)}
-    ${highScorers.length?`<div class="sub-label other">Other High Scorers</div>${makeTable(highScorers.map(p=>pRow(p,fmtNet(p.PM),`<td>${p.PTS}</td>`)),hOvr)}`:''}`;
-
-  // Panel 2 – Offensive breakdown
-  const top6off=new Set(byOff.slice(0,6).map(p=>p.name));
-  const bot6off=new Set([...byOff].reverse().slice(0,6).map(p=>p.name));
-  const topBench=bench.slice(0,5).filter(p=>!top6off.has(p.name)&&!bot6off.has(p.name));
-
-  const panel2=`
-    <div class="sub-label">Best Offense</div>
-    ${makeTable(byOff.slice(0,6).map(p=>pRow(p,fmtNet(p.off_net),`<td>${p.PTS}</td>`)),hOff)}
-    <div class="sub-label worst">Worst Offense</div>
-    ${makeTable([...byOff].reverse().slice(0,6).map(p=>pRow(p,fmtNet(p.off_net),`<td>${p.PTS}</td>`)),hOff)}
-    ${topBench.length?`<div class="sub-label other">⚡ Bench Spark Plugs</div>${makeTable(topBench.map(p=>pRow(p,fmtNet(p.PM),`<td>${p.PTS}</td>`)),hOvr)}`:''}`;
-
-  // Panel 3 – Defensive breakdown
-  const panel3=`
-    <div class="sub-label">Best Defense</div>
-    ${makeTable(byDef.slice(0,6).map(p=>pRow(p,fmtNet(p.def_net),`<td>${p.stocks}</td>`)),hDef)}
-    <div class="sub-label worst">Worst Defense</div>
-    ${makeTable([...byDef].reverse().slice(0,6).map(p=>pRow(p,fmtNet(p.def_net),`<td>${p.stocks}</td>`)),hDef)}`;
-
-  // Panel 4 – Shot zone breakdown
-  const panel4=`
-    <div class="sub-label">🚂 Rim Finishes (makes)</div>
-    ${makeTable(byRim.filter(p=>p.rim_makes>0).slice(0,5).map(p=>pRow(p,`<strong>${p.rim_makes}</strong>`,``)),['Player','Makes','W/L'])}
-    <div class="sub-label">🔬 Mid-Range (makes)</div>
-    ${makeTable(byMid.filter(p=>p.midrange_makes>0).slice(0,5).map(p=>pRow(p,`<strong>${p.midrange_makes}</strong>`,``)),['Player','Makes','W/L'])}
-    <div class="sub-label other">🧊 Ice Cold (FG%, min 4 att)</div>
-    ${makeTable(byFGpct.slice(0,5).map(p=>pRow(p,`<span class="nneg">${(p.FGM/p.FGA*100).toFixed(1)}%</span>`,`<td style="color:var(--muted)">${p.FGM}/${p.FGA}</td>`)),['Player','FG%','FGM/A','W/L'])}`;
-
-  // Panel 5 – 3-point & fast break
-  const panel5=`
-    <div class="sub-label">📐 Corner 3s (makes)</div>
-    ${makeTable(byC3.filter(p=>p.corner3m>0).slice(0,5).map(p=>pRow(p,`<strong>${p.corner3m}</strong>`,``)),['Player','Makes','W/L'])}
-    <div class="sub-label">🌧️ Above Break 3s (makes)</div>
-    ${makeTable(byAB3.filter(p=>p.abovebk3m>0).slice(0,5).map(p=>pRow(p,`<strong>${p.abovebk3m}</strong>`,``)),['Player','Makes','W/L'])}
-    <div class="sub-label other">💨 Fast Break Points</div>
-    ${makeTable(byFB.filter(p=>p.fb_pts>0).slice(0,5).map(p=>pRow(p,`<strong>${p.fb_pts}</strong>`,``)),['Player','FB Pts','W/L'])}`;
-
-  // Panel 6 – Glass, hustle, fouls
-  const panel6=`
-    <div class="sub-label">🪟 Glass Cleaners (rebounds)</div>
-    ${makeTable(byReb.slice(0,5).map(p=>pRow(p,`<strong>${p.REB}</strong>`,`<td style="color:var(--muted);font-size:10px">${p.OR}OR/${p.DR}DR</td>`)),['Player','Reb','Split','W/L'])}
-    <div class="sub-label">🦅 Ball Hawks (steals)</div>
-    ${makeTable(byST.filter(p=>p.ST>0).slice(0,5).map(p=>pRow(p,`<strong>${p.ST}</strong>`,``)),['Player','Stls','W/L'])}
-    <div class="sub-label other">🧹 Cleanup Crew (putbacks)</div>
-    ${makeTable(byPB.filter(p=>p.putback_pts>0).slice(0,5).map(p=>pRow(p,`<strong>${p.putback_pts}</strong>`,``)),['Player','PB Pts','W/L'])}
-    <div class="sub-label">🎯 Contact Artists (fouls drawn)</div>
-    ${makeTable(byFD.slice(0,5).map(p=>pRow(p,`<strong>${p.FD}</strong>`,``)),['Player','FD','W/L'])}
-    <div class="sub-label worst">🪓 Hackers (fouls committed)</div>
-    ${makeTable(byPF.slice(0,5).map(p=>pRow(p,`<span class="nneg">${p.PF}</span>`,``)),['Player','PF','W/L'])}`;
-
-  document.getElementById('netPanels').innerHTML = `
-    <div class="net-panel np-overall"><div class="net-panel-title">📊 Overall Net Points</div>${panel1}</div>
-    <div class="net-panel np-off"><div class="net-panel-title">⚡ Offensive Net Points</div>${panel2}</div>
-    <div class="net-panel np-def"><div class="net-panel-title">🛡️ Defensive Net Points</div>${panel3}</div>
-    <div class="net-panel np-zone"><div class="net-panel-title">🎯 Shot Zone Breakdown</div>${panel4}</div>
-    <div class="net-panel np-three"><div class="net-panel-title">🌧️ 3-Pointers & Transition</div>${panel5}</div>
-    <div class="net-panel np-glass"><div class="net-panel-title">💪 Glass, Hustle & Fouls</div>${panel6}</div>`;
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
 // EVENT HANDLERS & INIT
 // ─────────────────────────────────────────────────────────────────────────────
 function setDate(d) {
   activeDate = d;
 renderDateTabs(); renderKpis(); renderGames(); renderQualification(); renderEfficiency();
-  renderAwards(); renderLeaders(); renderStandings(); renderNetPanels(); renderShots(); renderFactors();
-}
-function setLeaderTab(stat, el) {
-  activeLeaderStat = stat;
-  document.querySelectorAll('.leader-tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  renderLeaders();
+  renderAwards(); renderStats(); renderStandings(); renderShots(); renderFactors();
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1797,16 +1835,44 @@ function courtSvg(rows){
         <text class="zpct" y="-1">${r.fg}%</text><text class="zsub" y="10">${r.makes}/${r.attempts}</text></g>`;
     }).join('')}</svg>`;
 }
-function setShotTeam(v){ shotTeam = v; renderShots(); }
+function setShotTeam(v){ shotTeam = v; shotPlayer = 'ALL'; renderShots(); }
+function setShotPlayer(v){ shotPlayer = v; renderShots(); }
+let shotPlayer = 'ALL';
+// A player is compared with the whole tournament from the same zone — the
+// team chart's lgFg leaves the team itself out, which only makes sense there.
+function playerZoneRows(team, player){
+  const field = {};
+  COURT_ZONES.forEach(r=>{ (field[r.zone] ||= {a:0,m:0}); field[r.zone].a += r.attempts; field[r.zone].m += r.makes; });
+  return (typeof PLAYER_ZONES === 'undefined' ? [] : PLAYER_ZONES)
+    .filter(r=>r.shortCode===team && r.player===player)
+    .map(r=>{
+      const fg = +(100*r.makes/r.attempts).toFixed(1);
+      const lg = field[r.zone] && field[r.zone].a ? +(100*field[r.zone].m/field[r.zone].a).toFixed(1) : null;
+      return { zone:r.zone, attempts:r.attempts, makes:r.makes, fg, lgFg:lg,
+               diff: lg==null ? null : +(fg-lg).toFixed(1) };
+    });
+}
 function renderShots(){
   if (typeof COURT_ZONES === 'undefined') return;
   const teams = [...new Set(COURT_ZONES.map(r=>r.shortCode))].sort();
   if(!teams.length) return;
-  if(activeTeam !== 'ALL' && teams.includes(activeTeam)) shotTeam = activeTeam;
+  if(activeTeam !== 'ALL' && teams.includes(activeTeam) && shotTeam !== activeTeam){ shotTeam = activeTeam; shotPlayer = 'ALL'; }
   if(!shotTeam || !teams.includes(shotTeam)) shotTeam = teams.includes('CAN') ? 'CAN' : teams[0];
   const sel = document.getElementById('shotTeamSel');
   if(sel) sel.innerHTML = teams.map(t=>`<option value="${t}" ${t===shotTeam?'selected':''}>${t}</option>`).join('');
-  const mine = COURT_ZONES.filter(r=>r.shortCode===shotTeam);
+
+  // Players by volume, so the shooters worth looking at are at the top.
+  const vol = {};
+  (typeof PLAYER_ZONES === 'undefined' ? [] : PLAYER_ZONES).filter(r=>r.shortCode===shotTeam)
+    .forEach(r=>{ vol[r.player] = (vol[r.player]||0) + r.attempts; });
+  const players = Object.keys(vol).sort((a,b)=>vol[b]-vol[a]);
+  if(shotPlayer !== 'ALL' && !players.includes(shotPlayer)) shotPlayer = 'ALL';
+  const psel = document.getElementById('shotPlayerSel');
+  if(psel) psel.innerHTML = `<option value="ALL">Whole team</option>` +
+    players.map(n=>`<option value="${n.replace(/"/g,'&quot;')}" ${n===shotPlayer?'selected':''}>${n} (${vol[n]})</option>`).join('');
+
+  const mine = shotPlayer==='ALL' ? COURT_ZONES.filter(r=>r.shortCode===shotTeam) : playerZoneRows(shotTeam, shotPlayer);
+  document.getElementById('shotTitle').textContent = shotPlayer==='ALL' ? 'Shot Chart' : `Shot Chart — ${shotPlayer}`;
   document.getElementById('courtHolder').innerHTML = courtSvg(mine);
   document.getElementById('courtLegend').innerHTML =
     `<span>Colder</span><span class="sws">${ZCOL.map(c=>`<span class="sw" style="background:${c}"></span>`).join('')}</span>` +
@@ -1818,14 +1884,17 @@ function renderShots(){
       <span class="tr"><span class="fi" style="width:${(100*r.attempts/max).toFixed(1)}%;background:${zoneFill(r.diff)}"></span></span>
       <span class="vl">${r.fg}%</span></div>`).join('') + `</div>`;
   const total = mine.reduce((s,r)=>s+r.attempts,0);
-  document.getElementById('shotNote').textContent =
-    `${total.toLocaleString()} attempts. Each zone is shaded by field goal percentage against what the rest of the ` +
+  document.getElementById('shotNote').textContent = shotPlayer!=='ALL'
+    ? `${shotPlayer}: ${total.toLocaleString()} attempts, shaded against what the whole tournament shoots from each zone. ` +
+      `Zones with fewer than 3 attempts are shaded but not labelled — a 1-for-1 is not a hot zone.`
+    : `${total.toLocaleString()} attempts. Each zone is shaded by field goal percentage against what the rest of the ` +
     `tournament shoots from the same zone — 34% is poor at the rim and excellent from the corner, so the comparison ` +
     `is the number that means anything. The court is drawn from the data: the hoop is the coordinate origin, the ` +
     `floor is 280 units across a 15m court, and binning every shot by distance puts the crossover from twos to ` +
     `threes at 129 — exactly FIBA's 6.6m corner and 6.75m arc at that scale.`;
 }
-let ffMode = 'values', ffSide = 'off';
+// Both ends, raw values: the whole picture first, z-scores one click away.
+let ffMode = 'values', ffSide = 'both';
 function setFactorsMode(v){ ffMode = v; renderFactors(); }
 function setFactorsSide(v){ ffSide = v; renderFactors(); }
 // Shade by z-score whichever view is showing, so a cell reads the same in
@@ -1854,8 +1923,8 @@ function renderFactors(){
   for (const [id, v] of [['ffSideSeg', ffSide], ['ffModeSeg', ffMode]])
     document.querySelectorAll(`#${id} button`).forEach(b=>{
       b.classList.toggle('on', b.dataset.v===v); b.setAttribute('aria-pressed', b.dataset.v===v); });
-  // One end of the floor at a time by default: four factors and the matching
-  // z-score sum, with the total and the ranking always alongside.
+  // Offence, defence or both: four factors per end and the matching z-score
+  // sum, with the total and the ranking always alongside.
   const showOff = ffSide!=='def', showDef = ffSide!=='off';
   // The sums are z-scores, so they belong to the Z-scores view only; Values
   // shows the raw factors and the ranking the sums produced.
@@ -1901,7 +1970,7 @@ function renderFactors(){
       const diff = r.projRank!=null && r.placement!=null ? r.projRank - r.placement : null;
       const me = r.shortCode===activeTeam || (activeTeam==='ALL' && r.shortCode==='CAN');
       return `<tr class="${me?'me':''}" style="background:${teamTint(r.shortCode)};box-shadow:inset 3px 0 0 ${teamColor(r.shortCode)}">
-      <td>${teamWithFlag(r.shortCode)} <span style="color:var(--muted);font-weight:500">${r.nationality||''}</span></td>
+      <td title="${r.nationality||''}">${teamWithFlag(r.shortCode)}</td>
       ${showOff?FF_COLS.map((c,i)=>cell(r,c,i===0)).join(''):''}${showDef?FF_DEF.map((c,i)=>cell(r,c,i===0)).join(''):''}
       ${sums.map(([k],i)=>sumCell(r[k],i===0)).join('')}
       ${NET.map(([k],i)=>{ const z = netZ[k](r[k]);
@@ -1919,7 +1988,7 @@ function renderPossChart(){
   const box = document.getElementById('possChart');
   if(!box) return;
   if(pts.length < 2){ box.innerHTML = ''; return; }
-  const W=820, H=520, L=64, R=24, T=24, B=58;
+  const W=600, H=500, L=60, R=18, T=24, B=58;
   const xs=pts.map(r=>r.extraPoss), ys=pts.map(r=>r.efg);
   const pad=(lo,hi,p)=>{ const s=(hi-lo)||1; return [lo-s*p, hi+s*p]; };
   const [x0,x1]=pad(Math.min(...xs),Math.max(...xs),.12), [y0,y1]=pad(Math.min(...ys),Math.max(...ys),.12);
@@ -1963,7 +2032,7 @@ function renderPossChart(){
 
 renderStamp(); initFreshness(); populateTeamFilter();
 renderDateTabs(); renderKpis(); renderGames(); renderQualification(); renderEfficiency();
-renderAwards(); renderLeaders(); renderStandings(); renderNetPanels(); renderShots(); renderFactors();
+renderAwards(); renderStats(); renderStandings(); renderShots(); renderFactors();
 initScrollSpy();
 </script>
 </body>

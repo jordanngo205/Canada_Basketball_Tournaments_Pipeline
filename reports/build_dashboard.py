@@ -215,6 +215,39 @@ from analytics_marts.mart_four_factors
 where competition = %s
 """
 
+# The shot chart's player picker. Same twelve court zones as COURT_ZONES; the
+# page compares each player against the whole tournament from that zone.
+PLAYER_ZONES_SQL = """
+select team_code as "shortCode", player_name as player, court_zone as zone,
+       count(*) as attempts, count(*) filter (where shot_made) as makes
+from analytics_intermediate.int_shots
+where competition = %s and player_name is not null
+  and team_code is not null and court_zone is not null
+group by team_code, player_name, court_zone
+"""
+
+# One row per Game Score action. Shipped as compact arrays per game below —
+# a tournament is a few thousand actions, and keys on each would triple that.
+MOMENTUM_SQL = """
+select game_id, seconds_elapsed, side, game_score, points
+from analytics_marts.mart_game_momentum
+where competition = %s
+order by game_id, period_number, action_seq
+"""
+
+
+def momentum_frame(actions: list[dict]) -> dict:
+    """{gameId: [[seconds, 0 home | 1 away, game score, points], ...]}"""
+    out: dict[str, list] = {}
+    for a in actions:
+        out.setdefault(a["game_id"], []).append([
+            a["seconds_elapsed"],
+            0 if a["side"] == "home" else 1,
+            round(float(a["game_score"]), 1),
+            a["points"],
+        ])
+    return out
+
 
 def build(competition: str, conn_str: str | None = None) -> str:
     with psycopg.connect(conn_str or dsn()) as conn:
@@ -226,6 +259,8 @@ def build(competition: str, conn_str: str | None = None) -> str:
         groups = {r["group_code"]: r["teams"] for r in rows(conn, GROUPS_SQL, (competition,))}
         zones = rows(conn, COURT_ZONES_SQL, (competition,))
         factors = rows(conn, FOUR_FACTORS_SQL, (competition,))
+        player_zones = rows(conn, PLAYER_ZONES_SQL, (competition,))
+        momentum = momentum_frame(rows(conn, MOMENTUM_SQL, (competition,)))
 
     dates = sorted(g["date"] for g in gd if g["date"])
     meta = {
@@ -275,6 +310,8 @@ def build(competition: str, conn_str: str | None = None) -> str:
         js("GROUPS", groups),
         js("COURT_ZONES", zones),
         js("FOUR_FACTORS", factors),
+        js("PLAYER_ZONES", player_zones),
+        js("MOMENTUM", momentum),
         END,
     ])
 
