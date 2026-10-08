@@ -64,3 +64,24 @@ models:
       - name: games_played
         tests:
           - dbt_utils.accepted_range: {min_value: 1, max_value: 15}
+
+  - name: mart_game_momentum
+    description: >
+      One row per play-by-play action that moves a team's Game Score, with its
+      Hollinger weight. The momentum chart under each game smooths these.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [game_id, period_number, action_seq]
+    columns:
+      - name: team_code
+        tests: [not_null]
+      - name: side
+        tests:
+          - accepted_values: {values: ['home', 'away']}
+      - name: game_score
+        description: >
+          -1 (a turnover) to +2.7 (a made three). Anything outside that means
+          a weight or a shot value went wrong.
+        tests:
+          - not_null
+          - dbt_utils.accepted_range: {min_value: -1, max_value: 2.7}
