@@ -926,7 +926,7 @@ function teamMark(code) {
                        ? logo.naturalWidth / logo.naturalHeight : 500 / 671 };
   }
   const iso = FLAG_MAP[code];
-  return iso ? { href: `https://cdn.jsdelivr.net/npm/flag-icons@7.2.3/flags/4x3/${iso}.svg`, ratio: 4 / 3 } : null;
+  return iso ? { href: `https://cdn.jsdelivr.net/npm/flag-icons@7.2.3/flags/4x3/${iso}.svg`, ratio: 4 / 3, flag: true } : null;
 }
 function hexRgb(hex) {
   const n = parseInt(String(hex).replace('#', ''), 16);
@@ -993,7 +993,9 @@ function momentumSvg(g) {
   const labels = ['Q1', 'Q2', 'Q3', 'Q4', ...Array.from({ length: m.ots }, (_, k) => 'OT' + (k + 1))];
   const mark = (code, y0, y1) => {
     const mk = teamMark(code); if (!mk) return '';
-    const h = (y1 - y0) * 0.8, w = h * mk.ratio;
+    // A 4:3 flag at the logo's height is far wider than the logo, so it
+    // sits smaller to carry the same visual weight.
+    const h = (y1 - y0) * (mk.flag ? 0.55 : 0.8), w = h * mk.ratio;
     return `<image class="mom-mark" href="${mk.href}" x="${(W - w) / 2}" y="${y0 + (y1 - y0 - h) / 2}" width="${w}" height="${h}"
       preserveAspectRatio="xMidYMid meet"></image>`;
   };
