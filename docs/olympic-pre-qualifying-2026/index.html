@@ -725,7 +725,7 @@ const PLAYER_DATA = [{"date": "2026-08-17", "gameId": "135061", "name": "Adut Bu
 const QUALIFIERS = [];
 const QUALIFY_SPOTS = 2;
 const EVENT_META = {"name": "FIBA Women's Olympic Pre-Qualifying Tournament", "start": "2026-08-17", "end": "2026-08-23", "host": "Guadalajara, Mexico"};
-const GENERATED_AT = "2026-10-09 10:03 UTC";
+const GENERATED_AT = "2026-10-09 14:41 UTC";
 const FLAG_MAP = {"ARG": "ar", "AUS": "au", "BAH": "bs", "BEL": "be", "BRA": "br", "CAN": "ca", "CHI": "cl", "CHN": "cn", "CIV": "ci", "COL": "co", "CRC": "cr", "CRO": "hr", "CUB": "cu", "CZE": "cz", "DOM": "do", "EGY": "eg", "ESP": "es", "FRA": "fr", "GBR": "gb", "GER": "de", "GRE": "gr", "HUN": "hu", "ITA": "it", "JAM": "jm", "JPN": "jp", "KOR": "kr", "LAT": "lv", "LTU": "lt", "MEX": "mx", "MLI": "ml", "NCA": "ni", "NED": "nl", "NGA": "ng", "NZL": "nz", "PAN": "pa", "PAR": "py", "PHI": "ph", "POL": "pl", "PUR": "pr", "SEN": "sn", "SLO": "si", "SRB": "rs", "SSD": "ss", "SVK": "sk", "SWE": "se", "TUR": "tr", "URU": "uy", "USA": "us", "VEN": "ve", "ANG": "ao", "FIN": "fi", "ISR": "il", "POR": "pt", "UKR": "ua", "NGR": "ng", "ESA": "sv"};
 const TEAM_COLORS = {"ARG": "#75AADB", "AUS": "#00843D", "BAH": "#00778B", "BEL": "#FDDA24", "BRA": "#009C3B", "CAN": "#D80621", "CHI": "#D52B1E", "CHN": "#EE1C25", "CIV": "#F77F00", "COL": "#FCD116", "CRC": "#002B7F", "CRO": "#E62020", "CUB": "#002A8F", "CZE": "#11457E", "DOM": "#002D62", "EGY": "#CE1126", "ESP": "#AA151B", "FRA": "#002395", "GBR": "#012169", "GER": "#DD0000", "GRE": "#0D5EAF", "HUN": "#477050", "ITA": "#0064AA", "JAM": "#009B3A", "JPN": "#BC002D", "KOR": "#003478", "LAT": "#9E3039", "LTU": "#FDB913", "MEX": "#006847", "MLI": "#14B53A", "NCA": "#0067C6", "NED": "#FF6C00", "NGA": "#008751", "NZL": "#1B2432", "PAN": "#005293", "PAR": "#D52B1E", "PHI": "#0038A8", "POL": "#DC143C", "PUR": "#ED0000", "SEN": "#00853F", "SLO": "#005DA4", "SRB": "#C6363C", "SSD": "#0F47AF", "SVK": "#0B4EA2", "SWE": "#006AA7", "TUR": "#E30A17", "URU": "#7BAFD4", "USA": "#0A3161", "VEN": "#FCD116", "ANG": "#CE1126", "NGR": "#008751", "ESA": "#0F47AF"};
 const GROUPS = {"A": ["ARG", "BRA", "NZL", "SSD"], "B": ["CAN", "MEX", "PHI", "SEN"]};
@@ -936,7 +936,7 @@ function teamMark(code) {
                        ? logo.naturalWidth / logo.naturalHeight : 500 / 671 };
   }
   const iso = FLAG_MAP[code];
-  return iso ? { href: `https://cdn.jsdelivr.net/npm/flag-icons@7.2.3/flags/4x3/${iso}.svg`, ratio: 4 / 3 } : null;
+  return iso ? { href: `https://cdn.jsdelivr.net/npm/flag-icons@7.2.3/flags/4x3/${iso}.svg`, ratio: 4 / 3, flag: true } : null;
 }
 function hexRgb(hex) {
   const n = parseInt(String(hex).replace('#', ''), 16);
@@ -1003,7 +1003,9 @@ function momentumSvg(g) {
   const labels = ['Q1', 'Q2', 'Q3', 'Q4', ...Array.from({ length: m.ots }, (_, k) => 'OT' + (k + 1))];
   const mark = (code, y0, y1) => {
     const mk = teamMark(code); if (!mk) return '';
-    const h = (y1 - y0) * 0.8, w = h * mk.ratio;
+    // A 4:3 flag at the logo's height is far wider than the logo, so it
+    // sits smaller to carry the same visual weight.
+    const h = (y1 - y0) * (mk.flag ? 0.55 : 0.8), w = h * mk.ratio;
     return `<image class="mom-mark" href="${mk.href}" x="${(W - w) / 2}" y="${y0 + (y1 - y0 - h) / 2}" width="${w}" height="${h}"
       preserveAspectRatio="xMidYMid meet"></image>`;
   };
