@@ -194,14 +194,47 @@ stints as (
         select 1 from subs s where s.game_id = st.game_id and s.person_id = st.person_id
     )
 
+),
+
+per_player as (
+
+    select
+        game_id,
+        person_id,
+        count(*)                                         as stints,
+        -- Clamp at zero: a malformed pair would otherwise subtract minutes.
+        sum(greatest(stint_end - stint_start, 0))        as est_seconds_played,
+        round(sum(greatest(stint_end - stint_start, 0)) / 60.0, 1) as est_minutes_played
+    from stints
+    group by game_id, person_id
+
+),
+
+-- Games whose rebuilt minutes don't add up.
+--
+-- A balanced substitution stream isn't enough on its own. Three San Juan games
+-- at the 2026 World Cup Qualifiers (128174, 128179, 128183) have exactly as
+-- many OUTs as INs, but some arrive in an order the walk above can't pair, and
+-- one team came out at 230.8 minutes against the 200 a game allows. Same rule
+-- as usable_games: if the team totals miss by more than the 6 minutes
+-- assert_team_minutes_reconcile allows, publish no minutes for that game
+-- rather than wrong ones.
+unreconciled_games as (
+
+    select pp.game_id
+    from per_player pp
+    join {{ ref('stg_player_box') }} b
+      on b.game_id = pp.game_id and b.person_id = pp.person_id
+    join (
+        select game_id, 200 + greatest(max(period_number) - 4, 0) * 25 as expected_minutes
+        from {{ ref('stg_pbp') }}
+        group by game_id
+    ) e on e.game_id = pp.game_id
+    group by pp.game_id, b.team_id, e.expected_minutes
+    having abs(sum(pp.est_minutes_played) - e.expected_minutes) > 6
+
 )
 
-select
-    game_id,
-    person_id,
-    count(*)                                         as stints,
-    -- Clamp at zero: a malformed pair would otherwise subtract minutes.
-    sum(greatest(stint_end - stint_start, 0))        as est_seconds_played,
-    round(sum(greatest(stint_end - stint_start, 0)) / 60.0, 1) as est_minutes_played
-from stints
-group by game_id, person_id
+select *
+from per_player
+where game_id not in (select game_id from unreconciled_games)
