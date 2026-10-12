@@ -34,6 +34,14 @@ pinned:
   - fiba-u18-womens-americup-2026
   - fiba-womens-basketball-world-cup-2026-qualifying-tournament-istanbul-turkiye
 
+  # The other three World Cup 2026 Qualifying Tournaments. Canada didn't play
+  # in these, so discovery would never find them; they're here so the
+  # comparison page can rank Canada against all 24 teams in the qualifiers,
+  # not just the five in Istanbul. See `campaigns` below.
+  - fiba-womens-basketball-world-cup-2026-qualifying-tournament-villeurbanne-france
+  - fiba-womens-basketball-world-cup-2026-qualifying-tournament-san-juan-puerto-rico
+  - fiba-womens-basketball-world-cup-2026-qualifying-tournament-wuhan-china
+
 discover:
   enabled: true
   # Costs one fetch per candidate event, so keep the window tight.
@@ -41,3 +49,21 @@ discover:
   until: null
   # FIBA's own tag: gdap is 5x5, 3x3 is 3x3. Empty list means everything.
   disciplines: ["gdap"]
+
+# Qualifying campaigns: tournaments run in parallel at different venues that
+# feed the same final event. Each one gets a comparison page ranking every team
+# across all of its venues, so staff can see where Canada stands beyond the
+# teams it actually played.
+#
+# `match` is the start of FIBA's competition name, shared by every venue.
+# A campaign with only one tournament (the 2026 Olympic Pre-Qualifier was a
+# single event in Guadalajara) is skipped — there is nothing to compare.
+campaigns:
+  - slug: wc-qualifying-2026
+    name: "FIBA Women's Basketball World Cup 2026 Qualifying Tournaments"
+    short: "World Cup Qualifying 2026"
+    match: "FIBA Women's Basketball World Cup 2026 Qualifying Tournament"
+  - slug: olympic-pre-qualifying-2026-all
+    name: "FIBA Women's Olympic Pre-Qualifying Tournaments 2026"
+    short: "Olympic Pre-Qualifying 2026"
+    match: "FIBA Women's Olympic Pre-Qualifying Tournament"

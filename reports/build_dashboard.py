@@ -329,6 +329,11 @@ def build(competition: str, conn_str: str | None = None) -> str:
 # renders without a banner.
 PUBLISHED_SLUGS = {
     "FIBA Women's Basketball World Cup 2026 Qualifying Tournament Türkiye": "wc-qualifying-istanbul-2026",
+    # The other three World Cup 2026 Qualifying venues, pinned for the
+    # comparison page. Named the same way as Istanbul's.
+    "FIBA Women's Basketball World Cup 2026 Qualifying Tournament France": "wc-qualifying-villeurbanne-2026",
+    "FIBA Women's Basketball World Cup 2026 Qualifying Tournament Puerto Rico": "wc-qualifying-san-juan-2026",
+    "FIBA Women's Basketball World Cup 2026 Qualifying Tournament China": "wc-qualifying-wuhan-2026",
     "FIBA U18 Women's AmeriCup": "u18-americup-2026",
     "FIBA U17 Women's Basketball World Cup": "u17-world-cup-2026",
     "FIBA Women's Olympic Pre-Qualifying Tournament": "olympic-pre-qualifying-2026",
@@ -351,6 +356,10 @@ QUALIFY_SPOTS = {
     "u17-world-cup-2026": 4,
     "u18-americup-2026": 2,
     "wc-qualifying-istanbul-2026": 3,
+    # Same six-team round robin as Istanbul at every World Cup Qualifying venue.
+    "wc-qualifying-villeurbanne-2026": 3,
+    "wc-qualifying-san-juan-2026": 3,
+    "wc-qualifying-wuhan-2026": 3,
     # 2025. Women's AmeriCup: two groups of five, top four to the quarters.
     # The U16 AmeriCup and U19 World Cup send every team through (to the
     # quarters and the round of 16), so the line sits under fourth.
@@ -412,6 +421,15 @@ HUB_LABELS = {
     "wc-qualifying-istanbul-2026": (
         "FIBA Women's Basketball World Cup 2026 Qualifying Tournament — Istanbul",
         "Istanbul, Türkiye", "11–17 Mar 2026"),
+    "wc-qualifying-villeurbanne-2026": (
+        "FIBA Women's Basketball World Cup 2026 Qualifying Tournament — Villeurbanne",
+        "Lyon-Villeurbanne, France", "11–17 Mar 2026"),
+    "wc-qualifying-san-juan-2026": (
+        "FIBA Women's Basketball World Cup 2026 Qualifying Tournament — San Juan",
+        "San Juan, Puerto Rico", "11–17 Mar 2026"),
+    "wc-qualifying-wuhan-2026": (
+        "FIBA Women's Basketball World Cup 2026 Qualifying Tournament — Wuhan",
+        "Wuhan, China", "11–17 Mar 2026"),
     "u18-americup-2026": (
         "FIBA U18 Women's AmeriCup 2026", "Irapuato, Mexico", "9–15 Jun 2026"),
     "u17-world-cup-2026": (
@@ -433,6 +451,8 @@ BANNERS = {
     "wc-qualifying-istanbul-2026", "u18-americup-2026", "u17-world-cup-2026",
     "olympic-pre-qualifying-2026", "americup-2025", "u16-americup-2025",
     "u19-world-cup-2025",
+    # Campaign comparison pages share the set: FIBA's WCQT artwork.
+    "wc-qualifying-2026",
 }
 
 
@@ -467,15 +487,53 @@ def _card(comp: dict) -> str:
       </a>'''
 
 
-def build_hub(comps: list[dict]) -> str:
+def _campaign_card(c: dict) -> str:
+    """A hub card for a qualifying campaign's comparison page. Same markup as a
+    tournament card so it sits in the grid without new styles."""
+    n = len(c["members"])
+    start = min(str(m["start"])[:10] for m in c["members"])
+    end = max(str(m["end"])[:10] for m in c["members"])
+    art = (f'<img src="./assets/banners/{c["slug"]}.webp" alt="{c["short"]}" loading="lazy">'
+           if c["slug"] in BANNERS else '<div class="banner-fallback">📊</div>')
+    return f'''
+      <a class="card" href="./{c["slug"]}/">
+        <div class="banner">
+          {art}
+          <span class="badge">Compare</span>
+        </div>
+        <div class="body">
+          <p class="full-name">{c["short"]} — all {n} tournaments</p>
+          <div class="meta">{n} venues &nbsp;·&nbsp; {start} – {end}</div>
+          <div class="cta">Compare Canada with every team &rarr;</div>
+        </div>
+      </a>'''
+
+
+def build_hub(comps: list[dict], campaigns: list[dict] | None = None) -> str:
     """The landing page: one row per year, newest first, each year's
     tournaments in the order they were played. Canada plays about four a year,
-    so a year reads as a single line across."""
+    so a year reads as a single line across.
+
+    Tournaments Canada didn't play in are only in the warehouse so a campaign
+    page can compare against them, so they stay off the year rows — they're
+    reached from their campaign card instead.
+    """
     html = HUB_TEMPLATE.read_text(encoding="utf-8")
     by_year: dict[str, list[dict]] = {}
     for c in comps:
+        if c.get("has_canada") is False:
+            continue
         by_year.setdefault(str(c["start"])[:4], []).append(c)
     rows = []
+    if campaigns:
+        cards = "\n".join(_campaign_card(c) for c in campaigns)
+        rows.append(f'''
+    <section class="year">
+      <h2 class="year-label">COMPARE ACROSS QUALIFYING TOURNAMENTS</h2>
+      <div class="grid">
+{cards}
+      </div>
+    </section>''')
     for year in sorted(by_year, reverse=True):
         cards = "\n".join(_card(c) for c in sorted(by_year[year], key=lambda c: str(c["start"])))
         rows.append(f'''
@@ -517,10 +575,18 @@ def build_all(docs: Path, competition: str | None = None) -> list[str]:
         print(f"  {slug}/  ({out.stat().st_size // 1024} KB)")
         written.append(slug)
 
+    # Comparison pages for qualifying campaigns with two or more venues in the
+    # warehouse. Built on every run, since any venue's new game changes them.
+    from ingest.discover import load_config
+    from reports.build_campaigns import build_all_campaigns, eligible_campaigns
+
+    campaigns = eligible_campaigns(load_config().get("campaigns", []), comps)
+    written += build_all_campaigns(docs, campaigns)
+
     # The hub always lists every competition, not just the one rebuilt, so a
     # single-competition run cannot silently drop the others off the homepage.
     hub = docs / "index.html"
-    hub.write_text(build_hub(comps), encoding="utf-8")
+    hub.write_text(build_hub(comps, campaigns), encoding="utf-8")
     print(f"hub → {hub}")
     return written
 
